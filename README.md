@@ -83,7 +83,7 @@
             .confirmResId(confirmResId)
             .build();
     //试纸识别sdk相关配置
-    Config config = new Config.Builder().pixelOfdExtended(false).margin(50).uiOption(uiOption).build();
+    Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).build();
     paperAnalysiserClient.init(config);
 
   2.调用识别试纸图片
