@@ -1,8 +1,8 @@
-# ScPaperAnalysiserDemo_Android
-#一.复制sdk到项目libs目录
+### ScPaperAnalysiserDemo_Android
+###一.复制sdk到项目libs目录
    1.ScOpenCV-release.aar，ScPaperAnalysiserLib-release.aar到libs目录
    2.添加implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
-#二.添加依赖库
+###二.添加依赖库
   implementation  'org.tensorflow:tensorflow-android:+'
   implementation  'com.squareup.okhttp3:okhttp:3.9.1'
   implementation  'com.squareup.okhttp3:logging-interceptor:3.9.1'
@@ -12,8 +12,7 @@
   implementation  'io.reactivex.rxjava2:rxandroid:2.1.1'
   implementation  'io.reactivex.rxjava2:rxjava:2.x.x'
   implementation  'com.github.bumptech.glide:glide:3.7.0'
-
-#三.使用方法
+###三.使用方法
   1.初始化
     //初始化sdk
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
