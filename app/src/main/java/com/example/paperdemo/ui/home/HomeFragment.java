@@ -39,17 +39,50 @@ public class HomeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
-
+        //定制试纸Ui显示
+        /**
+         * 标题
+         */
         String titleText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_title);
+        /**
+         * 标题颜色
+         */
         int titleTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        /**
+         * 标尺线
+         */
         int tagLineImageResId = com.ikangtai.papersdk.R.drawable.paper_line;
+        /**
+         * t滑块图标
+         */
         int tLineResId = com.ikangtai.papersdk.R.drawable.test_paper_t_line;
+        /**
+         * c滑块图标
+         */
         int cLineResId = com.ikangtai.papersdk.R.drawable.test_paper_c_line;
+        /**
+         * 水平翻转文字
+         */
         String flipText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_flip);
+        /**
+         * 水平翻转文字颜色
+         */
         int flipTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
+        /**
+         * 提示文字
+         */
         String hintText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_hit);
+        /**
+         * 提示文字颜色
+         */
         int hintTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        /**
+         * 返回按钮
+         */
         int backResId = com.ikangtai.papersdk.R.drawable.test_paper_return;
+        /**
+         * 确认按钮
+         */
         int confirmResId = com.ikangtai.papersdk.R.drawable.test_paper_confirm;
 
         UiOption uiOption = new UiOption.Builder()
@@ -65,7 +98,8 @@ public class HomeFragment extends Fragment {
                 .backResId(backResId)
                 .confirmResId(confirmResId)
                 .build();
-        Config config = new Config.Builder().pixelOfdExtended(false).margin(50).uiOption(uiOption).build();
+        //试纸识别sdk相关配置
+        Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).build();
         paperAnalysiserClient.init(config);
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
