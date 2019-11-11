@@ -1,8 +1,10 @@
 ### ScPaperAnalysiserDemo_Android
 ###一.复制sdk到项目libs目录
+
    1.ScOpenCV-release.aar，ScPaperAnalysiserLib-release.aar到libs目录
    2.添加implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
 ###二.添加依赖库
+
   implementation  'org.tensorflow:tensorflow-android:+'
   implementation  'com.squareup.okhttp3:okhttp:3.9.1'
   implementation  'com.squareup.okhttp3:logging-interceptor:3.9.1'
@@ -14,6 +16,7 @@
   implementation  'com.github.bumptech.glide:glide:3.7.0'
 ###三.使用方法
   1.初始化
+
     //初始化sdk
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
 
@@ -44,7 +47,9 @@
             .build();
     Config config = new Config.Builder().pixelOfdExtended(false).margin(50).uiOption(uiOption).build();
     paperAnalysiserClient.init(config);
+
   2.调用识别试纸图片
+
     paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
                     @Override
                     public void showProgressDialog() {
@@ -87,4 +92,5 @@
                     }
                 });
   3.调用完成释放资源
+
     paperAnalysiserClient.closeSession();
