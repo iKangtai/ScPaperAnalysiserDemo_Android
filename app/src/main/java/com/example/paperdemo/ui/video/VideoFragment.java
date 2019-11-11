@@ -1,27 +1,16 @@
 package com.example.paperdemo.ui.video;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.paperdemo.R;
-import com.ikangtai.papersdk.Config;
-import com.ikangtai.papersdk.PaperAnalysiserClient;
-import com.ikangtai.papersdk.event.ICameraAnalysisEvent;
-import com.ikangtai.papersdk.model.PaperCoordinatesData;
-import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.IOException;
