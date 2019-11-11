@@ -3,6 +3,7 @@ package com.example.paperdemo.ui.home;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -124,10 +126,14 @@ public class HomeFragment extends Fragment {
         startActivityForResult(intent, 1001);
     }
 
-    private void showPaperDialog(String uriStr) {
-        if (uriStr != null) {
-            File file = ImageUtil.getFileFromUril(uriStr);
-            final Bitmap fileBitmap = ImageUtil.getBitmapByFile(file);
+    private void showPaperDialog(Uri uri) {
+        if (uri != null) {
+            Bitmap fileBitmap = null;
+            try {
+                fileBitmap = ImageUtil.getUriToBitmap(getContext(),uri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (fileBitmap == null) {
                 ToastUtils.show(getContext(), "解析试纸图片出现异常");
                 return;
@@ -195,9 +201,7 @@ public class HomeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                // 得到图片的全路径
-                String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
-                showPaperDialog(uriStr);
+                showPaperDialog(data.getData());
             }
         }
     }
