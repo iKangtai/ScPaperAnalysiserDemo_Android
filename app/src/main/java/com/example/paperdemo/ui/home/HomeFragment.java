@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +18,11 @@ import com.ikangtai.papersdk.UiOption;
 import com.ikangtai.papersdk.event.IBitmapAnalysisEvent;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
+import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
-import java.io.File;
 import java.io.IOException;
 
 import androidx.annotation.NonNull;
@@ -41,6 +40,7 @@ public class HomeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
+
         //定制试纸Ui显示
         /**
          * 标题
@@ -86,7 +86,10 @@ public class HomeFragment extends Fragment {
          * 确认按钮
          */
         int confirmResId = com.ikangtai.papersdk.R.drawable.test_paper_confirm;
-
+        /**
+         * tc线默认值宽度
+         */
+        float tcLineWidth = getContext().getResources().getDimension(com.ikangtai.papersdk.R.dimen.dp_2);
         UiOption uiOption = new UiOption.Builder()
                 .titleText(titleText)
                 .tagLineImageResId(tagLineImageResId)
@@ -99,9 +102,10 @@ public class HomeFragment extends Fragment {
                 .hintTextColor(hintTextColor)
                 .backResId(backResId)
                 .confirmResId(confirmResId)
+                .tcLineWidth(tcLineWidth)
                 .build();
         //试纸识别sdk相关配置
-        Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).build();
+        Config config = new Config.Builder().pixelOfdExtended(true).margin(10).uiOption(uiOption).build();
         paperAnalysiserClient.init(config);
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
@@ -126,11 +130,12 @@ public class HomeFragment extends Fragment {
         startActivityForResult(intent, 1001);
     }
 
-    private void showPaperDialog(Uri uri) {
-        if (uri != null) {
+    private void showPaperDialog(Uri uriStr) {
+        if (uriStr != null) {
+            //File file = ImageUtil.getFileFromUril(uriStr);
             Bitmap fileBitmap = null;
             try {
-                fileBitmap = ImageUtil.getUriToBitmap(getContext(),uri);
+                fileBitmap = ImageUtil.getUriToBitmap(getContext(), uriStr);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -142,25 +147,24 @@ public class HomeFragment extends Fragment {
             paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
                 @Override
                 public void showProgressDialog() {
-                    ToastUtils.show(getContext(), "显示加载框");
                 }
 
                 @Override
                 public void dismissProgressDialog() {
-                    ToastUtils.show(getContext(), "隐藏加载框");
                 }
 
                 @Override
                 public void cancel() {
-                    ToastUtils.show(getContext(), "取消试纸编辑");
+                    ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_13));
                 }
 
                 @Override
                 public void save(PaperResult paperResult) {
-                    if (!TextUtils.isEmpty(paperResult.getErrMsg())) {
-                        ToastUtils.show(getContext(), paperResult.getErrMsg());
+                    if (paperResult.getErrNo() != 0) {
+                        ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                     }
                     detailTv.setText("耗时 " + (endTime - startTime) + "\n" + paperResult.toString());
+                    //试纸抠图结果
                     paperImageView.setImageBitmap(paperResult.getPaperBitmap());
                     //开启外扩开关后 会返回不带边距bitmap
                     paperNoMarginImageView.setImageBitmap(paperResult.getNoMarginBitmap());
@@ -177,7 +181,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
-                    ToastUtils.show(getContext(), errorResult + code);
+                    ToastUtils.show(getContext(), AiCode.getMessage(code));
                     detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n" + "模糊值 " + (paperCoordinatesData != null ? paperCoordinatesData.getBlurValue() : 0) + "\n" + "错误码 " + code + "\n" + "message " + errorResult);
                     if (paperCoordinatesData != null && paperCoordinatesData.getImageL() != null) {
                         paperImageView.setImageBitmap(TensorFlowTools.getBitmapByMat(paperCoordinatesData.getImageL()));
@@ -188,7 +192,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void saasAnalysisError(String errorResult, int code) {
-                    ToastUtils.show(getContext(), errorResult + code);
+                    ToastUtils.show(getContext(), AiCode.getMessage(code));
                 }
             });
         } else {
@@ -201,6 +205,8 @@ public class HomeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
             if (data != null) {
+                // 得到图片的全路径
+                //String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
                 showPaperDialog(data.getData());
             }
         }
