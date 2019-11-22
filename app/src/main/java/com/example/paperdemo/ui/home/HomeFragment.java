@@ -155,7 +155,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void cancel() {
-                    ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_13));
+                    ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
                 }
 
                 @Override
