@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
@@ -33,13 +33,15 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     //试纸识别sdk依赖库
-    implementation  'org.tensorflow:tensorflow-android:+'
-    implementation  'com.squareup.okhttp3:okhttp:3.9.1'
-    implementation  'com.squareup.okhttp3:logging-interceptor:3.9.1'
-    implementation  'com.squareup.okio:okio:1.13.0'
-    implementation  'com.squareup.retrofit2:retrofit:2.3.0'
-    implementation  'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation  'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation  'io.reactivex.rxjava2:rxjava:2.x.x'
-    implementation  'com.github.bumptech.glide:glide:3.7.0'
+//    implementation  'org.tensorflow:tensorflow-android:+'
+//    implementation  'com.squareup.okhttp3:okhttp:3.9.1'
+//    implementation  'com.squareup.okhttp3:logging-interceptor:3.9.1'
+//    implementation  'com.squareup.okio:okio:1.13.0'
+//    implementation  'com.squareup.retrofit2:retrofit:2.3.0'
+//    implementation  'com.squareup.retrofit2:converter-gson:2.3.0'
+//    implementation  'io.reactivex.rxjava2:rxandroid:2.1.1'
+//    implementation  'io.reactivex.rxjava2:rxjava:2.x.x'
+//    implementation  'com.github.bumptech.glide:glide:3.7.0'
+
+    api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.1'
 }
