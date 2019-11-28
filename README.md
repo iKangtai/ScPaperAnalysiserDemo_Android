@@ -1,7 +1,7 @@
 # ScPaperAnalysiserDemo_Android
 ### 一.引入试纸sdk库
 
-       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.0'
+       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.1'
 
 ### 二.添加依赖库地址
 
