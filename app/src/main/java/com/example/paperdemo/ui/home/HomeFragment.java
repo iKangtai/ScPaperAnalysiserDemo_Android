@@ -188,6 +188,7 @@ public class HomeFragment extends Fragment {
                 public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
                     detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n" + "模糊值 " + (paperCoordinatesData != null ? paperCoordinatesData.getBlurValue() : 0) + "\n" + "错误码 " + code + "\n" + "message " + errorResult);
+                    paperNoMarginImageView.setImageBitmap(null);
                     if (paperCoordinatesData != null && paperCoordinatesData.getImageL() != null) {
                         paperImageView.setImageBitmap(TensorFlowTools.getBitmapByMat(paperCoordinatesData.getImageL()));
                     } else {
