@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8F8"
+    android:orientation="vertical">
+
+    <com.example.paperdemo.view.TopBar
+        android:id="@+id/topBar"
+        style="@style/toolBarStyle"
+        custom:midText="@string/smart_paper_result" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:padding="@dimen/dp_10">
+                <!--试纸照片-->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    android:text="@string/lh_photo"
+                    android:textColor="#ff444444"
+                    android:textSize="@dimen/title_text_size"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/paperImg"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_25" />
+
+                <!--滑块拖动-->
+                <com.example.paperdemo.view.OvulationSeekBar
+                    android:id="@+id/ovulationSeekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <!--手动修改-->
+                <TextView
+                    android:id="@+id/updatePaperResult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:paddingLeft="@dimen/dp_10"
+                    android:paddingTop="@dimen/dp_5"
+                    android:paddingRight="@dimen/dp_10"
+                    android:text="@string/error_in_color_recognition"
+                    android:textColor="#67A3FF"
+                    android:textSize="@dimen/button_text_small_size" />
+            </LinearLayout>
+
+            <!--参考结果-->
+            <TextView
+                android:id="@+id/analysisResultTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@color/white"
+                android:padding="@dimen/dp_10"
+                android:text="@string/lh_refer_result"
+                android:textColor="#ff444444"
+                android:textSize="@dimen/button_text_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/analysisResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:gravity="center_vertical"
+                android:maxLines="2"
+                android:minLines="2"
+                android:paddingLeft="@dimen/dp_10"
+                android:paddingRight="@dimen/dp_10"
+                android:paddingBottom="@dimen/dp_5"
+                android:textColor="#ff444444"
+                android:textSize="@dimen/button_text_small_size"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/analysisDescHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:paddingLeft="@dimen/dp_10"
+                android:paddingRight="@dimen/dp_10"
+                android:paddingBottom="@dimen/dp_5"
+                android:textColor="#999999"
+                android:textSize="@dimen/button_text_small_size_10"
+                android:visibility="gone" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lh_time2"
+                    android:textColor="#444444"
+                    android:textSize="@dimen/button_text_size" />
+
+                <TextView
+                    android:id="@+id/camera_result_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:textColor="@color/app_primary_dark_color"
+                    android:textSize="@dimen/button_text_small_size" />
+            </LinearLayout>
+
+
+            <CheckBox
+                android:id="@+id/remindCB"
+                style="@style/CustomCheckboxTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/dp_20"
+                android:layout_marginBottom="@dimen/dp_20"
+                android:button="@drawable/reminder_checkbox"
+                android:checked="true"
+                android:paddingHorizontal="@dimen/dp_10"
+                android:textColor="#666666"
+                android:textSize="@dimen/button_text_small_size_10"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/save_btn"
+                style="@style/commonButtonCornerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:text="@string/save"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/button_text_size" />
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
@@ -169,8 +170,12 @@ public class HomeFragment extends Fragment {
                     //开启外扩开关后 会返回不带边距bitmap
                     paperNoMarginImageView.setImageBitmap(paperResult.getNoMarginBitmap());
 
-                    //手动修改lhValue
-                    //paperAnalysiserClient.updatePaperValue(100);
+                    //显示试纸结果
+                    paperResult.setPaperBitmap(null);
+                    paperResult.setNoMarginBitmap(null);
+                    Intent intent = new Intent(getContext(), PaperDetailActivity.class);
+                    intent.putExtra("bean", paperResult);
+                    startActivityForResult(intent, 1002);
                 }
 
                 @Override
@@ -209,6 +214,10 @@ public class HomeFragment extends Fragment {
                 //String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
                 showPaperDialog(data.getData());
             }
+        }else if (requestCode == 1002 && resultCode == Activity.RESULT_OK){
+            int paperValue=data.getIntExtra("paperValue",0);
+            //手动修改lhValue
+            paperAnalysiserClient.updatePaperValue(paperValue);
         }
     }
 
