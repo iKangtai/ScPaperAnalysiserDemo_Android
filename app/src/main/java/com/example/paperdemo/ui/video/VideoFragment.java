@@ -48,6 +48,8 @@ public class VideoFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        Config.setNetTimeOut(30);
+        Config.setTestServer(true);
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
         Config config = new Config.Builder().pixelOfdExtended(true).margin(5).build();

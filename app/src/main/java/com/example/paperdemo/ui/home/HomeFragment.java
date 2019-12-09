@@ -39,6 +39,8 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        Config.setNetTimeOut(30);
+        Config.setTestServer(true);
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
 
@@ -215,8 +217,8 @@ public class HomeFragment extends Fragment {
                 //String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
                 showPaperDialog(data.getData());
             }
-        }else if (requestCode == 1002 && resultCode == Activity.RESULT_OK){
-            int paperValue=data.getIntExtra("paperValue",0);
+        } else if (requestCode == 1002 && resultCode == Activity.RESULT_OK) {
+            int paperValue = data.getIntExtra("paperValue", 0);
             //手动修改lhValue
             paperAnalysiserClient.updatePaperValue(paperValue);
         }
