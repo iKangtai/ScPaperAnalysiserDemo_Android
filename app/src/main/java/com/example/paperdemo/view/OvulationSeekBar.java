@@ -18,10 +18,17 @@ import androidx.annotation.Nullable;
  * 创建时间：2018/8/10 16:39
  */
 public class OvulationSeekBar extends LinearLayout  {
-
+    public static final int POS_1 = 0;
+    public static final int POS_2 = 15;
+    public static final int POS_3 = 29;
+    public static final int POS_4 = 43;
+    public static final int POS_5 = 57;
+    public static final int POS_6 = 71;
+    public static final int POS_7 = 85;
+    public static final int POS_8 = 100;
     private TextView seekbarTitle;
     private MySeekBar mySeekBar;
-    private LinearLayout seekbar1, seekbar2, seekbar3, seekbar4, seekbar5, seekbar6;
+    private LinearLayout seekbar1, seekbar2, seekbar3, seekbar4, seekbar5, seekbar6,seekbar7,seekbar8;
 
     public OvulationSeekBar(Context context) {
         this(context, null);
@@ -43,7 +50,8 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar4 = findViewById(R.id.ll_seekbar_4);
         seekbar5 = findViewById(R.id.ll_seekbar_5);
         seekbar6 = findViewById(R.id.ll_seekbar_6);
-
+        seekbar7 = findViewById(R.id.ll_seekbar_7);
+        seekbar8 = findViewById(R.id.ll_seekbar_8);
         seekbar1.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +64,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar2.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(20);
+                mySeekBar.setProgress(15);
                 if (callback != null) {
                     callback.changeResult(5);
                 }
@@ -65,7 +73,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar3.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(40);
+                mySeekBar.setProgress(29);
                 if (callback != null) {
                     callback.changeResult(10);
                 }
@@ -74,22 +82,40 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar4.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(60);
+                mySeekBar.setProgress(43);
                 if (callback != null) {
-                    callback.changeResult(25);
+                    callback.changeResult(15);
                 }
             }
         });
         seekbar5.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(80);
+                mySeekBar.setProgress(57);
+                if (callback != null) {
+                    callback.changeResult(20);
+                }
+            }
+        });
+        seekbar6.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mySeekBar.setProgress(71);
+                if (callback != null) {
+                    callback.changeResult(25);
+                }
+            }
+        });
+        seekbar7.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mySeekBar.setProgress(85);
                 if (callback != null) {
                     callback.changeResult(45);
                 }
             }
         });
-        seekbar6.setOnClickListener(new OnClickListener() {
+        seekbar8.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 mySeekBar.setProgress(100);

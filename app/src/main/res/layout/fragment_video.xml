@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.example.paperdemo.ui.video.CameraSurfaceView
+            <com.example.paperdemo.view.CameraSurfaceView
                 android:id="@+id/camera_surfaceview"
                 android:layout_width="match_parent"
                 android:layout_height="500dp" />
@@ -21,15 +21,93 @@
     </ScrollView>
 
 
-    <com.example.paperdemo.ui.video.SmartPaperMeasureContainerLayout
-        android:id="@+id/scan_view"
+    <com.example.paperdemo.view.SmartPaperMeasureContainerLayout
+        android:id="@+id/paper_scan_content_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+
+        <com.example.paperdemo.view.AutoSmartPaperMeasureLayout
+            android:id="@+id/paper_auto_smart_paper_measureLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+
+        <com.example.paperdemo.view.ManualSmartPaperMeasureLayout
+            android:id="@+id/paper_manual_smart_paper_measureLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+
+        <com.example.paperdemo.view.PaperScanView
+            android:id="@+id/paper_scan_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+    </com.example.paperdemo.view.SmartPaperMeasureContainerLayout>
+    <!--闪光灯-->
+    <TextView
+        android:id="@+id/paper_flash_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/smart_paper_bottom_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="6dp"
+        android:drawableTop="@drawable/icon_lamp_close"
+        android:drawablePadding="6dp"
+        android:text="@string/paper_open_flashlight"
+        android:textColor="@color/white" />
 
     <RelativeLayout
+        android:id="@+id/smart_paper_bottom_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/scan_view"
-        android:background="@color/color_0000000" />
+        android:layout_below="@+id/paper_scan_content_view"
+        android:background="@color/color_0000000">
+
+        <TextView
+            android:id="@+id/ovulationCameraTips"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/paper_open_album"
+            android:gravity="center"
+            android:textColor="@color/white" />
+
+
+        <com.example.paperdemo.view.AlphaImage
+            android:id="@+id/shutterBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/dp_10"
+            android:scaleType="centerInside"
+            android:src="@drawable/btn_shutter_background"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/paper_open_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="60dp"
+            android:src="@drawable/icon_album"
+            />
+
+        <TextView
+            android:id="@+id/paper_mode_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/dp_20"
+            android:drawableRight="@drawable/ic_change"
+            android:padding="@dimen/dp_10"
+            android:text="@string/paper_manau_clip"
+            android:textColor="@color/white"
+            android:textSize="@dimen/button_text_size" />
+    </RelativeLayout>
 
 </RelativeLayout>

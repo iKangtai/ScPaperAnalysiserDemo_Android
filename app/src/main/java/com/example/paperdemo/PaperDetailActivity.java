@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.signature.StringSignature;
 import com.example.paperdemo.view.OvulationSeekBar;
 import com.example.paperdemo.view.TopBar;
 import com.ikangtai.papersdk.model.PaperResult;
@@ -160,17 +159,11 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         if (paperImg != null) {
             //显示试纸照片
             String paperName;
-            if (!TextUtils.isEmpty(paperNameId) && paperNameId.endsWith(PIC_JPG)) {
-                paperName = paperNameId;
-            } else {
-                paperName = paperNameId + PIC_JPG;
-            }
+            paperName = paperNameId + PIC_JPG;
             String paperImgPath = FileUtil.getPlayCameraPath() + File.separator + paperName;
             File file = new File(paperImgPath);
             if (file.exists()) {
-                Glide.clear(paperImg);
-                Glide.with(PaperDetailActivity.this).load(file)
-                        .signature(new StringSignature("1")).into(paperImg);
+                Glide.with(PaperDetailActivity.this).load("file://" + paperImgPath).into(paperImg);
             }
         }
 
@@ -340,4 +333,8 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
             this.messageId = messageId;
         }
     }
+
+
 }
+
+

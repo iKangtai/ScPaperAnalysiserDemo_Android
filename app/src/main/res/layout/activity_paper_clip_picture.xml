@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.example.paperdemo.view.TopBar
+        android:id="@+id/topBar"
+        style="@style/toolBarStyle"
+        custom:midText="@string/paper_clip_title" />
+
+    <ImageView
+        android:id="@+id/src_pic"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/topBar"
+        android:scaleType="centerInside" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/topBar"
+        android:background="#70000000" />
+
+    <com.example.paperdemo.view.ManualSmartPaperMeasureLayout
+        android:id="@+id/paper_clip_measureLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <Button
+        android:id="@+id/paper_clip_save_button"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/app_button_corner"
+        android:textSize="@dimen/button_text_size"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:gravity="center"
+        android:text="@string/finish"
+        android:textAllCaps="false" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/paper_clip_save_button"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:gravity="center_horizontal"
+        android:text="@string/paper_clip_text"
+        android:textColor="@color/white"
+        android:textSize="@dimen/button_text_size" />
+</RelativeLayout>

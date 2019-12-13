@@ -104,17 +104,21 @@ public class MySeekBar extends AppCompatSeekBar {
             rect_seek = this.getProgressDrawable().getBounds();
             //定位文字背景图片的位置
             int seekProgress = getProgress();
-            if (seekProgress < 11) {
+            if (seekProgress < OvulationSeekBar.POS_2) {
                 map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc0);
-            } else if (seekProgress >= 11 && seekProgress < 31) {
+            } else if (seekProgress >= OvulationSeekBar.POS_2 && seekProgress < OvulationSeekBar.POS_3) {
                 map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc5);
-            } else if (seekProgress >= 31 && seekProgress < 51) {
+            } else if (seekProgress >= OvulationSeekBar.POS_3 && seekProgress < OvulationSeekBar.POS_4) {
                 map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc10);
-            } else if (seekProgress >= 51 && seekProgress < 71) {
+            } else if (seekProgress >= OvulationSeekBar.POS_4 && seekProgress < OvulationSeekBar.POS_5) {
+                map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc15);
+            } else if (seekProgress >= OvulationSeekBar.POS_5 && seekProgress < OvulationSeekBar.POS_6) {
+                map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc20);
+            } else if (seekProgress >= OvulationSeekBar.POS_6 && seekProgress < OvulationSeekBar.POS_7) {
                 map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc25);
-            } else if (seekProgress >= 71 && seekProgress < 91) {
+            } else if (seekProgress >= OvulationSeekBar.POS_7 && seekProgress < OvulationSeekBar.POS_8) {
                 map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc45);
-            } else if (seekProgress >= 91) {
+            } else if (seekProgress >= OvulationSeekBar.POS_8) {
                 map = BitmapFactory.decodeResource(getResources(), R.drawable.cr_yishi_tc65);
             }
             float bm_x = rect_seek.width() * getProgress() / getMax();
