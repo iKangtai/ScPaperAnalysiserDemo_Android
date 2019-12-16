@@ -59,7 +59,7 @@ public class VideoFragment extends Fragment {
     private long startTime, endTime;
     private CameraUtil cameraUtil;
     private TextView ovulationCameraTips, flashTv, modeSwitchTv;
-    private ImageView shutterBtn,openAlbumTv;
+    private ImageView shutterBtn, openAlbumTv;
     private int scanMode;
     private static final int AUTOSMART = 0;
     private static final int MANUALSMART = 1;
@@ -347,7 +347,7 @@ public class VideoFragment extends Fragment {
                     ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                 }
                 //显示试纸结果
-                FileUtil.saveBitmap(paperResult.getPaperBitmap(),paperResult.getPaperId());
+                FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                 paperResult.setPaperBitmap(null);
                 paperResult.setNoMarginBitmap(null);
                 Intent intent = new Intent(getContext(), PaperDetailActivity.class);
@@ -424,6 +424,9 @@ public class VideoFragment extends Fragment {
     private ICameraAnalysisEvent iCameraAnalysisEvent = new ICameraAnalysisEvent() {
         @Override
         public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
+            if (scanMode == MANUALSMART) {
+                return true;
+            }
             ToastUtils.show(getContext(), "抠图最终结果");
             AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
             int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
@@ -432,11 +435,14 @@ public class VideoFragment extends Fragment {
                 shootMP.start();
             }
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
-            return false;
+            return true;
         }
 
         @Override
         public void analysisResult(PaperCoordinatesData paperCoordinatesData) {
+            if (scanMode == MANUALSMART) {
+                return;
+            }
             Log.d("xyl", "抠图耗时 " + (System.currentTimeMillis() - startTime));
             ToastUtils.show(getContext(), "抠图中间结果");
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
@@ -480,7 +486,7 @@ public class VideoFragment extends Fragment {
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
 
             //显示试纸结果
-            FileUtil.saveBitmap(paperResult.getPaperBitmap(),paperResult.getPaperId());
+            FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
             paperResult.setPaperBitmap(null);
             paperResult.setNoMarginBitmap(null);
             Intent intent = new Intent(getContext(), PaperDetailActivity.class);
@@ -490,6 +496,9 @@ public class VideoFragment extends Fragment {
 
         @Override
         public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
+            if (scanMode == MANUALSMART) {
+                return;
+            }
             Log.d("xyl", "抠图耗时 " + (System.currentTimeMillis() - startTime));
             if (paperCoordinatesData == null) {
                 paperCoordinatesData = new PaperCoordinatesData();
