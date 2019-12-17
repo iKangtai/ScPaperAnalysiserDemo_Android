@@ -425,7 +425,7 @@ public class VideoFragment extends Fragment {
         @Override
         public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
             if (scanMode == MANUALSMART) {
-                return true;
+                return false;
             }
             ToastUtils.show(getContext(), "抠图最终结果");
             AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
@@ -435,7 +435,7 @@ public class VideoFragment extends Fragment {
                 shootMP.start();
             }
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
-            return true;
+            return false;
         }
 
         @Override
