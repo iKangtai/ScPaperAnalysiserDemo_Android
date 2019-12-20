@@ -116,7 +116,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                 Point upLeftPoint = new Point(x, y);
                 Point rightBottomPoint = new Point(x + width, y + height);
 
-                paperAnalysiserClient.analysisClipBitmap(clipBitmap, upLeftPoint, rightBottomPoint, new IBaseAnalysisEvent() {
+                paperAnalysiserClient.analysisClipBitmapFromPhoto(clipBitmap, upLeftPoint, rightBottomPoint, new IBaseAnalysisEvent() {
                     @Override
                     public void showProgressDialog() {
 
@@ -129,14 +129,11 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                     @Override
                     public void cancel() {
-                        // 释放资源
-                        mImageView.destroyDrawingCache();
+
                     }
 
                     @Override
                     public void save(PaperResult paperResult) {
-                        // 释放资源
-                        mImageView.destroyDrawingCache();
                         FileUtil.saveBitmap(paperResult.getPaperBitmap(),paperResult.getPaperId());
                         paperResult.setNoMarginBitmap(null);
                         paperResult.setPaperBitmap(null);
@@ -147,8 +144,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                     @Override
                     public void saasAnalysisError(String errorResult, int code) {
-                        // 释放资源
-                        mImageView.destroyDrawingCache();
+
                     }
                 });
             }
@@ -334,6 +330,8 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // 释放资源
+        mImageView.destroyDrawingCache();
         paperAnalysiserClient.closeSession();
     }
 

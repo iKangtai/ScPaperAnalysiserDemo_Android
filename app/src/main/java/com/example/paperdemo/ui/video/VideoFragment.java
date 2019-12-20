@@ -286,7 +286,7 @@ public class VideoFragment extends Fragment {
         Point upLeftPoint = new Point(data.innerLeft, data.innerTop);
         Point rightBottomPoint = new Point(data.innerRight, data.innerBottom);
         startTime = System.currentTimeMillis();
-        paperAnalysiserClient.analysisClipBitmap(fileBitmap, upLeftPoint, rightBottomPoint, new IBaseAnalysisEvent() {
+        paperAnalysiserClient.analysisClipBitmapFromCamera(fileBitmap, upLeftPoint, rightBottomPoint, new IBaseAnalysisEvent() {
             @Override
             public void showProgressDialog() {
 
