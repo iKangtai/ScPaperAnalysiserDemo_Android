@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
 import com.ikangtai.papersdk.Config;
@@ -32,8 +33,6 @@ import androidx.fragment.app.Fragment;
 
 public class HomeFragment extends Fragment {
     private PaperAnalysiserClient paperAnalysiserClient;
-    public static String appId = "100017";
-    public static String appSecret = "b1eed2fb4686e1b1049a9486d49ba015af00d5a0";
     private ImageView paperImageView, paperNoMarginImageView;
     private TextView detailTv;
     private long startTime, endTime;
@@ -43,7 +42,7 @@ public class HomeFragment extends Fragment {
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
+        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret,"xyl1@qq.com");
 
         //定制试纸Ui显示
         /**

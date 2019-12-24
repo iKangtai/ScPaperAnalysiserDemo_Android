@@ -71,8 +71,6 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     private ImageView mImageView;
     private String uriStr;
     private PaperAnalysiserClient paperAnalysiserClient;
-    public static String appId = "100017";
-    public static String appSecret = "b1eed2fb4686e1b1049a9486d49ba015af00d5a0";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,7 +78,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(this, appId, appSecret, "xyl1@qq.com");
+        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
         //试纸识别sdk相关配置
         Config config = new Config.Builder().margin(10).build();
         paperAnalysiserClient.init(config);

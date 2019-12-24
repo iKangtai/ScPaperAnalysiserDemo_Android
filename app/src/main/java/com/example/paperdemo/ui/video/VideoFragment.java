@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
@@ -54,8 +55,6 @@ public class VideoFragment extends Fragment {
     private CameraSurfaceView surfaceView;
     private SmartPaperMeasureContainerLayout smartPaperMeasureContainerLayout;
     private PaperAnalysiserClient paperAnalysiserClient;
-    public static String appId = "100017";
-    public static String appSecret = "b1eed2fb4686e1b1049a9486d49ba015af00d5a0";
     private long startTime, endTime;
     private CameraUtil cameraUtil;
     private TextView ovulationCameraTips, flashTv, modeSwitchTv;
@@ -69,7 +68,7 @@ public class VideoFragment extends Fragment {
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
+        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
         Config config = new Config.Builder().pixelOfdExtended(true).margin(5).build();
         paperAnalysiserClient.init(config);
         paperAnalysiserClient.setCameraDataCallback(iCameraAnalysisEvent);
