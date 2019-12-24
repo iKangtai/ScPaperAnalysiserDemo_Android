@@ -1,10 +1,12 @@
 package com.example.paperdemo.ui.home;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +14,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.paperdemo.AppConstant;
+import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
+import com.example.paperdemo.view.ActionSheetDialog;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.UiOption;
@@ -42,7 +46,7 @@ public class HomeFragment extends Fragment {
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret,"xyl1@qq.com");
+        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
 
         //定制试纸Ui显示
         /**
@@ -82,17 +86,38 @@ public class HomeFragment extends Fragment {
          */
         int hintTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
         /**
-         * 返回按钮
+         * 返回图片
          */
         int backResId = com.ikangtai.papersdk.R.drawable.test_paper_return;
         /**
-         * 确认按钮
+         * 确认图片
          */
         int confirmResId = com.ikangtai.papersdk.R.drawable.test_paper_confirm;
         /**
          * tc线默认值宽度
          */
         float tcLineWidth = getContext().getResources().getDimension(com.ikangtai.papersdk.R.dimen.dp_2);
+        /**
+         * 返回按钮背景
+         */
+        int backButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+        /**
+         * 确认按钮背景
+         */
+        int confirmButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+        /**
+         * 返回按钮文字
+         */
+        String backButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_back);
+        /**
+         * 确认按钮文字
+         */
+        String confirmButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_confirm);
+        /**
+         * 显示底部按钮
+         */
+        boolean visibleBottomButton = false;
+
         UiOption uiOption = new UiOption.Builder()
                 .titleText(titleText)
                 .tagLineImageResId(tagLineImageResId)
@@ -106,6 +131,11 @@ public class HomeFragment extends Fragment {
                 .backResId(backResId)
                 .confirmResId(confirmResId)
                 .tcLineWidth(tcLineWidth)
+                .backButtonBgResId(backButtonBgResId)
+                .backButtonText(backButtonText)
+                .confirmButtonBgResId(confirmButtonBgResId)
+                .confirmButtonText(confirmButtonText)
+                .visibleBottomButton(visibleBottomButton)
                 .build();
         //试纸识别sdk相关配置
         Config config = new Config.Builder().pixelOfdExtended(true).margin(10).uiOption(uiOption).build();
@@ -133,12 +163,12 @@ public class HomeFragment extends Fragment {
         startActivityForResult(intent, 1001);
     }
 
-    private void showPaperDialog(Uri uriStr) {
-        if (uriStr != null) {
+    private void showPaperDialog(final Uri fileUri) {
+        if (fileUri != null) {
             //File file = ImageUtil.getFileFromUril(uriStr);
             Bitmap fileBitmap = null;
             try {
-                fileBitmap = ImageUtil.getUriToBitmap(getContext(), uriStr);
+                fileBitmap = ImageUtil.getUriToBitmap(getContext(), fileUri);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -173,7 +203,7 @@ public class HomeFragment extends Fragment {
                     paperNoMarginImageView.setImageBitmap(paperResult.getNoMarginBitmap());
 
                     //显示试纸结果
-                    FileUtil.saveBitmap(paperResult.getPaperBitmap(),paperResult.getPaperId());
+                    FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                     paperResult.setPaperBitmap(null);
                     paperResult.setNoMarginBitmap(null);
                     Intent intent = new Intent(getContext(), PaperDetailActivity.class);
@@ -196,6 +226,38 @@ public class HomeFragment extends Fragment {
                         paperImageView.setImageBitmap(TensorFlowTools.getBitmapByMat(paperCoordinatesData.getImageL()));
                     } else {
                         paperImageView.setImageBitmap(null);
+                    }
+
+                    if (fileUri != null) {
+                        final String uriStr = ImageUtil.getPathFromUri(getContext(), fileUri);
+                        if (TextUtils.isEmpty(uriStr)) {
+                            return;
+                        }
+                        new ActionSheetDialog(getContext())
+                                .builder()
+                                .setCancelable(false)
+                                .setCanceledOnTouchOutside(false)
+                                .setTitle(errorResult)
+                                .addSheetItem(getString(R.string.paper_clip_pic), ActionSheetDialog.SheetItemColor.Blue,
+                                        new ActionSheetDialog.OnSheetItemClickListener() {
+                                            @Override
+                                            public void onClick(int which) {
+                                                Intent intent = new Intent(getContext(), PaperClipActivity.class);
+                                                intent.putExtra("paperUri", uriStr);
+                                                startActivityForResult(intent, 1003);
+                                            }
+                                        })
+                                .addSheetItem(getString(R.string.paper_reset), ActionSheetDialog.SheetItemColor.Blue,
+                                        new ActionSheetDialog.OnSheetItemClickListener() {
+                                            @Override
+                                            public void onClick(int which) {
+                                                choosePhoto();
+                                            }
+                                        }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                            }
+                        }).show();
                     }
                 }
 
@@ -222,7 +284,10 @@ public class HomeFragment extends Fragment {
             int paperValue = data.getIntExtra("paperValue", 0);
             //手动修改lhValue
             paperAnalysiserClient.updatePaperValue(paperValue);
+        } else if (requestCode == 1003) {
+
         }
+
     }
 
     @Override
