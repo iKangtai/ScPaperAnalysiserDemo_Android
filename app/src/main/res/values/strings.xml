@@ -33,5 +33,20 @@
     <string name="finish">完成</string>
     <string name="paper_clip_title">排卵试纸:</string>
 
+    <string name="buy_shecare_brand_paper"><![CDATA[点此立即购买>>]]></string>
+    <string name="color_reference_bar_title_1">T线色值参考条:</string>
+    <string name="color_reference_bar_title_2">T线色值参考条，拖动色卡修正结果！</string>
+    <string name="error_in_color_recognition">颜色识别有误差？</string>
+    <string name="lh_photo">试纸照片</string>
+    <string name="lh_refer_result"><![CDATA[参考结果：<font color="#FF7486">%d</font>]]></string>
+    <string name="lh_time2">检测时间</string>
+    <string name="paper_brand_shecare_result_hint"><![CDATA[算法根据孕橙品牌试纸显色原理开发，使用孕橙智能排卵试纸确定排卵更准确哦！点此立即购买>>]]></string>
+    <string name="paper_result_dialog_flip">水平翻转</string>
+    <string name="paper_result_dialog_hit">请拖动TC线以确认TC线标注正确，水平翻转保证MAX箭头指向左边</string>
+    <string name="paper_result_dialog_net_error">检测不到网络，无法请求智能算法，请联网后再试</string>
+    <string name="paper_result_dialog_title">拍照结果</string>
+    <string name="save">保存</string>
+    <string name="smart_paper_result">智能检测结果</string>
+
 
 </resources>
