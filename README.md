@@ -1,7 +1,7 @@
 # ScPaperAnalysiserDemo_Android
 ### 一.引入试纸sdk库
 
-       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.1'
+       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.4.1'
 
 ### 二.添加依赖库地址
 
@@ -9,11 +9,24 @@
 
 ### 三.使用方法
 
+      //网络配置需要在初始化sdk之前
+      //使用测试网络
+      Config.setTestServer(true);
+      //网络超时时间
+      Config.setNetTimeOut(30);
+          
   1.初始化
-
+    
     //初始化sdk
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
-
+  2.常规配置
+  
+    //试纸识别sdk相关配置
+    Config config = new Config.Builder().pixelOfdExtended(true).margin(50).build();
+    paperAnalysiserClient.init(config);
+    
+  3.UI配置
+  
     //定制试纸Ui显示
     /**
      * 标题
@@ -77,7 +90,7 @@
     Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).build();
     paperAnalysiserClient.init(config);
 
-  2.调用识别试纸图片
+  4.调用识别试纸图片
 
     paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
                     @Override
@@ -120,6 +133,6 @@
                         ToastUtils.show(getContext(), errorResult + code);
                     }
                 });
-  3.调用完成释放资源
+  5.调用完成释放资源
 
     paperAnalysiserClient.closeSession();

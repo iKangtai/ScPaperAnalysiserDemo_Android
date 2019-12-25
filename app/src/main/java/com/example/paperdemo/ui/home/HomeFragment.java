@@ -43,7 +43,13 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        /**
+         * 使用测试网络
+         */
         Config.setTestServer(true);
+        /**
+         * 网络超时时间
+         */
         Config.setNetTimeOut(30);
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
