@@ -78,7 +78,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
+        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret,"xyl1@qq.com");
         //试纸识别sdk相关配置
         Config config = new Config.Builder().margin(10).build();
         paperAnalysiserClient.init(config);

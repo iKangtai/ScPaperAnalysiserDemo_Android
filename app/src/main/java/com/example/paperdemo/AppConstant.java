@@ -3,7 +3,7 @@ package com.example.paperdemo;
 /**
  * desc
  *
- * @author xiongyl 2019/12/24 12:24
+ * @author xiongyl 2019/12/24 12:31
  */
 public class AppConstant {
     public static String appId = "100200";

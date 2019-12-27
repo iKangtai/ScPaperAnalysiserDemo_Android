@@ -186,19 +186,23 @@ public class HomeFragment extends Fragment {
             paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
                 @Override
                 public void showProgressDialog() {
+                    //显示加载框
                 }
 
                 @Override
                 public void dismissProgressDialog() {
+                    //隐藏加载框
                 }
 
                 @Override
                 public void cancel() {
+                    //试纸结果确认框取消
                     ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
                 }
 
                 @Override
                 public void save(PaperResult paperResult) {
+                    //试纸结果确认框确认 显示试纸结果
                     if (paperResult.getErrNo() != 0) {
                         ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                     }
@@ -219,12 +223,14 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
+                    //试纸抠图成功结果
                     endTime = System.currentTimeMillis();
                     return false;
                 }
 
                 @Override
                 public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
+                    //试纸抠图失败结果
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
                     detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n" + "模糊值 " + (paperCoordinatesData != null ? paperCoordinatesData.getBlurValue() : 0) + "\n" + "错误码 " + code + "\n" + "message " + errorResult);
                     paperNoMarginImageView.setImageBitmap(null);
@@ -269,6 +275,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void saasAnalysisError(String errorResult, int code) {
+                    //试纸saas分析失败
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
                 }
             });
