@@ -136,3 +136,9 @@
   5.调用完成释放资源
 
     paperAnalysiserClient.closeSession();
+    
+  6.混淆代码过滤
+    -dontwarn  com.ikangtai.papersdk.**
+    -keepclasseswithmembernames class *{
+        native <methods>;
+    }
