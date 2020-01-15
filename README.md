@@ -139,6 +139,7 @@
     
   6.混淆代码过滤
     -dontwarn  com.ikangtai.papersdk.**
+    -keep class com.ikangtai.papersdk.** {*;}
     -keepclasseswithmembernames class *{
-        native <methods>;
+    	native <methods>;
     }
