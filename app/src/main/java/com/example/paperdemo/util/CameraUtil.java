@@ -101,7 +101,7 @@ public class CameraUtil {
             @Override
             public void run() {
                 ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
-                layoutParams.height = (int) (pWidth * pHeight * 1.0 / surfaceView.getWidth());
+                layoutParams.height = (int) (pWidth * 1.0 * surfaceView.getWidth() / pHeight);
                 surfaceView.setLayoutParams(layoutParams);
 
             }
