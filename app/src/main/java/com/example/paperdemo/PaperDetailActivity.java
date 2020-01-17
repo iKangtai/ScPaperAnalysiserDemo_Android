@@ -15,11 +15,19 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.paperdemo.view.OvulationSeekBar;
 import com.example.paperdemo.view.TopBar;
+import com.ikangtai.papersdk.Config;
+import com.ikangtai.papersdk.PaperAnalysiserClient;
+import com.ikangtai.papersdk.event.ICycleAnalysisResultEvent;
+import com.ikangtai.papersdk.http.reqmodel.PaperCycleAnalysisReq;
+import com.ikangtai.papersdk.http.respmodel.PaperCycleAnalysisResp;
 import com.ikangtai.papersdk.model.PaperResult;
+import com.ikangtai.papersdk.util.DateUtil;
 import com.ikangtai.papersdk.util.FileUtil;
+import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 
@@ -73,10 +81,15 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
 
     private PaperResult paperBean;
     public static final String PIC_JPG = ".jpg";
+    private PaperAnalysiserClient paperAnalysiserClient;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Config.setTestServer(true);
+        Config.setNetTimeOut(30);
+        //初始化sdk
+        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
         setContentView(R.layout.activity_paper_detail_layout);
         topBar = findViewById(R.id.topBar);
         ovulationSeekBar = findViewById(R.id.ovulationSeekBar);
@@ -89,6 +102,22 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         remindCB = findViewById(R.id.remindCB);
         saveBtn = findViewById(R.id.save_btn);
         loadData();
+        ArrayList<PaperCycleAnalysisReq.Paper> papers = new ArrayList<>();
+        PaperCycleAnalysisReq.Paper paper=new PaperCycleAnalysisReq.Paper();
+        paper.setTimestamp(DateUtil.getStringToDate(paperBean.getPaperTime()));
+        paper.setValue(paperBean.getPaperValue());
+        papers.add(paper);
+        paperAnalysiserClient.paperCycleAnalysis(papers, new ICycleAnalysisResultEvent() {
+            @Override
+            public void onSuccessPaperCycleAnalysis(PaperCycleAnalysisResp.Data bean) {
+                ToastUtils.show(PaperDetailActivity.this, bean.getInfo());
+            }
+
+            @Override
+            public void onFailurePaperCycleAnalysis(int errorCode, String message) {
+                ToastUtils.show(PaperDetailActivity.this, message);
+            }
+        });
     }
 
     private void loadData() {
@@ -197,6 +226,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         }
 
         showAnalysisResult(paperResult);
+
     }
 
     private void showAnalysisResult(int paperResult) {

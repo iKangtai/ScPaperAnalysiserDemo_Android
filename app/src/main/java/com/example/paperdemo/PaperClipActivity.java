@@ -330,7 +330,6 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         super.onDestroy();
         // 释放资源
         mImageView.destroyDrawingCache();
-        paperAnalysiserClient.closeSession();
     }
 
     @Override
