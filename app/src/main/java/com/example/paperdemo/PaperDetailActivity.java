@@ -12,6 +12,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.Glide;
 import com.example.paperdemo.view.OvulationSeekBar;
 import com.example.paperdemo.view.TopBar;
@@ -28,8 +30,6 @@ import com.ikangtai.papersdk.util.ToastUtils;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import androidx.annotation.Nullable;
 
 /**
  * 试纸详情
@@ -82,6 +82,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
     private PaperResult paperBean;
     public static final String PIC_JPG = ".jpg";
     private PaperAnalysiserClient paperAnalysiserClient;
+    private TextView console;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -101,9 +102,10 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         paperTime = findViewById(R.id.camera_result_time);
         remindCB = findViewById(R.id.remindCB);
         saveBtn = findViewById(R.id.save_btn);
+        console = findViewById(R.id.console);
         loadData();
         ArrayList<PaperCycleAnalysisReq.Paper> papers = new ArrayList<>();
-        PaperCycleAnalysisReq.Paper paper=new PaperCycleAnalysisReq.Paper();
+        PaperCycleAnalysisReq.Paper paper = new PaperCycleAnalysisReq.Paper();
         paper.setTimestamp(DateUtil.getStringToDate(paperBean.getPaperTime()));
         paper.setValue(paperBean.getPaperValue());
         papers.add(paper);
@@ -225,6 +227,14 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
             analysisDescHint.setVisibility(View.VISIBLE);
         }
 
+        console.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (paperBean != null) {
+                    console.setText(paperBean.toString());
+                }
+            }
+        });
         showAnalysisResult(paperResult);
 
     }
