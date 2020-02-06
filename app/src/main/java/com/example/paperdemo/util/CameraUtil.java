@@ -6,8 +6,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.Build;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
 
@@ -17,6 +18,7 @@ import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,12 +44,26 @@ public class CameraUtil {
         }
     };
 
-    public void holdFocus() {
+    public void holdFocus(Rect focusRect) {
         if (mCamera != null) {
+            mCamera.cancelAutoFocus();
             Camera.Parameters params = mCamera.getParameters();
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            mCamera.setParameters(params);
+            if (focusRect != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                List<Camera.Area> focus = new ArrayList<>();
+                focus.add(new Camera.Area(focusRect, 1000));
+                params.setFocusAreas(focus);
 
+                if (params.getMaxNumMeteringAreas() > 0) {
+                    List<Camera.Area> metering = new ArrayList<>();
+                    metering.add(new Camera.Area(focusRect, 1000));
+                    params.setMeteringAreas(metering);
+                }
+            }else {
+                params.setFocusAreas(null);
+                params.setMeteringAreas(null);
+            }
+            mCamera.setParameters(params);
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
                 @Override
                 public void onAutoFocus(boolean success, Camera camera) {
@@ -64,6 +80,10 @@ public class CameraUtil {
                 }
             });
         }
+    }
+
+    public void focusOnTouch() {
+        holdFocus(null);
     }
 
     public void initCamera(Activity context, final SurfaceView surfaceView, final Camera.PreviewCallback previewCallback) {
@@ -126,9 +146,6 @@ public class CameraUtil {
 
     /**
      * 拍照 获取原图
-     *
-     * @param upLeftPoint
-     * @param rightBottomPoint
      * @param event
      */
     public void takePicture(final ICameraTakeEvent event) {
@@ -290,6 +307,7 @@ public class CameraUtil {
     public interface ICameraTakeEvent {
         /**
          * 照原图 正方形
+         *
          * @param bitmap
          */
         void takeBitmap(Bitmap bitmap);

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -23,6 +24,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
@@ -47,9 +51,6 @@ import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.IOException;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 public class VideoFragment extends Fragment {
     private CameraSurfaceView surfaceView;
@@ -89,7 +90,7 @@ public class VideoFragment extends Fragment {
         surfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                cameraUtil.holdFocus();
+                cameraUtil.focusOnTouch();
                 return true;
             }
         });
@@ -501,6 +502,15 @@ public class VideoFragment extends Fragment {
             Log.d("xyl", "抠图耗时 " + (System.currentTimeMillis() - startTime));
             if (paperCoordinatesData == null) {
                 paperCoordinatesData = new PaperCoordinatesData();
+            } else if (code == AiCode.CODE_11) {
+                //画面模糊重新对焦
+                if (paperCoordinatesData.getPoint1() != null  && paperCoordinatesData.getPoint3() != null ) {
+                    Rect focusRect = new Rect(paperCoordinatesData.getPoint1().x,paperCoordinatesData.getPoint1().y,paperCoordinatesData.getPoint3().x,paperCoordinatesData.getPoint3().y);
+                    if (cameraUtil != null) {
+                        cameraUtil.holdFocus(focusRect);
+                    }
+                }
+
             }
             paperCoordinatesData.setCode(code);
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
