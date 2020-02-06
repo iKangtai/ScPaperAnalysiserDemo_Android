@@ -51,7 +51,18 @@ public class CameraUtil {
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
                 @Override
                 public void onAutoFocus(boolean success, Camera camera) {
-
+                    if(success){
+                        mParams = mCamera.getParameters();
+                        //1连续对焦
+                        mParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                        List<String> focusModes = mParams.getSupportedFocusModes();
+                        if (focusModes.contains("continuous-video")) {
+                            mParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                        }
+                        mCamera.setParameters(mParams);
+                        // 2如果要实现连续的自动对焦
+                        mCamera.cancelAutoFocus();
+                    }
                 }
             });
         }
