@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -90,7 +89,9 @@ public class VideoFragment extends Fragment {
         surfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                cameraUtil.focusOnTouch();
+                if (cameraUtil != null) {
+                    cameraUtil.focusOnTouch(event);
+                }
                 return true;
             }
         });
@@ -504,11 +505,8 @@ public class VideoFragment extends Fragment {
                 paperCoordinatesData = new PaperCoordinatesData();
             } else if (code == AiCode.CODE_11) {
                 //画面模糊重新对焦
-                if (paperCoordinatesData.getPoint1() != null  && paperCoordinatesData.getPoint3() != null ) {
-                    Rect focusRect = new Rect(paperCoordinatesData.getPoint1().x,paperCoordinatesData.getPoint1().y,paperCoordinatesData.getPoint3().x,paperCoordinatesData.getPoint3().y);
-                    if (cameraUtil != null) {
-                        cameraUtil.holdFocus(focusRect);
-                    }
+                if (cameraUtil != null) {
+                    cameraUtil.holdFocus();
                 }
 
             }

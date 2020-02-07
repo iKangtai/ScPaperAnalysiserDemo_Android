@@ -7,8 +7,10 @@ import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Build;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
 
@@ -44,7 +46,11 @@ public class CameraUtil {
         }
     };
 
-    public void holdFocus(Rect focusRect) {
+    public void holdFocus() {
+        holdFocus(null, null);
+    }
+
+    public void holdFocus(Rect focusRect, Rect meteringRect) {
         if (mCamera != null) {
             mCamera.cancelAutoFocus();
             Camera.Parameters params = mCamera.getParameters();
@@ -54,16 +60,20 @@ public class CameraUtil {
                 focus.add(new Camera.Area(focusRect, 1000));
                 params.setFocusAreas(focus);
 
-                if (params.getMaxNumMeteringAreas() > 0) {
+                if (meteringRect != null && params.getMaxNumMeteringAreas() > 0) {
                     List<Camera.Area> metering = new ArrayList<>();
-                    metering.add(new Camera.Area(focusRect, 1000));
+                    metering.add(new Camera.Area(meteringRect, 1000));
                     params.setMeteringAreas(metering);
                 }
-            }else {
+            } else {
                 params.setFocusAreas(null);
                 params.setMeteringAreas(null);
             }
-            mCamera.setParameters(params);
+            try {
+                mCamera.setParameters(params);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
                 @Override
                 public void onAutoFocus(boolean success, Camera camera) {
@@ -82,8 +92,41 @@ public class CameraUtil {
         }
     }
 
-    public void focusOnTouch() {
-        holdFocus(null);
+    public void focusOnTouch(MotionEvent event) {
+        Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
+        Rect meteringRect = calculateTapArea(event.getX(), event.getY(), 1.5f);
+        holdFocus(focusRect, meteringRect);
+
+    }
+
+    /**
+     * Convert touch position x:y to {@link Camera.Area} position -1000:-1000 to 1000:1000.
+     * <p/>
+     * Rotate, scale and translate touch rectangle using matrix configured in
+     * {@link (android.view.SurfaceHolder, int, int, int)}
+     */
+    private Rect calculateTapArea(float x, float y, float coefficient) {
+        float focusAreaSize = 300;
+        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
+        int centerY =0;
+        int  centerX=0;
+        centerY = (int) (x / surfaceView.getWidth() *  2000 - 1000);
+        centerX= (int) (y /  surfaceView.getHeight() * 2000 - 1000);
+        int left = clamp(centerX - areaSize / 2, -1000, 1000);
+        int top = clamp(centerY - areaSize / 2, -1000, 1000);
+
+        RectF rectF = new RectF(left, top, left + areaSize, top + areaSize);
+        return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
+    }
+
+    private int clamp(int x, int min, int max) {
+        if (x > max) {
+            return max;
+        }
+        if (x < min) {
+            return min;
+        }
+        return x;
     }
 
     public void initCamera(Activity context, final SurfaceView surfaceView, final Camera.PreviewCallback previewCallback) {
@@ -146,6 +189,7 @@ public class CameraUtil {
 
     /**
      * 拍照 获取原图
+     *
      * @param event
      */
     public void takePicture(final ICameraTakeEvent event) {
