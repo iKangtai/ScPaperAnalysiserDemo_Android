@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -517,6 +518,13 @@ public class VideoFragment extends Fragment {
         @Override
         public void saasAnalysisError(String errorResult, int code) {
             ToastUtils.show(getContext(), errorResult + code);
+            if (code == AiCode.CODE_202 || code == AiCode.CODE_203) {
+
+            } else {
+                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
+                //重新开始扫描
+                restartScan(false);
+            }
         }
     };
 }
