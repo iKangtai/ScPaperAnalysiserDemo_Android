@@ -292,21 +292,23 @@ public class VideoFragment extends Fragment {
         paperAnalysiserClient.analysisClipBitmapFromCamera(fileBitmap, upLeftPoint, rightBottomPoint, new IBaseAnalysisEvent() {
             @Override
             public void showProgressDialog() {
-
+                LogUtils.d("Show Loading Dialog");
             }
 
             @Override
             public void dismissProgressDialog() {
-
+                LogUtils.d("Show Loading Dialog");
             }
 
             @Override
             public void cancel() {
+                LogUtils.d("取消试纸结果确认");
                 ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
             }
 
             @Override
             public void save(PaperResult paperResult) {
+                LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
                 if (paperResult.getErrNo() != 0) {
                     ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                 }
@@ -320,6 +322,7 @@ public class VideoFragment extends Fragment {
 
             @Override
             public void saasAnalysisError(String errorResult, int code) {
+                LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
                 ToastUtils.show(getContext(), AiCode.getMessage(code));
             }
         });
@@ -498,6 +501,9 @@ public class VideoFragment extends Fragment {
         @Override
         public void save(PaperResult paperResult) {
             LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
+            if (paperResult.getErrNo() != 0) {
+                ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
+            }
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
 
             //显示试纸结果

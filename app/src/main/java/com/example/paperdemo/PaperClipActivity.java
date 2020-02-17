@@ -18,10 +18,12 @@ import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.event.IBaseAnalysisEvent;
 import com.ikangtai.papersdk.model.PaperResult;
+import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
 import com.ikangtai.papersdk.util.PxDxUtil;
+import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.File;
 
@@ -133,6 +135,9 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                     @Override
                     public void save(PaperResult paperResult) {
                         LogUtils.d("保存试纸分析结果：\n"+paperResult.toString());
+                        if (paperResult.getErrNo() != 0) {
+                            ToastUtils.show(PaperClipActivity.this, AiCode.getMessage(paperResult.getErrNo()));
+                        }
                         FileUtil.saveBitmap(paperResult.getPaperBitmap(),paperResult.getPaperId());
                         paperResult.setNoMarginBitmap(null);
                         paperResult.setPaperBitmap(null);
