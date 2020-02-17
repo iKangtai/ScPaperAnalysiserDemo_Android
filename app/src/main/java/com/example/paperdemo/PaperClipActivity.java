@@ -20,6 +20,7 @@ import com.ikangtai.papersdk.event.IBaseAnalysisEvent;
 import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
+import com.ikangtai.papersdk.util.LogUtils;
 import com.ikangtai.papersdk.util.PxDxUtil;
 
 import java.io.File;
@@ -77,11 +78,10 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         super.onCreate(savedInstanceState);
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
-        //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret,"xyl1@qq.com");
         //试纸识别sdk相关配置
         Config config = new Config.Builder().margin(10).build();
-        paperAnalysiserClient.init(config);
+        //初始化sdk
+        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret,"xyl1@qq.com",config);
 
         setContentView(R.layout.activity_paper_clip_picture);
         srcPic = this.findViewById(R.id.src_pic);
@@ -117,21 +117,22 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                 paperAnalysiserClient.analysisClipBitmapFromPhoto(clipBitmap, upLeftPoint, rightBottomPoint, new IBaseAnalysisEvent() {
                     @Override
                     public void showProgressDialog() {
-
+                        LogUtils.d("Show Loading Dialog");
                     }
 
                     @Override
                     public void dismissProgressDialog() {
-
+                        LogUtils.d("Hide Loading Dialog");
                     }
 
                     @Override
                     public void cancel() {
-
+                        LogUtils.d("取消试纸结果确认");
                     }
 
                     @Override
                     public void save(PaperResult paperResult) {
+                        LogUtils.d("保存试纸分析结果：\n"+paperResult.toString());
                         FileUtil.saveBitmap(paperResult.getPaperBitmap(),paperResult.getPaperId());
                         paperResult.setNoMarginBitmap(null);
                         paperResult.setPaperBitmap(null);
@@ -142,7 +143,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                     @Override
                     public void saasAnalysisError(String errorResult, int code) {
-
+                        LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
                     }
                 });
             }
@@ -330,6 +331,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         super.onDestroy();
         // 释放资源
         mImageView.destroyDrawingCache();
+
     }
 
     @Override

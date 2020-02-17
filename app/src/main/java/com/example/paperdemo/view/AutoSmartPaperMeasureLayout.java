@@ -17,14 +17,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.paperdemo.R;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.LogUtils;
 import com.ikangtai.papersdk.util.Utils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * desc

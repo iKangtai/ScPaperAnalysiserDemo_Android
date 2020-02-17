@@ -1,7 +1,6 @@
 package com.example.paperdemo.view;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -16,11 +15,11 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.example.paperdemo.R;
-import com.ikangtai.papersdk.util.Utils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.example.paperdemo.R;
+import com.ikangtai.papersdk.util.Utils;
 
 /**
  * desc

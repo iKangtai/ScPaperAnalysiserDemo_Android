@@ -10,9 +10,9 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import com.example.paperdemo.R;
-
 import androidx.appcompat.widget.AppCompatSeekBar;
+
+import com.example.paperdemo.R;
 
 
 /**

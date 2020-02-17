@@ -6,12 +6,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
@@ -27,13 +32,13 @@ import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
+import com.ikangtai.papersdk.util.LogUtils;
+import com.ikangtai.papersdk.util.PxDxUtil;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
+import java.io.File;
 import java.io.IOException;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 public class HomeFragment extends Fragment {
     private PaperAnalysiserClient paperAnalysiserClient;
@@ -51,8 +56,6 @@ public class HomeFragment extends Fragment {
          * 网络超时时间
          */
         Config.setNetTimeOut(30);
-        //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
 
         //定制试纸Ui显示
         /**
@@ -124,7 +127,7 @@ public class HomeFragment extends Fragment {
          */
         boolean visibleBottomButton = false;
 
-        UiOption uiOption = new UiOption.Builder()
+        UiOption uiOption = new UiOption.Builder(getContext())
                 .titleText(titleText)
                 .tagLineImageResId(tagLineImageResId)
                 .titleTextColor(titleTextColor)
@@ -144,8 +147,10 @@ public class HomeFragment extends Fragment {
                 .visibleBottomButton(visibleBottomButton)
                 .build();
         //试纸识别sdk相关配置
-        Config config = new Config.Builder().pixelOfdExtended(true).margin(10).uiOption(uiOption).build();
-        paperAnalysiserClient.init(config);
+        Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).build();
+        //初始化sdk
+        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com",config);
+
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         paperImageView = root.findViewById(R.id.paper_image_home);
@@ -157,6 +162,21 @@ public class HomeFragment extends Fragment {
                 choosePhoto();
             }
         });
+
+//        String fileFloder= Environment.getExternalStorageDirectory().getPath() + File.separator + "testpic" + File.separator;
+//
+//        File file=new File(fileFloder);
+//        String[]nameList=file.list();
+//        StringBuffer stringBuffer=new StringBuffer();
+//        for (int i = 0;i<nameList.length;i++){
+//            String name=nameList[i];
+//            Double blur = TensorFlowTools.blurLevel2(ImageUtil.getBitmapByFile(new File(fileFloder+name)));
+//            stringBuffer.append(name+"  "+blur+"\n");
+//        }
+//
+//        Log.d("xyl",stringBuffer.toString());
+//
+//        detailTv.setText(stringBuffer);
         return root;
     }
 
@@ -171,7 +191,7 @@ public class HomeFragment extends Fragment {
 
     private void showPaperDialog(final Uri fileUri) {
         if (fileUri != null) {
-            //File file = ImageUtil.getFileFromUril(uriStr);
+            //File file = ImageUtil.getFileFromUril(fileUri.toString());
             Bitmap fileBitmap = null;
             try {
                 fileBitmap = ImageUtil.getUriToBitmap(getContext(), fileUri);
@@ -187,21 +207,25 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void showProgressDialog() {
                     //显示加载框
+                    LogUtils.d("Show Loading Dialog");
                 }
 
                 @Override
                 public void dismissProgressDialog() {
                     //隐藏加载框
+                    LogUtils.d("Hide Loading Dialog");
                 }
 
                 @Override
                 public void cancel() {
+                    LogUtils.d("取消试纸结果确认");
                     //试纸结果确认框取消
                     ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
                 }
 
                 @Override
                 public void save(PaperResult paperResult) {
+                    LogUtils.d("保存试纸分析结果：\n"+paperResult.toString());
                     //试纸结果确认框确认 显示试纸结果
                     if (paperResult.getErrNo() != 0) {
                         ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
@@ -223,6 +247,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
+                    LogUtils.d("试纸自动抠图成功");
                     //试纸抠图成功结果
                     endTime = System.currentTimeMillis();
                     return false;
@@ -230,6 +255,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
+                    LogUtils.d("试纸自动抠图出错 code：" + code + " errorResult:" + errorResult);
                     //试纸抠图失败结果
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
                     detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n" + "模糊值 " + (paperCoordinatesData != null ? paperCoordinatesData.getBlurValue() : 0) + "\n" + "错误码 " + code + "\n" + "message " + errorResult);
@@ -275,6 +301,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void saasAnalysisError(String errorResult, int code) {
+                    LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
                     //试纸saas分析失败
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
                 }
@@ -287,6 +314,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        LogUtils.d("页面返回结果 requestCode：" + requestCode + " resultCode:" + resultCode);
         if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
             if (data != null) {
                 // 得到图片的全路径
@@ -297,8 +325,6 @@ public class HomeFragment extends Fragment {
             int paperValue = data.getIntExtra("paperValue", 0);
             //手动修改lhValue
             paperAnalysiserClient.updatePaperValue(paperValue);
-        } else if (requestCode == 1003) {
-
         }
 
     }
@@ -306,6 +332,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        LogUtils.d("paper sdk closeSession");
         paperAnalysiserClient.closeSession();
     }
 }

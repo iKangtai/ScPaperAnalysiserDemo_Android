@@ -8,9 +8,9 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.example.paperdemo.R;
-
 import androidx.annotation.Nullable;
+
+import com.example.paperdemo.R;
 
 
 /**

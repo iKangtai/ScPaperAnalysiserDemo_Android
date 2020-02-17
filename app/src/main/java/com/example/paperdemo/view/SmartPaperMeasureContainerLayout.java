@@ -5,11 +5,11 @@ import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
-import com.example.paperdemo.R;
-import com.ikangtai.papersdk.model.PaperCoordinatesData;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.example.paperdemo.R;
+import com.ikangtai.papersdk.model.PaperCoordinatesData;
 
 /**
  * desc
