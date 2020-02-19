@@ -540,8 +540,9 @@ public class VideoFragment extends Fragment {
             LogUtils.d("试纸分析错误 code：" + code + " errorResult:" + errorResult);
             ToastUtils.show(getContext(), errorResult + code);
             if (code == AiCode.CODE_202 || code == AiCode.CODE_203) {
-
+                //sdk会显示试纸确认弹框
             } else {
+                //sdk不会显示试纸确认弹框
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
                 //重新开始扫描
                 restartScan(false);
