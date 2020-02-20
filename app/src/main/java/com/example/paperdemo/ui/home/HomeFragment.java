@@ -304,6 +304,11 @@ public class HomeFragment extends Fragment {
                     LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
                     //试纸saas分析失败
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
+                    if (code == AiCode.CODE_202 || code == AiCode.CODE_203) {
+                        //sdk会显示试纸确认弹框
+                    } else {
+                        //sdk不会显示试纸确认弹框
+                    }
                 }
             });
         } else {
