@@ -21,8 +21,23 @@
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
   2.常规配置
   
+    /**
+    * log默认路径/data/Android/pageName/files/Documents/log.txt,可以通过LogUtils.getLogFilePath()获取
+    * 自定义log文件有两种方式,设置一次即可
+    *   1.new Config.Builder().logWriter(logWriter).
+    *   2.new Config.Builder().logFilePath(logFilePath).
+    */
+    String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
+    BufferedWriter logWriter = null;
+    try {
+        logWriter = new BufferedWriter(new FileWriter(logFilePath, true), 2048);
+    } catch (IOException e) {
+       e.printStackTrace();
+    }
     //试纸识别sdk相关配置
-    Config config = new Config.Builder().pixelOfdExtended(true).margin(50).build();
+    Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).build();
+    paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com",config);
+    或者
     paperAnalysiserClient.init(config);
     
   3.UI配置
@@ -95,42 +110,57 @@
     paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
                     @Override
                     public void showProgressDialog() {
-                        ToastUtils.show(getContext(), "显示加载框");
+                        //显示加载框
+                        LogUtils.d("Show Loading Dialog");
                     }
 
                     @Override
                     public void dismissProgressDialog() {
-                        ToastUtils.show(getContext(), "隐藏加载框");
+                        //隐藏加载框
+                        LogUtils.d("Hide Loading Dialog");
                     }
 
                     @Override
                     public void cancel() {
-                        ToastUtils.show(getContext(), "取消试纸编辑");
+                        LogUtils.d("取消试纸结果确认");
+                        //试纸结果确认框取消
+                        ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
                     }
 
                     @Override
                     public void save(PaperResult paperResult) {
-                        if (!TextUtils.isEmpty(paperResult.getErrMsg())) {
-                            ToastUtils.show(getContext(), paperResult.getErrMsg());
+                        LogUtils.d("保存试纸分析结果：\n"+paperResult.toString());
+                        //试纸结果确认框确认 显示试纸结果
+                        if (paperResult.getErrNo() != 0) {
+                            ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                         }
 
                     }
 
                     @Override
                     public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
-                        endTime = System.currentTimeMillis();
+                        LogUtils.d("试纸自动抠图成功");
                         return false;
                     }
 
                     @Override
                     public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
-                        ToastUtils.show(getContext(), errorResult + code);
+                        LogUtils.d("试纸自动抠图出错 code：" + code + " errorResult:" + errorResult);
+                        //试纸抠图失败结果
+                        ToastUtils.show(getContext(), AiCode.getMessage(code));
 
                     }
 
                     @Override
                     public void saasAnalysisError(String errorResult, int code) {
-                        ToastUtils.show(getContext(), errorResult + code);
+                        LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
+                        //试纸saas分析失败
+                        ToastUtils.show(getContext(), AiCode.getMessage(code));
+                        if (code == AiCode.CODE_202 || code == AiCode.CODE_203) {
+                            //sdk会显示试纸确认弹框
+                        } else {
+                            //sdk不会显示试纸确认弹框
+                        }
                     }
                 });
   5.调用完成释放资源

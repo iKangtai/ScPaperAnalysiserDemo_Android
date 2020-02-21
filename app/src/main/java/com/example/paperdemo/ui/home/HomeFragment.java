@@ -149,9 +149,10 @@ public class HomeFragment extends Fragment {
                 .visibleBottomButton(visibleBottomButton)
                 .build();
         /**
+         * log默认路径/data/Android/pageName/files/Documents/log.txt,可以通过LogUtils.getLogFilePath()获取
          * 自定义log文件有两种方式,设置一次即可
-         * 1.new Config.Builder().logWriter(logWriter).
-         * 2.new Config.Builder().logFilePath(logFilePath).
+         *   1.new Config.Builder().logWriter(logWriter).
+         *   2.new Config.Builder().logFilePath(logFilePath).
          */
         String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
         BufferedWriter logWriter = null;
