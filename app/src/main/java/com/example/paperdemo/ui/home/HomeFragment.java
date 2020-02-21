@@ -37,7 +37,9 @@ import com.ikangtai.papersdk.util.PxDxUtil;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class HomeFragment extends Fragment {
@@ -146,8 +148,20 @@ public class HomeFragment extends Fragment {
                 .confirmButtonText(confirmButtonText)
                 .visibleBottomButton(visibleBottomButton)
                 .build();
+        /**
+         * 自定义log文件有两种方式,设置一次即可
+         * 1.new Config.Builder().logWriter(logWriter).
+         * 2.new Config.Builder().logFilePath(logFilePath).
+         */
+        String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
+        BufferedWriter logWriter = null;
+        try {
+            logWriter = new BufferedWriter(new FileWriter(logFilePath, true), 2048);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //试纸识别sdk相关配置
-        Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).build();
+        Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).build();
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com",config);
 
@@ -304,6 +318,11 @@ public class HomeFragment extends Fragment {
                     LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
                     //试纸saas分析失败
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
+                    if (code == AiCode.CODE_202 || code == AiCode.CODE_203) {
+                        //sdk会显示试纸确认弹框
+                    } else {
+                        //sdk不会显示试纸确认弹框
+                    }
                 }
             });
         } else {
