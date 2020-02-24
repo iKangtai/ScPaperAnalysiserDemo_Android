@@ -452,13 +452,17 @@ public class VideoFragment extends Fragment {
             }
             LogUtils.d("试纸自动抠图成功");
             ToastUtils.show(getContext(), "抠图最终结果");
-            AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-            int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
-            if (volume != 0) {
-                MediaPlayer shootMP = MediaPlayer.create(getContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
-                if (shootMP != null) {
-                    shootMP.start();
+            try {
+                AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+                int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
+                if (volume != 0) {
+                    MediaPlayer shootMP = MediaPlayer.create(getContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+                    if (shootMP != null) {
+                        shootMP.start();
+                    }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
             }
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
             return false;
