@@ -456,7 +456,9 @@ public class VideoFragment extends Fragment {
             int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
             if (volume != 0) {
                 MediaPlayer shootMP = MediaPlayer.create(getContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
-                shootMP.start();
+                if (shootMP != null) {
+                    shootMP.start();
+                }
             }
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
             return false;
