@@ -1,6 +1,7 @@
 package com.example.paperdemo.ui.video;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,9 +25,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
@@ -35,6 +33,7 @@ import com.example.paperdemo.util.CameraUtil;
 import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.CameraSurfaceView;
 import com.example.paperdemo.view.ManualSmartPaperMeasureLayout;
+import com.example.paperdemo.view.ProgressDialog;
 import com.example.paperdemo.view.SmartPaperMeasureContainerLayout;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
@@ -51,6 +50,9 @@ import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.IOException;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 public class VideoFragment extends Fragment {
     private CameraSurfaceView surfaceView;
@@ -293,11 +295,19 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
+                VideoFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        paperAnalysiserClient.stopShowProgressDialog();
+                    }
+                });
             }
 
             @Override
             public void dismissProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
+                VideoFragment.this.dismissProgressDialog();
             }
 
             @Override
@@ -342,11 +352,19 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
+                VideoFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        paperAnalysiserClient.stopShowProgressDialog();
+                    }
+                });
             }
 
             @Override
             public void dismissProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
+                VideoFragment.this.dismissProgressDialog();
             }
 
             @Override
@@ -444,6 +462,24 @@ public class VideoFragment extends Fragment {
             paperAnalysiserClient.analysisCameraData(originSquareBitmap);
         }
     };
+    private Dialog progressDialog;
+
+    public void showProgressDialog(String msg, View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(getContext(), msg, onClickListener);
+        if (progressDialog != null && !progressDialog.isShowing() && !getActivity().isFinishing()) {
+            progressDialog.setCancelable(true);
+            progressDialog.show();
+        }
+    }
+
+    public void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+    }
+
+
     private ICameraAnalysisEvent iCameraAnalysisEvent = new ICameraAnalysisEvent() {
         @Override
         public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
@@ -461,7 +497,7 @@ public class VideoFragment extends Fragment {
                         shootMP.start();
                     }
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
@@ -499,11 +535,19 @@ public class VideoFragment extends Fragment {
         @Override
         public void showProgressDialog() {
             LogUtils.d("Show Loading Dialog");
+            VideoFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    paperAnalysiserClient.stopShowProgressDialog();
+                }
+            });
         }
 
         @Override
         public void dismissProgressDialog() {
             LogUtils.d("Hide Loading Dialog");
+            VideoFragment.this.dismissProgressDialog();
         }
 
         @Override

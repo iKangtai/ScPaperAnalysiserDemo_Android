@@ -1,6 +1,7 @@
 package com.example.paperdemo;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -13,6 +14,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import com.example.paperdemo.view.ManualSmartPaperMeasureLayout;
+import com.example.paperdemo.view.ProgressDialog;
 import com.example.paperdemo.view.TopBar;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
@@ -83,7 +85,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         //试纸识别sdk相关配置
         Config config = new Config.Builder().margin(10).build();
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret,"xyl1@qq.com",config);
+        paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
 
         setContentView(R.layout.activity_paper_clip_picture);
         srcPic = this.findViewById(R.id.src_pic);
@@ -120,11 +122,19 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                     @Override
                     public void showProgressDialog() {
                         LogUtils.d("Show Loading Dialog");
+                        PaperClipActivity.this.showProgressDialog("点击取消", new View.OnClickListener() {
+
+                            @Override
+                            public void onClick(View v) {
+                                paperAnalysiserClient.stopShowProgressDialog();
+                            }
+                        });
                     }
 
                     @Override
                     public void dismissProgressDialog() {
                         LogUtils.d("Hide Loading Dialog");
+                        PaperClipActivity.this.dismissProgressDialog();
                     }
 
                     @Override
@@ -134,11 +144,11 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                     @Override
                     public void save(PaperResult paperResult) {
-                        LogUtils.d("保存试纸分析结果：\n"+paperResult.toString());
+                        LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
                         if (paperResult.getErrNo() != 0) {
                             ToastUtils.show(PaperClipActivity.this, AiCode.getMessage(paperResult.getErrNo()));
                         }
-                        FileUtil.saveBitmap(paperResult.getPaperBitmap(),paperResult.getPaperId());
+                        FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                         paperResult.setNoMarginBitmap(null);
                         paperResult.setPaperBitmap(null);
                         Intent intent = new Intent(PaperClipActivity.this, PaperDetailActivity.class);
@@ -158,6 +168,23 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                 });
             }
         });
+    }
+
+    private Dialog progressDialog;
+
+    public void showProgressDialog(String msg, View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(this, msg, onClickListener);
+        if (progressDialog != null && !progressDialog.isShowing() && !isFinishing()) {
+            progressDialog.setCancelable(true);
+            progressDialog.show();
+        }
+    }
+
+    public void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
     }
 
     private void initTopBar() {

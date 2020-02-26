@@ -1,28 +1,25 @@
 package com.example.paperdemo.ui.home;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
 import com.example.paperdemo.view.ActionSheetDialog;
+import com.example.paperdemo.view.ProgressDialog;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.UiOption;
@@ -42,13 +39,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import androidx.fragment.app.Fragment;
+
 public class HomeFragment extends Fragment {
     private PaperAnalysiserClient paperAnalysiserClient;
     private ImageView paperImageView, paperNoMarginImageView;
     private TextView detailTv;
     private long startTime, endTime;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
+    public View onCreateView(@androidx.annotation.NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         /**
          * 使用测试网络
@@ -149,10 +148,9 @@ public class HomeFragment extends Fragment {
                 .visibleBottomButton(visibleBottomButton)
                 .build();
         /**
-         * log默认路径/data/Android/pageName/files/Documents/log.txt,可以通过LogUtils.getLogFilePath()获取
          * 自定义log文件有两种方式,设置一次即可
-         *   1.new Config.Builder().logWriter(logWriter).
-         *   2.new Config.Builder().logFilePath(logFilePath).
+         * 1.new Config.Builder().logWriter(logWriter).
+         * 2.new Config.Builder().logFilePath(logFilePath).
          */
         String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
         BufferedWriter logWriter = null;
@@ -164,7 +162,7 @@ public class HomeFragment extends Fragment {
         //试纸识别sdk相关配置
         Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).build();
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com",config);
+        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
 
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
@@ -223,12 +221,20 @@ public class HomeFragment extends Fragment {
                 public void showProgressDialog() {
                     //显示加载框
                     LogUtils.d("Show Loading Dialog");
+                    HomeFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+
+                        @Override
+                        public void onClick(View v) {
+                            paperAnalysiserClient.stopShowProgressDialog();
+                        }
+                    });
                 }
 
                 @Override
                 public void dismissProgressDialog() {
                     //隐藏加载框
                     LogUtils.d("Hide Loading Dialog");
+                    HomeFragment.this.dismissProgressDialog();
                 }
 
                 @Override
@@ -240,7 +246,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void save(PaperResult paperResult) {
-                    LogUtils.d("保存试纸分析结果：\n"+paperResult.toString());
+                    LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
                     //试纸结果确认框确认 显示试纸结果
                     if (paperResult.getErrNo() != 0) {
                         ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
@@ -347,6 +353,23 @@ public class HomeFragment extends Fragment {
             paperAnalysiserClient.updatePaperValue(paperValue);
         }
 
+    }
+
+    private Dialog progressDialog;
+
+    public void showProgressDialog(String msg, View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(getContext(), msg, onClickListener);
+        if (progressDialog != null && !progressDialog.isShowing() && !getActivity().isFinishing()) {
+            progressDialog.setCancelable(true);
+            progressDialog.show();
+        }
+    }
+
+    public void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
     }
 
     @Override
