@@ -25,6 +25,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
@@ -50,9 +53,6 @@ import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.IOException;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 public class VideoFragment extends Fragment {
     private CameraSurfaceView surfaceView;
@@ -295,7 +295,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+                VideoFragment.this.showProgressDialog(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -352,7 +352,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+                VideoFragment.this.showProgressDialog(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -464,8 +464,8 @@ public class VideoFragment extends Fragment {
     };
     private Dialog progressDialog;
 
-    public void showProgressDialog(String msg, View.OnClickListener onClickListener) {
-        progressDialog = ProgressDialog.createLoadingDialog(getContext(), msg, onClickListener);
+    public void showProgressDialog( View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(getContext(),onClickListener);
         if (progressDialog != null && !progressDialog.isShowing() && !getActivity().isFinishing()) {
             progressDialog.setCancelable(true);
             progressDialog.show();
@@ -535,7 +535,7 @@ public class VideoFragment extends Fragment {
         @Override
         public void showProgressDialog() {
             LogUtils.d("Show Loading Dialog");
-            VideoFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+            VideoFragment.this.showProgressDialog(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
@@ -599,14 +599,6 @@ public class VideoFragment extends Fragment {
         public void saasAnalysisError(String errorResult, int code) {
             LogUtils.d("试纸分析错误 code：" + code + " errorResult:" + errorResult);
             ToastUtils.show(getContext(), errorResult + code);
-            if (code == AiCode.CODE_202 || code == AiCode.CODE_203) {
-                //sdk会显示试纸确认弹框
-            } else {
-                //sdk不会显示试纸确认弹框
-                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
-                //重新开始扫描
-                restartScan(false);
-            }
         }
     };
 }

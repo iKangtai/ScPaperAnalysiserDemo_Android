@@ -2,13 +2,16 @@ package com.example.paperdemo.view;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Rect;
 import android.text.TextUtils;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.paperdemo.R;
@@ -21,6 +24,11 @@ import com.example.paperdemo.R;
 public class ProgressDialog {
     private static ImageView spaceshipImage;
     private static TextView tipTextView;
+    private static ImageView closeDialog;
+
+    public static Dialog createLoadingDialog(Context context, View.OnClickListener onClickListener) {
+        return createLoadingDialog(context, null, onClickListener);
+    }
 
     /**
      * 自定义的progressDialog
@@ -29,13 +37,14 @@ public class ProgressDialog {
      * @param msg
      * @return
      */
-    public static Dialog createLoadingDialog(Context context, String msg, View.OnClickListener onClickListener) {
+    private static Dialog createLoadingDialog(Context context, String msg, View.OnClickListener onClickListener) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.loading_dialog, null);
-        LinearLayout layout = v.findViewById(R.id.dialog_view);
+        RelativeLayout layout = v.findViewById(R.id.dialog_view);
         // main.xml中的ImageView
         spaceshipImage = v.findViewById(R.id.img);
         tipTextView = v.findViewById(R.id.tipTextView);
+        closeDialog = v.findViewById(R.id.close_dialog);
         // 加载动画
         Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(
                 context, R.anim.loading_animation);
@@ -47,12 +56,20 @@ public class ProgressDialog {
             // 设置加载信息
             tipTextView.setText(msg);
         }
-        layout.setOnClickListener(onClickListener);
+        closeDialog.setOnClickListener(onClickListener);
         Dialog loadingDialog = new Dialog(context, R.style.loading_dialog);
         loadingDialog.setCancelable(false);
-        loadingDialog.setContentView(layout, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT,
-                LinearLayout.LayoutParams.FILL_PARENT));
+        loadingDialog.setCanceledOnTouchOutside(false);
+        loadingDialog.setContentView(layout);
+        WindowManager.LayoutParams lay = loadingDialog.getWindow().getAttributes();
+        Rect rect = new Rect();
+        View decorView = loadingDialog.getWindow().getDecorView();
+        decorView.getWindowVisibleDisplayFrame(rect);
+        WindowManager windowManager = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        lay.height = display.getHeight();
+        lay.width = display.getWidth();
         return loadingDialog;
     }
 

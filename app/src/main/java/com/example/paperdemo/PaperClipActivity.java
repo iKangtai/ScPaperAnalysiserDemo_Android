@@ -122,7 +122,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                     @Override
                     public void showProgressDialog() {
                         LogUtils.d("Show Loading Dialog");
-                        PaperClipActivity.this.showProgressDialog("点击取消", new View.OnClickListener() {
+                        PaperClipActivity.this.showProgressDialog(new View.OnClickListener() {
 
                             @Override
                             public void onClick(View v) {
@@ -172,8 +172,8 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
     private Dialog progressDialog;
 
-    public void showProgressDialog(String msg, View.OnClickListener onClickListener) {
-        progressDialog = ProgressDialog.createLoadingDialog(this, msg, onClickListener);
+    public void showProgressDialog(View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(this, onClickListener);
         if (progressDialog != null && !progressDialog.isShowing() && !isFinishing()) {
             progressDialog.setCancelable(true);
             progressDialog.show();

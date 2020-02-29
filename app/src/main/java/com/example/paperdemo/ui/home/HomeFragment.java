@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
@@ -39,15 +42,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import androidx.fragment.app.Fragment;
-
 public class HomeFragment extends Fragment {
     private PaperAnalysiserClient paperAnalysiserClient;
     private ImageView paperImageView, paperNoMarginImageView;
     private TextView detailTv;
     private long startTime, endTime;
 
-    public View onCreateView(@androidx.annotation.NonNull LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         /**
          * 使用测试网络
@@ -221,7 +222,7 @@ public class HomeFragment extends Fragment {
                 public void showProgressDialog() {
                     //显示加载框
                     LogUtils.d("Show Loading Dialog");
-                    HomeFragment.this.showProgressDialog("点击取消", new View.OnClickListener() {
+                    HomeFragment.this.showProgressDialog(new View.OnClickListener() {
 
                         @Override
                         public void onClick(View v) {
@@ -357,8 +358,8 @@ public class HomeFragment extends Fragment {
 
     private Dialog progressDialog;
 
-    public void showProgressDialog(String msg, View.OnClickListener onClickListener) {
-        progressDialog = ProgressDialog.createLoadingDialog(getContext(), msg, onClickListener);
+    public void showProgressDialog( View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(getContext(),onClickListener);
         if (progressDialog != null && !progressDialog.isShowing() && !getActivity().isFinishing()) {
             progressDialog.setCancelable(true);
             progressDialog.show();
