@@ -112,6 +112,14 @@
                     public void showProgressDialog() {
                         //显示加载框
                         LogUtils.d("Show Loading Dialog");
+                        that.showProgressDialog(new View.OnClickListener() {
+
+                            @Override
+                            public void onClick(View v) {
+                                //停止网络请求
+                                paperAnalysiserClient.stopShowProgressDialog();
+                            }
+                        });
                     }
 
                     @Override
@@ -156,11 +164,7 @@
                         LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
                         //试纸saas分析失败
                         ToastUtils.show(getContext(), AiCode.getMessage(code));
-                        if (code == AiCode.CODE_202 || code == AiCode.CODE_203) {
-                            //sdk会显示试纸确认弹框
-                        } else {
-                            //sdk不会显示试纸确认弹框
-                        }
+
                     }
                 });
   5.调用完成释放资源

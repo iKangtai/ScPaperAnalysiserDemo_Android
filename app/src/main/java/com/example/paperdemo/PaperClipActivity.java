@@ -126,6 +126,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                             @Override
                             public void onClick(View v) {
+                                //停止网络请求
                                 paperAnalysiserClient.stopShowProgressDialog();
                             }
                         });
