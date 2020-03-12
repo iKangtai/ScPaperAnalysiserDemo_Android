@@ -14,9 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
@@ -41,6 +38,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 public class HomeFragment extends Fragment {
     private PaperAnalysiserClient paperAnalysiserClient;
@@ -125,6 +125,14 @@ public class HomeFragment extends Fragment {
          */
         String confirmButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_confirm);
         /**
+         * 返回按钮文字颜色
+         */
+        int backButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        /**
+         * 确认按钮文字颜色
+         */
+        int confirmButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        /**
          * 显示底部按钮
          */
         boolean visibleBottomButton = false;
@@ -146,6 +154,8 @@ public class HomeFragment extends Fragment {
                 .backButtonText(backButtonText)
                 .confirmButtonBgResId(confirmButtonBgResId)
                 .confirmButtonText(confirmButtonText)
+                .backButtonTextColor(backButtonTextColor)
+                .confirmButtonTextColor(confirmButtonTextColor)
                 .visibleBottomButton(visibleBottomButton)
                 .build();
         /**
@@ -358,8 +368,8 @@ public class HomeFragment extends Fragment {
 
     private Dialog progressDialog;
 
-    public void showProgressDialog( View.OnClickListener onClickListener) {
-        progressDialog = ProgressDialog.createLoadingDialog(getContext(),onClickListener);
+    public void showProgressDialog(View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(getContext(), onClickListener);
         if (progressDialog != null && !progressDialog.isShowing() && !getActivity().isFinishing()) {
             progressDialog.setCancelable(true);
             progressDialog.show();
