@@ -25,9 +25,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
@@ -40,6 +37,7 @@ import com.example.paperdemo.view.ProgressDialog;
 import com.example.paperdemo.view.SmartPaperMeasureContainerLayout;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
+import com.ikangtai.papersdk.PaperResultDialog;
 import com.ikangtai.papersdk.event.IBaseAnalysisEvent;
 import com.ikangtai.papersdk.event.IBitmapAnalysisEvent;
 import com.ikangtai.papersdk.event.ICameraAnalysisEvent;
@@ -53,6 +51,9 @@ import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 import java.io.IOException;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 public class VideoFragment extends Fragment {
     private CameraSurfaceView surfaceView;
@@ -295,7 +296,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.showProgressDialog(new View.OnClickListener() {
+                VideoFragment.this.showProgressDialog( new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -340,6 +341,11 @@ public class VideoFragment extends Fragment {
                     //sdk不会显示试纸确认弹框
                 }
             }
+
+            @Override
+            public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
+
+            }
         });
 
 
@@ -352,7 +358,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.showProgressDialog(new View.OnClickListener() {
+                VideoFragment.this.showProgressDialog( new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -441,6 +447,11 @@ public class VideoFragment extends Fragment {
                 } else {
                     //sdk不会显示试纸确认弹框
                 }
+            }
+
+            @Override
+            public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
+
             }
         });
 
@@ -535,7 +546,7 @@ public class VideoFragment extends Fragment {
         @Override
         public void showProgressDialog() {
             LogUtils.d("Show Loading Dialog");
-            VideoFragment.this.showProgressDialog(new View.OnClickListener() {
+            VideoFragment.this.showProgressDialog( new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
@@ -599,6 +610,11 @@ public class VideoFragment extends Fragment {
         public void saasAnalysisError(String errorResult, int code) {
             LogUtils.d("试纸分析错误 code：" + code + " errorResult:" + errorResult);
             ToastUtils.show(getContext(), errorResult + code);
+        }
+
+        @Override
+        public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
+
         }
     };
 }

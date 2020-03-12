@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.ProgressDialog;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
+import com.ikangtai.papersdk.PaperResultDialog;
 import com.ikangtai.papersdk.UiOption;
 import com.ikangtai.papersdk.event.IBitmapAnalysisEvent;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
@@ -341,6 +343,11 @@ public class HomeFragment extends Fragment {
                     } else {
                         //sdk不会显示试纸确认弹框
                     }
+                }
+
+                @Override
+                public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
+                    paperResultDialog.getHintTv().setGravity(Gravity.LEFT);
                 }
             });
         } else {
