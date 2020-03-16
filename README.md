@@ -1,7 +1,7 @@
 # ScPaperAnalysiserDemo_Android
 ### 一.引入试纸sdk库
 
-       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.4.1'
+       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.2'
 
 ### 二.添加依赖库地址
 
@@ -87,7 +87,18 @@
      * 确认按钮
      */
     int confirmResId = com.ikangtai.papersdk.R.drawable.test_paper_confirm;
-
+    /**
+     * 返回按钮文字颜色
+     */
+    int backButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+    /**
+     * 确认按钮文字颜色
+     */
+    int confirmButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+    /**
+     * 显示底部按钮
+     */
+    boolean visibleBottomButton = false;
     UiOption uiOption = new UiOption.Builder()
             .titleText(titleText)
             .tagLineImageResId(tagLineImageResId)
@@ -100,6 +111,9 @@
             .hintTextColor(hintTextColor)
             .backResId(backResId)
             .confirmResId(confirmResId)
+            .backButtonTextColor(backButtonTextColor)
+            .confirmButtonTextColor(confirmButtonTextColor)
+            .visibleBottomButton(visibleBottomButton)
             .build();
     //试纸识别sdk相关配置
     Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).build();
@@ -165,6 +179,10 @@
                         //试纸saas分析失败
                         ToastUtils.show(getContext(), AiCode.getMessage(code));
 
+                    }
+                    @Override
+                    public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
+                        paperResultDialog.getHintTv().setGravity(Gravity.LEFT);
                     }
                 });
   5.调用完成释放资源
