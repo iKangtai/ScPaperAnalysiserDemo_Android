@@ -12,8 +12,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-
 import com.bumptech.glide.Glide;
 import com.example.paperdemo.view.OvulationSeekBar;
 import com.example.paperdemo.view.TopBar;
@@ -30,6 +28,8 @@ import com.ikangtai.papersdk.util.ToastUtils;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import androidx.annotation.Nullable;
 
 /**
  * 试纸详情

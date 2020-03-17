@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
-import com.example.paperdemo.ui.home.HomeFragment;
 import com.example.paperdemo.view.ManualSmartPaperMeasureLayout;
 import com.example.paperdemo.view.ProgressDialog;
 import com.example.paperdemo.view.TopBar;
@@ -124,7 +123,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                     @Override
                     public void showProgressDialog() {
                         LogUtils.d("Show Loading Dialog");
-                        PaperClipActivity.this.showProgressDialog( new View.OnClickListener() {
+                        PaperClipActivity.this.showProgressDialog(new View.OnClickListener() {
 
                             @Override
                             public void onClick(View v) {

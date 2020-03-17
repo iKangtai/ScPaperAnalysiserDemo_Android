@@ -39,5 +39,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     //试纸识别sdk依赖库
-    api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.3-alpha1'
+    implementation 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.3-alpha1'
 }
