@@ -116,7 +116,7 @@
             .visibleBottomButton(visibleBottomButton)
             .build();
     //试纸识别sdk相关配置
-    Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).build();
+    Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).netTimeOutRetryCount(1).build();
     paperAnalysiserClient.init(config);
 
   4.调用识别试纸图片
@@ -183,6 +183,7 @@
                     @Override
                     public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
                         paperResultDialog.getHintTv().setGravity(Gravity.LEFT);
+                        paperResultDialog.setSampleResId(R.drawable.confirm_sample_pic_lh);
                     }
                 });
   5.调用完成释放资源
