@@ -138,6 +138,10 @@ public class HomeFragment extends Fragment {
          * 显示底部按钮
          */
         boolean visibleBottomButton = false;
+        /**
+         * 样张
+         */
+        int sampleResId = com.ikangtai.papersdk.R.drawable.confirm_sample_pic_lh;
 
         UiOption uiOption = new UiOption.Builder(getContext())
                 .titleText(titleText)
@@ -159,6 +163,7 @@ public class HomeFragment extends Fragment {
                 .backButtonTextColor(backButtonTextColor)
                 .confirmButtonTextColor(confirmButtonTextColor)
                 .visibleBottomButton(visibleBottomButton)
+                .sampleResId(sampleResId)
                 .build();
         /**
          * 自定义log文件有两种方式,设置一次即可
@@ -173,7 +178,7 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
         //试纸识别sdk相关配置
-        Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).build();
+        Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).netTimeOutRetryCount(1).build();
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
 
@@ -343,6 +348,7 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
                     paperResultDialog.getHintTv().setGravity(Gravity.LEFT);
+                    paperResultDialog.setSampleResId(R.drawable.confirm_sample_pic_lh);
                 }
             });
         } else {
