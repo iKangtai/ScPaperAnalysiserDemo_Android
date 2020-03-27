@@ -588,9 +588,9 @@ public class VideoFragment extends Fragment {
                 paperCoordinatesData = new PaperCoordinatesData();
             } else if (code == AiCode.CODE_11) {
                 //画面模糊重新对焦
-                if (cameraUtil != null) {
+                /*if (cameraUtil != null) {
                     cameraUtil.holdFocus();
-                }
+                }*/
 
             }
             paperCoordinatesData.setCode(code);
