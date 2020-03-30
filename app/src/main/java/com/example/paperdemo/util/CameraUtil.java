@@ -38,6 +38,7 @@ public class CameraUtil {
     private Activity activity;
     private SurfaceView surfaceView;
     private Camera.PreviewCallback outsidePreviewCallback;
+    private boolean holdFocusFinish = true;
     private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
@@ -52,6 +53,10 @@ public class CameraUtil {
 
     public void holdFocus(Rect focusRect, Rect meteringRect) {
         if (mCamera != null) {
+            if (!holdFocusFinish) {
+                return;
+            }
+            holdFocusFinish = false;
             mCamera.cancelAutoFocus();
             Camera.Parameters params = mCamera.getParameters();
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
@@ -77,6 +82,7 @@ public class CameraUtil {
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
                 @Override
                 public void onAutoFocus(boolean success, Camera camera) {
+                    holdFocusFinish = true;
                     mParams = mCamera.getParameters();
                     //1连续对焦
                     mParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -108,10 +114,10 @@ public class CameraUtil {
     private Rect calculateTapArea(float x, float y, float coefficient) {
         float focusAreaSize = 300;
         int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
-        int centerY =0;
-        int  centerX=0;
-        centerY = (int) (x / surfaceView.getWidth() *  2000 - 1000);
-        centerX= (int) (y /  surfaceView.getHeight() * 2000 - 1000);
+        int centerY = 0;
+        int centerX = 0;
+        centerY = (int) (x / surfaceView.getWidth() * 2000 - 1000);
+        centerX = (int) (y / surfaceView.getHeight() * 2000 - 1000);
         int left = clamp(centerX - areaSize / 2, -1000, 1000);
         int top = clamp(centerY - areaSize / 2, -1000, 1000);
 
@@ -175,7 +181,7 @@ public class CameraUtil {
                 ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
                 layoutParams.height = (int) (pWidth * 1.0 * surfaceView.getWidth() / pHeight);
                 surfaceView.setLayoutParams(layoutParams);
-
+                holdFocus(null, null);
             }
         });
     }
