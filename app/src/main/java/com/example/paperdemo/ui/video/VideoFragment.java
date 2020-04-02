@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -296,7 +295,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.showProgressDialog( new View.OnClickListener() {
+                VideoFragment.this.showProgressDialog(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -353,7 +352,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.showProgressDialog( new View.OnClickListener() {
+                VideoFragment.this.showProgressDialog(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -466,8 +465,8 @@ public class VideoFragment extends Fragment {
     };
     private Dialog progressDialog;
 
-    public void showProgressDialog( View.OnClickListener onClickListener) {
-        progressDialog = ProgressDialog.createLoadingDialog(getContext(),onClickListener);
+    public void showProgressDialog(View.OnClickListener onClickListener) {
+        progressDialog = ProgressDialog.createLoadingDialog(getContext(), onClickListener);
         if (progressDialog != null && !progressDialog.isShowing() && !getActivity().isFinishing()) {
             progressDialog.setCancelable(true);
             progressDialog.show();
@@ -512,8 +511,8 @@ public class VideoFragment extends Fragment {
                 return;
             }
             LogUtils.d("试纸自动抠图画线");
-            Log.d("xyl", "抠图耗时 " + (System.currentTimeMillis() - startTime));
-            ToastUtils.show(getContext(), "抠图中间结果");
+            LogUtils.d("抠图耗时 " + (System.currentTimeMillis() - startTime));
+            //ToastUtils.show(getContext(), "抠图中间结果");
             smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
         }
 
@@ -537,7 +536,7 @@ public class VideoFragment extends Fragment {
         @Override
         public void showProgressDialog() {
             LogUtils.d("Show Loading Dialog");
-            VideoFragment.this.showProgressDialog( new View.OnClickListener() {
+            VideoFragment.this.showProgressDialog(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {

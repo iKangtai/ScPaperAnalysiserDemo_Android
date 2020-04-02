@@ -1,6 +1,7 @@
 package com.example.paperdemo.ui.home;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,6 +34,7 @@ import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
 import com.ikangtai.papersdk.util.PxDxUtil;
+import com.ikangtai.papersdk.util.SupportDeviceUtil;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
@@ -163,7 +165,7 @@ public class HomeFragment extends Fragment {
                 .backButtonTextColor(backButtonTextColor)
                 .confirmButtonTextColor(confirmButtonTextColor)
                 .visibleBottomButton(visibleBottomButton)
-                .sampleResId(sampleResId)
+                .sampleResUrl("https:/yunchengfile.oss-cn-beijing.aliyuncs.com/app/confirm_sample_pic_lh.png")
                 .build();
         /**
          * 自定义log文件有两种方式,设置一次即可
@@ -181,8 +183,9 @@ public class HomeFragment extends Fragment {
         Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).netTimeOutRetryCount(1).build();
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
-
-
+        if (!SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)){
+            new AlertDialog.Builder(getContext()).setMessage("当前设备性能太差,SDK自动识别较慢").show();
+        }
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         paperImageView = root.findViewById(R.id.paper_image_home);
         paperNoMarginImageView = root.findViewById(R.id.paper_image_nomargin_home);
@@ -193,21 +196,6 @@ public class HomeFragment extends Fragment {
                 choosePhoto();
             }
         });
-
-//        String fileFloder= Environment.getExternalStorageDirectory().getPath() + File.separator + "testpic" + File.separator;
-//
-//        File file=new File(fileFloder);
-//        String[]nameList=file.list();
-//        StringBuffer stringBuffer=new StringBuffer();
-//        for (int i = 0;i<nameList.length;i++){
-//            String name=nameList[i];
-//            Double blur = TensorFlowTools.blurLevel2(ImageUtil.getBitmapByFile(new File(fileFloder+name)));
-//            stringBuffer.append(name+"  "+blur+"\n");
-//        }
-//
-//        Log.d("xyl",stringBuffer.toString());
-//
-//        detailTv.setText(stringBuffer);
         return root;
     }
 

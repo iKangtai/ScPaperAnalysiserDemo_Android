@@ -189,8 +189,12 @@
   5.调用完成释放资源
 
     paperAnalysiserClient.closeSession();
+
+  6.判断SDK是否设备
+    SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)
+    或者SupportDeviceUtil.isSupport(getContext())
     
-  6.混淆代码过滤
+  7.混淆代码过滤
     -dontwarn  com.ikangtai.papersdk.**
     -keep class com.ikangtai.papersdk.** {*;}
     -keepclasseswithmembernames class *{

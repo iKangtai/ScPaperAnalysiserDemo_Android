@@ -39,6 +39,7 @@ public class CameraUtil {
     private SurfaceView surfaceView;
     private Camera.PreviewCallback outsidePreviewCallback;
     private boolean holdFocusFinish = true;
+    private long lastHoldFocusTime;
     private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
@@ -48,16 +49,29 @@ public class CameraUtil {
     };
 
     public void holdFocus() {
-        holdFocus(null, null);
+        Rect focusRect = null;
+        Rect meteringRect = null;
+        if (surfaceView != null) {
+            int focusX = surfaceView.getWidth() > surfaceView.getHeight() ? surfaceView.getHeight() / 2 : surfaceView.getWidth() / 2;
+            int focusY = focusX;
+            focusRect = calculateTapArea(focusX, focusY, 1f);
+            meteringRect = calculateTapArea(focusX, focusY, 1.5f);
+        }
+        holdFocus(focusRect, meteringRect);
     }
 
     public void holdFocus(Rect focusRect, Rect meteringRect) {
         if (mCamera != null) {
-            if (!holdFocusFinish) {
+            if (!holdFocusFinish || System.currentTimeMillis() - lastHoldFocusTime < 3000) {
                 return;
             }
+            lastHoldFocusTime = System.currentTimeMillis();
             holdFocusFinish = false;
-            mCamera.cancelAutoFocus();
+            try {
+                mCamera.cancelAutoFocus();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             Camera.Parameters params = mCamera.getParameters();
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
             if (focusRect != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -181,7 +195,7 @@ public class CameraUtil {
                 ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
                 layoutParams.height = (int) (pWidth * 1.0 * surfaceView.getWidth() / pHeight);
                 surfaceView.setLayoutParams(layoutParams);
-                holdFocus(null, null);
+                //holdFocus();
             }
         });
     }
