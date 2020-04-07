@@ -63,6 +63,10 @@ public class HomeFragment extends Fragment {
          */
         Config.setNetTimeOut(30);
 
+        if (!SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)){
+            new AlertDialog.Builder(getContext()).setMessage("当前设备性能太差,SDK自动识别较慢").show();
+        }
+
         //定制试纸Ui显示
         /**
          * 标题
@@ -183,9 +187,7 @@ public class HomeFragment extends Fragment {
         Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).netTimeOutRetryCount(1).build();
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
-        if (!SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)){
-            new AlertDialog.Builder(getContext()).setMessage("当前设备性能太差,SDK自动识别较慢").show();
-        }
+
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         paperImageView = root.findViewById(R.id.paper_image_home);
         paperNoMarginImageView = root.findViewById(R.id.paper_image_nomargin_home);
