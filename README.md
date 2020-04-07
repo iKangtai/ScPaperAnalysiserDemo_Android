@@ -1,7 +1,7 @@
 # ScPaperAnalysiserDemo_Android
 ### 一.引入试纸sdk库
 
-       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.2'
+       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.3'
 
 ### 二.添加依赖库地址
 
@@ -14,6 +14,10 @@
       Config.setTestServer(true);
       //网络超时时间
       Config.setNetTimeOut(30);
+
+      //判断手机性能是否满足sdk要求
+      1.SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)#第一次校验不准
+      2.application初始化中调用SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)，实际判断处调用SupportDeviceUtil.isSupport(getContext())
           
   1.初始化
     
@@ -189,12 +193,8 @@
   5.调用完成释放资源
 
     paperAnalysiserClient.closeSession();
-
-  6.判断SDK是否设备
-    SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)
-    或者SupportDeviceUtil.isSupport(getContext())
     
-  7.混淆代码过滤
+  6.混淆代码过滤
     -dontwarn  com.ikangtai.papersdk.**
     -keep class com.ikangtai.papersdk.** {*;}
     -keepclasseswithmembernames class *{
