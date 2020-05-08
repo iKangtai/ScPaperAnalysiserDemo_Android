@@ -323,6 +323,7 @@ public class VideoFragment extends Fragment {
                     ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                 }
                 //显示试纸结果
+                FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                 paperResult.setPaperBitmap(null);
                 paperResult.setNoMarginBitmap(null);
                 Intent intent = new Intent(getContext(), PaperDetailActivity.class);

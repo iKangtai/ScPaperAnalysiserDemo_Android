@@ -6,13 +6,17 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Build;
+import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
@@ -31,6 +35,7 @@ import java.util.List;
  * @author xiongyl 2019/12/11 17:02
  */
 public class CameraUtil {
+    private static final String TAG = CameraUtil.class.getName();
     private Camera mCamera;
     private Camera.Parameters mParams;
     private boolean openFlashLight;
@@ -162,14 +167,21 @@ public class CameraUtil {
         }
         mParams = mCamera.getParameters();
         mParams.setPictureFormat(PixelFormat.JPEG);
+        mParams.setJpegQuality(100);
         mParams.setPreviewFormat(ImageFormat.NV21);
-        chooseFixedPreviewFps(mParams, 30);
-        Camera.Size psize = parameters(mCamera);
-        final int pWidth = psize.width;
-        final int pHeight = psize.height;
-        mParams.setPictureSize(pWidth, pHeight);
-        mParams.setPreviewSize(pWidth, pHeight);
+        //chooseFixedPreviewFps(mParams, 30);
+        WindowManager windowManager = context.getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        int screenWidth  = display.getWidth();
+        int screenHeight = display.getHeight();
 
+        Point screenResolution=new Point(screenWidth,screenHeight);
+        final Point previewSize = findBestPreviewSizeValue(mCamera.getParameters().getSupportedPreviewSizes(),screenResolution);
+        Point pictureSize = findBestPictureSizeValue(mCamera.getParameters().getSupportedPictureSizes(),screenResolution);
+
+        //LogUtils.d("previewSize:"+previewSize.x+" "+previewSize.y+" pictureSize:"+pictureSize.x+" "+pictureSize.y);
+        mParams.setPictureSize(pictureSize.x, pictureSize.y);
+        mParams.setPreviewSize(previewSize.x, previewSize.y);
         //1连续对焦
         mParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         //设置图片角度
@@ -193,7 +205,7 @@ public class CameraUtil {
             @Override
             public void run() {
                 ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
-                layoutParams.height = (int) (pWidth * 1.0 * surfaceView.getWidth() / pHeight);
+                layoutParams.height = (int) (previewSize.x * 1.0 * surfaceView.getWidth() / previewSize.y);
                 surfaceView.setLayoutParams(layoutParams);
                 //holdFocus();
             }
@@ -298,6 +310,95 @@ public class CameraUtil {
             guess = temp[1] / 2;
         }
         return guess;
+    }
+
+    private static final int DEFAULT_WIDTH = 1920, DEFAULT_HEIGHT = 1080;
+
+    private static Point findBestPreviewSizeValue(List<Camera.Size> sizeList, Point screenResolution) {
+        int bestX = 0;
+        int bestY = 0;
+        int size = 0;
+        for (int i = 0; i < sizeList.size(); i++) {
+            // 如果有符合的分辨率，则直接返回
+            if (sizeList.get(i).width == DEFAULT_WIDTH && sizeList.get(i).height == DEFAULT_HEIGHT) {
+                Log.d(TAG, "get default preview size!!!");
+                return new Point(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            }
+
+            int newX = sizeList.get(i).width;
+            int newY = sizeList.get(i).height;
+            int newSize = Math.abs(newX * newX) + Math.abs(newY * newY);
+            float ratio = (float) newY / (float) newX;
+            Log.d(TAG, newX + ":" + newY + ":" + ratio);
+            if (newSize >= size && ratio != 0.75) {  // 确保图片是16：9的
+                bestX = newX;
+                bestY = newY;
+                size = newSize;
+            } else if (newSize < size) {
+                continue;
+            }
+        }
+
+        if (bestX > 0 && bestY > 0) {
+            return new Point(bestX, bestY);
+        }
+        return null;
+    }
+
+    private static Point findBestPictureSizeValue(List<Camera.Size> sizeList, Point screenResolution) {
+        List<Camera.Size> tempList = new ArrayList<>();
+        for (int i = 0; i < sizeList.size(); i++) {
+            // 如果有符合的分辨率，则直接返回
+            if (sizeList.get(i).width == DEFAULT_WIDTH && sizeList.get(i).height == DEFAULT_HEIGHT) {
+                Log.d(TAG, "get default picture size!!!");
+                return new Point(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+            }
+            if (sizeList.get(i).width >= screenResolution.x && sizeList.get(i).height >= screenResolution.y) {
+                tempList.add(sizeList.get(i));
+            }
+        }
+
+        int bestX = 0;
+        int bestY = 0;
+        int diff = Integer.MAX_VALUE;
+        if (tempList != null && tempList.size() > 0) {
+            for (int i = 0; i < tempList.size(); i++) {
+                int newDiff = Math.abs(tempList.get(i).width - screenResolution.x) + Math.abs(tempList.get(i).height - screenResolution.y);
+                float ratio = (float) tempList.get(i).height / tempList.get(i).width;
+                Log.d(TAG, "ratio = " + ratio);
+                if (newDiff < diff && ratio != 0.75) {  // 确保图片是16：9的
+                    bestX = tempList.get(i).width;
+                    bestY = tempList.get(i).height;
+                    diff = newDiff;
+                }
+            }
+        }
+
+        if (bestX > 0 && bestY > 0) {
+            return new Point(bestX, bestY);
+        } else {
+            return findMaxPictureSizeValue(sizeList);
+        }
+    }
+
+    public static Point findMaxPictureSizeValue(List<Camera.Size> sizeList) {
+
+
+        /*
+        降序排序
+         */
+        Collections.sort(sizeList, new Comparator<Camera.Size>() {
+            @Override
+            public int compare(Camera.Size lhs, Camera.Size rhs) {
+                if (lhs.width < rhs.width) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
+
+        return sizeList != null && sizeList.size() > 0 ? new Point(sizeList.get(0).width, sizeList.get(0).height) : null;
     }
 
     public Camera.Size parameters(Camera camera) {
