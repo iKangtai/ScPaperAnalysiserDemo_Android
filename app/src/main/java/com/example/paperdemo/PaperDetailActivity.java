@@ -191,6 +191,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
             //显示试纸照片
             String paperName;
             paperName = paperNameId + PIC_JPG;
+            FileUtil.initPath(PaperDetailActivity.this,"");
             String paperImgPath = FileUtil.getPlayCameraPath() + File.separator + paperName;
             File file = new File(paperImgPath);
             if (file.exists()) {
