@@ -503,8 +503,7 @@ public class VideoFragment extends Fragment {
                 e.printStackTrace();
             }
             PaperCoordinatesData newPaperCoordinatesData = TensorFlowTools.convertPointToScreen(cameraUtil.getCurrentCamera(), surfaceView.getWidth(), surfaceView.getHeight(), paperCoordinatesData);
-            Bitmap newOriginSquareBitmap = TensorFlowTools.convertFrameToScreen(surfaceView.getWidth(), surfaceView.getHeight(), originSquareBitmap);
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordinatesData, newOriginSquareBitmap);
+            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordinatesData, originSquareBitmap);
             return false;
         }
 
