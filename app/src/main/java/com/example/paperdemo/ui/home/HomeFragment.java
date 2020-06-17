@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +23,8 @@ import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.ProgressDialog;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
-import com.ikangtai.papersdk.PaperResultDialog;
 import com.ikangtai.papersdk.UiOption;
-import com.ikangtai.papersdk.event.IBitmapAnalysisEvent;
+import com.ikangtai.papersdk.event.SampleBitmapAnalysisEventAdapter;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.AiCode;
@@ -63,7 +61,7 @@ public class HomeFragment extends Fragment {
          */
         Config.setNetTimeOut(30);
 
-        if (!SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)){
+        if (!SupportDeviceUtil.isSupport(getContext(), AppConstant.appId, AppConstant.appSecret)) {
             new AlertDialog.Builder(getContext()).setMessage("当前设备性能太差,SDK自动识别较慢").show();
         }
 
@@ -198,6 +196,20 @@ public class HomeFragment extends Fragment {
                 choosePhoto();
             }
         });
+//        String fileFloder = Environment.getExternalStorageDirectory().getPath() + File.separator + "testpic" + File.separator;
+//
+//        File file = new File(fileFloder);
+//        String[] nameList = file.list();
+//        final StringBuffer stringBuffer = new StringBuffer();
+//        if (nameList != null) {
+//            for (int i = 0; i < nameList.length; i++) {
+//                final String name = nameList[i];
+//                Double blur = TensorFlowTools.blurLevel2(ImageUtil.getBitmapByFile(new File(fileFloder + name)));
+//                stringBuffer.append(name + "  " + blur + "\n");
+//                Log.d("xyl", name + "  " + blur + "\n");
+//                detailTv.setText(stringBuffer);
+//            }
+//        }
         return root;
     }
 
@@ -224,36 +236,10 @@ public class HomeFragment extends Fragment {
                 return;
             }
             startTime = System.currentTimeMillis();
-            paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
-                @Override
-                public void showProgressDialog() {
-                    //显示加载框
-                    LogUtils.d("Show Loading Dialog");
-                    HomeFragment.this.showProgressDialog(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-                            paperAnalysiserClient.stopShowProgressDialog();
-                        }
-                    });
-                }
-
-                @Override
-                public void dismissProgressDialog() {
-                    //隐藏加载框
-                    LogUtils.d("Hide Loading Dialog");
-                    HomeFragment.this.dismissProgressDialog();
-                }
-
-                @Override
-                public void cancel() {
-                    LogUtils.d("取消试纸结果确认");
-                    //试纸结果确认框取消
-                    ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
-                }
-
+            paperAnalysiserClient.analysisBitmap(fileBitmap, new SampleBitmapAnalysisEventAdapter() {
                 @Override
                 public void save(PaperResult paperResult) {
+                    super.save(paperResult);
                     LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
                     //试纸结果确认框确认 显示试纸结果
                     if (paperResult.getErrNo() != 0) {
@@ -276,6 +262,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
+                    super.analysisSuccess(paperCoordinatesData, originSquareBitmap, clipPaperBitmap);
                     LogUtils.d("试纸自动抠图成功");
                     //试纸抠图成功结果
                     endTime = System.currentTimeMillis();
@@ -284,6 +271,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
+                    super.analysisError(paperCoordinatesData, errorResult, code);
                     LogUtils.d("试纸自动抠图出错 code：" + code + " errorResult:" + errorResult);
                     //试纸抠图失败结果
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
@@ -330,15 +318,10 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void saasAnalysisError(String errorResult, int code) {
+                    super.saasAnalysisError(errorResult, code);
                     LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
                     //试纸saas分析失败
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
-                }
-
-                @Override
-                public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
-                    paperResultDialog.getHintTv().setGravity(Gravity.LEFT);
-                    paperResultDialog.setSampleResId(R.drawable.confirm_sample_pic_lh);
                 }
             });
         } else {

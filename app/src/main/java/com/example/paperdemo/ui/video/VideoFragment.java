@@ -28,7 +28,6 @@ import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
-import com.example.paperdemo.util.CameraUtil;
 import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.CameraSurfaceView;
 import com.example.paperdemo.view.ManualSmartPaperMeasureLayout;
@@ -43,6 +42,7 @@ import com.ikangtai.papersdk.event.ICameraAnalysisEvent;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.AiCode;
+import com.ikangtai.papersdk.util.CameraUtil;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
@@ -460,7 +460,7 @@ public class VideoFragment extends Fragment {
             }
             startTime = System.currentTimeMillis();
             //视频上半部分正方形图片
-            Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, surfaceView.getWidth(), surfaceView.getHeight(), TensorFlowTools.getDegree(getActivity()));
+            Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
             paperAnalysiserClient.analysisCameraData(originSquareBitmap);
         }
     };
@@ -502,7 +502,9 @@ public class VideoFragment extends Fragment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
+            PaperCoordinatesData newPaperCoordinatesData = TensorFlowTools.convertPointToScreen(cameraUtil.getCurrentCamera(), surfaceView.getWidth(), surfaceView.getHeight(), paperCoordinatesData);
+            Bitmap newOriginSquareBitmap = TensorFlowTools.convertFrameToScreen(surfaceView.getWidth(), surfaceView.getHeight(), originSquareBitmap);
+            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordinatesData, newOriginSquareBitmap);
             return false;
         }
 
@@ -514,7 +516,8 @@ public class VideoFragment extends Fragment {
             LogUtils.d("试纸自动抠图画线");
             LogUtils.d("抠图耗时 " + (System.currentTimeMillis() - startTime));
             //ToastUtils.show(getContext(), "抠图中间结果");
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
+            PaperCoordinatesData newPaperCoordinatesData = TensorFlowTools.convertPointToScreen(cameraUtil.getCurrentCamera(), surfaceView.getWidth(), surfaceView.getHeight(), paperCoordinatesData);
+            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordinatesData, null);
         }
 
         @Override
