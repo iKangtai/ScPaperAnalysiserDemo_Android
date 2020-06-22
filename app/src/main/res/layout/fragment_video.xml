@@ -13,8 +13,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.example.paperdemo.view.CameraSurfaceView
-                android:id="@+id/camera_surfaceview"
+            <TextureView
+                android:id="@+id/camera_textureview"
                 android:layout_width="match_parent"
                 android:layout_height="500dp" />
         </LinearLayout>

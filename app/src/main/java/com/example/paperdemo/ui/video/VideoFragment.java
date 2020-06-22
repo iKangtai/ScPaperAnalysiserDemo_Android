@@ -16,8 +16,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -49,13 +51,14 @@ import com.ikangtai.papersdk.util.LogUtils;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
+import java.io.File;
 import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 public class VideoFragment extends Fragment {
-    private CameraSurfaceView surfaceView;
+    private TextureView textureView;
     private SmartPaperMeasureContainerLayout smartPaperMeasureContainerLayout;
     private PaperAnalysiserClient paperAnalysiserClient;
     private long startTime, endTime;
@@ -87,8 +90,8 @@ public class VideoFragment extends Fragment {
     }
 
     private void initView(View view) {
-        surfaceView = view.findViewById(R.id.camera_surfaceview);
-        surfaceView.setOnTouchListener(new View.OnTouchListener() {
+        textureView = view.findViewById(R.id.camera_textureview);
+        textureView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (cameraUtil != null) {
@@ -218,7 +221,7 @@ public class VideoFragment extends Fragment {
                 if (cameraUtil == null) {
                     cameraUtil = new CameraUtil();
                 }
-                cameraUtil.initCamera(getActivity(), surfaceView, mPreviewCallback);
+                cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
             }
         }, 200);
     }
@@ -460,7 +463,9 @@ public class VideoFragment extends Fragment {
             }
             startTime = System.currentTimeMillis();
             //视频上半部分正方形图片
-            Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+            //Bitmap originSquareBitmap= TensorFlowTools.convertFrameToBitmap(data, camera, surfaceView.getWidth(), surfaceView.getWidth(), TensorFlowTools.getDegree(getActivity()));
+            //Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+            Bitmap originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
             paperAnalysiserClient.analysisCameraData(originSquareBitmap);
         }
     };
@@ -502,8 +507,7 @@ public class VideoFragment extends Fragment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            PaperCoordinatesData newPaperCoordinatesData = TensorFlowTools.convertPointToScreen(cameraUtil.getCurrentCamera(), surfaceView.getWidth(), surfaceView.getHeight(), paperCoordinatesData);
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordinatesData, originSquareBitmap);
+            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
             return false;
         }
 
@@ -515,8 +519,7 @@ public class VideoFragment extends Fragment {
             LogUtils.d("试纸自动抠图画线");
             LogUtils.d("抠图耗时 " + (System.currentTimeMillis() - startTime));
             //ToastUtils.show(getContext(), "抠图中间结果");
-            PaperCoordinatesData newPaperCoordinatesData = TensorFlowTools.convertPointToScreen(cameraUtil.getCurrentCamera(), surfaceView.getWidth(), surfaceView.getHeight(), paperCoordinatesData);
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordinatesData, null);
+            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
         }
 
         @Override
