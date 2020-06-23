@@ -18,12 +18,12 @@
       //判断手机性能是否满足sdk要求
       1.SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)#第一次校验不准
       2.application初始化中调用SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)，实际判断处调用SupportDeviceUtil.isSupport(getContext())
-    ```
+  ```
   1.初始化
-   ```java
+  ```java
     //初始化sdk
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
-    ```
+  ```
   2.常规配置
   ```java
     /**
