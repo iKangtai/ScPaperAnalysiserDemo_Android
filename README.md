@@ -43,7 +43,7 @@
     Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).build();
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com",config);
     或者
-    paperAnalysiserClient.init(config);
+    paperAnalysiserClient.init(config);a
   ```
   3.UI配置
   ```java
