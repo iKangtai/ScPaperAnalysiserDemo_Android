@@ -193,8 +193,8 @@
                 });
   ```
   5.识别视频流
-    TextureView视频预览
-    ```java
+  TextureView视频预览
+  ```java
     Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(final byte[] data, final Camera camera) {
@@ -210,10 +210,10 @@
             }
         };
     cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
-    ```
-
-    SurfaceView视频预览
-    ```java
+  ```
+  
+  SurfaceView视频预览
+  ```java
         Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(final byte[] data, final Camera camera) {
@@ -246,15 +246,15 @@
         }
   ```
   7.调用完成释放资源
-    ```java
+  ```java
     paperAnalysiserClient.closeSession();
-    ```
+  ```
 
   8.混淆代码过滤
-    ```java
+  ```java
     -dontwarn  com.ikangtai.papersdk.**
     -keep class com.ikangtai.papersdk.** {*;}
     -keepclasseswithmembernames class *{
     	native <methods>;
     }
-    ```
+  ```
