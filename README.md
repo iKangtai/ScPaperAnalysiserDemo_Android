@@ -1,14 +1,14 @@
 # ScPaperAnalysiserDemo_Android
 ### 一.引入试纸sdk库
-
-       1.api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.3'
-
+   ```java
+       api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.3'
+   ```
 ### 二.添加依赖库地址
-
+   ```java
       maven { url 'https://dl.bintray.com/ikangtaijcenter123/ikangtai' }
-
+   ```
 ### 三.使用方法
-
+  ```java
       //网络配置需要在初始化sdk之前
       //使用测试网络
       Config.setTestServer(true);
@@ -18,18 +18,19 @@
       //判断手机性能是否满足sdk要求
       1.SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)#第一次校验不准
       2.application初始化中调用SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)，实际判断处调用SupportDeviceUtil.isSupport(getContext())
-          
+    ```
   1.初始化
-    
+   ```java
     //初始化sdk
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
+    ```
   2.常规配置
-  
+  ```java
     /**
     * log默认路径/data/Android/pageName/files/Documents/log.txt,可以通过LogUtils.getLogFilePath()获取
     * 自定义log文件有两种方式,设置一次即可
-    *   1.new Config.Builder().logWriter(logWriter).
-    *   2.new Config.Builder().logFilePath(logFilePath).
+    * 1. {@link Config.Builder#logWriter(Writer)}
+    * 2. {@link Config.Builder#logFilePath(String)}
     */
     String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
     BufferedWriter logWriter = null;
@@ -43,9 +44,9 @@
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com",config);
     或者
     paperAnalysiserClient.init(config);
-    
+  ```
   3.UI配置
-  
+  ```java
     //定制试纸Ui显示
     /**
      * 标题
@@ -122,9 +123,9 @@
     //试纸识别sdk相关配置
     Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).netTimeOutRetryCount(1).build();
     paperAnalysiserClient.init(config);
-
+  ```
   4.调用识别试纸图片
-
+  ```java
     paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
                     @Override
                     public void showProgressDialog() {
@@ -190,13 +191,70 @@
                         paperResultDialog.setSampleResId(R.drawable.confirm_sample_pic_lh);
                     }
                 });
-  5.调用完成释放资源
+  ```
+  5.识别视频流
+    TextureView视频预览
+    ```java
+    Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(final byte[] data, final Camera camera) {
+                if (paperAnalysiserClient.isObtainPreviewFrame()) {
+                    return;
+                }
+                startTime = System.currentTimeMillis();
+                //视频上半部分正方形图片
+                //Bitmap originSquareBitmap= TensorFlowTools.convertFrameToBitmap(data, camera, surfaceView.getWidth(), surfaceView.getWidth(), TensorFlowTools.getDegree(getActivity()));
+                //Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+                Bitmap originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
+                paperAnalysiserClient.analysisCameraData(originSquareBitmap);
+            }
+        };
+    cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
+    ```
 
+    SurfaceView视频预览
+    ```java
+        Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(final byte[] data, final Camera camera) {
+                if (paperAnalysiserClient.isObtainPreviewFrame()) {
+                    return;
+                }
+                startTime = System.currentTimeMillis();
+                //视频上半部分正方形图片
+                Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+                paperAnalysiserClient.analysisCameraData(originSquareBitmap);
+            }
+        };
+        cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
+        //需要在analysisSuccess和analysisResult回调方法进行坐标转换
+        ICameraAnalysisEvent iCameraAnalysisEvent = new ICameraAnalysisEvent() {
+                @Override
+                public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
+                    ....
+                    PaperCoordinatesData newPaperCoordinatesData = TensorFlowTools.convertPointToScreen(cameraUtil.getCurrentCamera(), surfaceView.getWidth(), surfaceView.getHeight(), paperCoordinatesData);
+                    smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordinatesData, originSquareBitmap);
+                    return false;
+                }
+
+                @Override
+                public void analysisResult(PaperCoordinatesData paperCoordinatesData) {
+                    ....
+                    PaperCoordinatesData newPaperCoordintaesData = TensorFlowTools.convertPointToScreen(cameraUtil.getCurrentCamera(), surfaceView.getWidth(), surfaceView.getHeight(), paperCoordinatesData);
+                    smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(newPaperCoordintaesData, null);
+                }
+        }
+  ```
+  7.调用完成释放资源
+    ```java
     paperAnalysiserClient.closeSession();
-    
-  6.混淆代码过滤
+    ```
+
+  8.混淆代码过滤
+    ```java
     -dontwarn  com.ikangtai.papersdk.**
     -keep class com.ikangtai.papersdk.** {*;}
     -keepclasseswithmembernames class *{
     	native <methods>;
     }
+    ```
