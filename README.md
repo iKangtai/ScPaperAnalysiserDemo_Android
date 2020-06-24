@@ -224,7 +224,7 @@
                 paperAnalysiserClient.analysisCameraData(originSquareBitmap);
             }
         };
-        cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
+        cameraUtil.initCamera(getActivity(), surfaceView, mPreviewCallback);
         //需要在analysisSuccess和analysisResult回调方法进行坐标转换
         ICameraAnalysisEvent iCameraAnalysisEvent = new ICameraAnalysisEvent() {
                 @Override
