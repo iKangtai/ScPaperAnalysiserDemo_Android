@@ -168,5 +168,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:padding="5dp"
+        android:gravity="right"
+        android:hint="console"
         android:text="console" />
 </RelativeLayout>
