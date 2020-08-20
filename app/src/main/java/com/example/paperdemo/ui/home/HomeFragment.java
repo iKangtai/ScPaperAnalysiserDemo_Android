@@ -19,7 +19,6 @@ import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
-import com.example.paperdemo.model.PremomImageUtils;
 import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.ProgressDialog;
 import com.ikangtai.papersdk.Config;
@@ -248,9 +247,6 @@ public class HomeFragment extends Fragment {
                     paperImageView.setImageBitmap(paperResult.getPaperBitmap());
                     //开启外扩开关后 会返回不带边距bitmap
                     paperNoMarginImageView.setImageBitmap(paperResult.getNoMarginBitmap());
-                    //保存试纸TC线1080 108 0.43 0.64
-                    Bitmap premomPaperBitmap = PremomImageUtils.getPremomBitmap(paperResult);
-                    FileUtil.saveBitmap(premomPaperBitmap, paperResult.getPaperId() + "_small");
                     //显示试纸结果
                     FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                     paperResult.setPaperBitmap(null);
