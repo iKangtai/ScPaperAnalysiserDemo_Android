@@ -19,11 +19,13 @@ import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
+import com.example.paperdemo.model.PremomImageUtils;
 import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.ProgressDialog;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.UiOption;
+import com.ikangtai.papersdk.event.IPaperTypeAnalysisResultEvent;
 import com.ikangtai.papersdk.event.SampleBitmapAnalysisEventAdapter;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
@@ -52,6 +54,7 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
         /**
          * 使用测试网络
          */
@@ -168,6 +171,7 @@ public class HomeFragment extends Fragment {
                 .confirmButtonTextColor(confirmButtonTextColor)
                 .visibleBottomButton(visibleBottomButton)
                 .sampleResUrl("https:/yunchengfile.oss-cn-beijing.aliyuncs.com/app/confirm_sample_pic_lh.png")
+                .feedbackTextColor(hintTextColor)
                 .build();
         /**
          * 自定义log文件有两种方式,设置一次即可
@@ -196,20 +200,14 @@ public class HomeFragment extends Fragment {
                 choosePhoto();
             }
         });
-//        String fileFloder = Environment.getExternalStorageDirectory().getPath() + File.separator + "testpic" + File.separator;
-//
-//        File file = new File(fileFloder);
-//        String[] nameList = file.list();
-//        final StringBuffer stringBuffer = new StringBuffer();
-//        if (nameList != null) {
-//            for (int i = 0; i < nameList.length; i++) {
-//                final String name = nameList[i];
-//                Double blur = TensorFlowTools.blurLevel2(ImageUtil.getBitmapByFile(new File(fileFloder + name)));
-//                stringBuffer.append(name + "  " + blur + "\n");
-//                Log.d("xyl", name + "  " + blur + "\n");
-//                detailTv.setText(stringBuffer);
-//            }
-//        }
+        root.findViewById(R.id.image_type_home).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, 1003);
+            }
+        });
         return root;
     }
 
@@ -250,7 +248,9 @@ public class HomeFragment extends Fragment {
                     paperImageView.setImageBitmap(paperResult.getPaperBitmap());
                     //开启外扩开关后 会返回不带边距bitmap
                     paperNoMarginImageView.setImageBitmap(paperResult.getNoMarginBitmap());
-
+                    //保存试纸TC线1080 108 0.43 0.64
+                    Bitmap premomPaperBitmap = PremomImageUtils.getPremomBitmap(paperResult);
+                    FileUtil.saveBitmap(premomPaperBitmap, paperResult.getPaperId() + "_small");
                     //显示试纸结果
                     FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                     paperResult.setPaperBitmap(null);
@@ -329,6 +329,41 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    Bitmap paperBitmap = null;
+
+    private void showPaperType(final Uri fileUri) {
+        if (fileUri != null) {
+            //File file = ImageUtil.getFileFromUril(fileUri.toString());
+            try {
+                paperBitmap = ImageUtil.getUriToBitmap(getContext(), fileUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            startTime = System.currentTimeMillis();
+            paperAnalysiserClient.paperTypeAnalysis(paperBitmap, new IPaperTypeAnalysisResultEvent() {
+                @Override
+                public void onSuccessPaperTypeAnalysis(int paperType) {
+                    LogUtils.d("试纸识类型：\n" + paperType);
+                    detailTv.setText("耗时 " + (endTime - startTime) + "\n试纸识类型 " + paperType);
+                    paperImageView.setImageBitmap(paperBitmap);
+                    paperNoMarginImageView.setImageBitmap(null);
+
+                }
+
+                @Override
+                public void onFailurePaperTypeAnalysis(int errorCode, String message) {
+                    LogUtils.d("试纸类型分析出错 code：" + errorCode + " errorResult:" + message);
+                    ToastUtils.show(getContext(), AiCode.getMessage(errorCode));
+                    paperImageView.setImageBitmap(null);
+                    paperNoMarginImageView.setImageBitmap(null);
+                    detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n" + message);
+                }
+            });
+        } else {
+            ToastUtils.show(getContext(), "权限不足");
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -343,6 +378,12 @@ public class HomeFragment extends Fragment {
             int paperValue = data.getIntExtra("paperValue", 0);
             //手动修改lhValue
             paperAnalysiserClient.updatePaperValue(paperValue);
+        } else if (requestCode == 1003 && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                // 得到图片的全路径
+                //String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
+                showPaperType(data.getData());
+            }
         }
 
     }
