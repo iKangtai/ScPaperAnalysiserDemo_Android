@@ -255,4 +255,6 @@
     -keepclasseswithmembernames class *{
     	native <methods>;
     }
+    -keep class org.tensorflow.** {*;}
+    -keep class tensorflow.** {*;}
   ```
