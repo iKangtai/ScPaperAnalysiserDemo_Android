@@ -340,7 +340,7 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onSuccessPaperTypeAnalysis(int paperType) {
                     LogUtils.d("试纸识类型：\n" + paperType);
-                    detailTv.setText("耗时 " + (endTime - startTime) + "\n试纸识类型 " + paperType);
+                    detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n试纸识类型 " + paperType);
                     paperImageView.setImageBitmap(paperBitmap);
                     paperNoMarginImageView.setImageBitmap(null);
 
