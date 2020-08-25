@@ -148,7 +148,7 @@ public class HomeFragment extends Fragment {
          * 样张
          */
         int sampleResId = com.ikangtai.papersdk.R.drawable.confirm_sample_pic_lh;
-
+        int feedbackTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
         UiOption uiOption = new UiOption.Builder(getContext())
                 .titleText(titleText)
                 .tagLineImageResId(tagLineImageResId)
@@ -170,7 +170,7 @@ public class HomeFragment extends Fragment {
                 .confirmButtonTextColor(confirmButtonTextColor)
                 .visibleBottomButton(visibleBottomButton)
                 .sampleResUrl("https:/yunchengfile.oss-cn-beijing.aliyuncs.com/app/confirm_sample_pic_lh.png")
-                .feedbackTextColor(hintTextColor)
+                .feedbackTextColor(feedbackTextColor)
                 .build();
         /**
          * 自定义log文件有两种方式,设置一次即可
