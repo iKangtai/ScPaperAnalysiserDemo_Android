@@ -41,6 +41,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -171,6 +172,7 @@ public class HomeFragment extends Fragment {
                 .visibleBottomButton(visibleBottomButton)
                 .sampleResUrl("https:/yunchengfile.oss-cn-beijing.aliyuncs.com/app/confirm_sample_pic_lh.png")
                 .feedbackTextColor(feedbackTextColor)
+                .language(Locale.ENGLISH.getLanguage())
                 .build();
         /**
          * 自定义log文件有两种方式,设置一次即可
