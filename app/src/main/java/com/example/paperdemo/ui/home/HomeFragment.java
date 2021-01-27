@@ -25,6 +25,7 @@ import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.UiOption;
 import com.ikangtai.papersdk.event.IPaperTypeAnalysisResultEvent;
+import com.ikangtai.papersdk.event.InitCallback;
 import com.ikangtai.papersdk.event.SampleBitmapAnalysisEventAdapter;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
@@ -189,7 +190,17 @@ public class HomeFragment extends Fragment {
         //试纸识别sdk相关配置
         Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).netTimeOutRetryCount(1).build();
         //初始化sdk
-        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
+        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
+            @Override
+            public void onSuccess() {
+                ToastUtils.show(getContext(), "初始化成功");
+            }
+
+            @Override
+            public void onFailure(int code, String message) {
+                ToastUtils.show(getContext(), message);
+            }
+        });
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         paperImageView = root.findViewById(R.id.paper_image_home);
