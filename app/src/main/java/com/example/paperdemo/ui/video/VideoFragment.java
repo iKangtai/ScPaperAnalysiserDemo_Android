@@ -525,7 +525,7 @@ public class VideoFragment extends Fragment {
         @Override
         public void saasAnalysisError(String errorResult, int code) {
             LogUtils.d("Test paper analysis error code：" + code + " errorResult:" + errorResult);
-            ToastUtils.show(getContext(), errorResult + code);
+            ToastUtils.show(getContext(), AiCode.getMessage(code));
         }
 
         @Override
