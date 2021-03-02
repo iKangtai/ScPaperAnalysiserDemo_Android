@@ -118,9 +118,12 @@
                 }
                 startTime = System.currentTimeMillis();
                 //视频上半部分正方形图片
-                //Bitmap originSquareBitmap= TensorFlowTools.convertFrameToBitmap(data, camera, surfaceView.getWidth(), surfaceView.getWidth(), TensorFlowTools.getDegree(getActivity()));
-                //Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
-                Bitmap originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
+                Bitmap originSquareBitmap;
+                if (textureView.getBitmap()!=null){
+                   originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
+                }else {
+                   originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+                }
                 paperAnalysiserClient.analysisCameraData(originSquareBitmap);
             }
         };
@@ -137,12 +140,7 @@
                 }
                 startTime = System.currentTimeMillis();
                 //视频上半部分正方形图片
-                Bitmap originSquareBitmap;
-                if (textureView.getBitmap()!=null){
-                    originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
-                }else {
-                    originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
-                }
+                Bitmap originSquareBitmaoriginSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
                 paperAnalysiserClient.analysisCameraData(originSquareBitmap);
             }
         };
