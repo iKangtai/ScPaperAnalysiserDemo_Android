@@ -14,6 +14,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.example.paperdemo.R;
+import com.ikangtai.papersdk.util.Utils;
 
 /**
  * desc
@@ -23,13 +24,17 @@ import com.example.paperdemo.R;
 public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
     private static final int SCAN_COUNT = 190;
 
-    protected SurfaceHolder sh;
+    protected SurfaceHolder sh; // 专门用于控制surfaceView的
+    public int error;
+    private int height;
+
     private Paint mGreenPen;
     private final Bitmap scanningBmp;
     private boolean scanning = true;
     private boolean isDrawMatch = true;
     private boolean stopThread = true;
     private Thread thread;
+    private boolean isCardMode = false;
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -50,9 +55,7 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
         mGreenPen.setAntiAlias(true);
         mGreenPen.setColor(Color.GREEN);
         mGreenPen.setStyle(Paint.Style.STROKE);
-
         scanningBmp = BitmapFactory.decodeResource(getResources(), R.drawable.qrcode_default_scan_line);
-
     }
 
     @Override
@@ -102,6 +105,14 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
         stopThread = false;
     }
 
+    public boolean isCardMode() {
+        return isCardMode;
+    }
+
+    public void setCardMode(boolean cardMode) {
+        isCardMode = cardMode;
+    }
+
     private void drawScanning(int i) {
         int width = getWidth();
         Canvas canvas = sh.lockCanvas();
@@ -110,28 +121,60 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
         }
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
+        if (isCardMode) {
+            int padding = Utils.dp2px(getContext(), 10);
+            //画试纸参考条
+            int destBitmapWidth = width - padding * 2;
+            int destBitmapHeight = destBitmapWidth * 177 / 1053;
+            int paperHeight = width * 2 / 7;
+            float fixY = (paperHeight - destBitmapHeight) / 2;
+            float paperTop = width / 2 + Utils.dp2px(getContext(), 10);
+            float centerLeft = padding + destBitmapWidth * 124 / 351f;
+            float centerTop = paperTop + fixY + destBitmapHeight * 10 / 60f;
 
-        // 绘制扫描条
-        float rate = (float) i % SCAN_COUNT / 100;
-        int srcW = rate < 1 ? (int) (rate * width) : width;
-        Rect findingSrc = new Rect(0, 0, srcW, scanningBmp.getHeight());
+            float centerRight = padding + destBitmapWidth * 232 / 351f;
+            float centerBottom = paperTop + fixY + destBitmapHeight * 55 / 60f;
 
-        Rect findingDes = new Rect();
-        if (rate >= 1) {
-            findingDes.left = (int) (width - srcW * rate);
+            int scanWidth = (int) (centerRight - centerLeft);
+            int scanHeight = (int) (centerBottom - centerTop);
+            // 绘制扫描条
+            float rate = (float) i % 150 / 150;
+            int srcW = (int) (rate * scanWidth);
+            Rect findingSrc = new Rect(0, 0, scanningBmp.getWidth(), scanningBmp.getHeight());
+
+            Rect findingDes = new Rect();
+            findingDes.left = (int) (centerLeft + srcW - scanningBmp.getWidth());
+            findingDes.top = (int) centerTop;
+            findingDes.right = (int) (centerLeft + srcW);
+            if (findingDes.left < centerLeft) {
+                findingDes.left = (int) centerLeft;
+            }
+            if (findingDes.right > centerRight) {
+                findingDes.right = (int) centerRight;
+            }
+            findingDes.bottom = (int) centerBottom;
+            canvas.drawBitmap(scanningBmp, findingSrc, findingDes, mGreenPen);
         } else {
-            findingDes.left = width - srcW;
-        }
-        findingDes.top = scanningBmp.getHeight() / 4;
-        if (rate >= 1) {
-            findingDes.right = (int) (width - srcW * (rate - 1));
-        } else {
-            findingDes.right = width;
+            // 绘制扫描条
+            float rate = (float) i % 250 / 250;
+            int srcW = rate < 1 ? (int) (rate * width) : width;
+            Rect findingSrc = new Rect(0, 0, srcW, scanningBmp.getHeight());
 
+            Rect findingDes = new Rect();
+            if (rate >= 1) {
+                findingDes.left = (int) (srcW * rate);
+            } else {
+                findingDes.left = srcW;
+            }
+            findingDes.top = getHeight() / 4;
+            if (rate >= 1) {
+                findingDes.right = (int) (srcW * (rate + 1));
+            } else {
+                findingDes.right = srcW * 2;
+            }
+            findingDes.bottom = getHeight() * 3 / 4;
+            canvas.drawBitmap(scanningBmp, findingSrc, findingDes, mGreenPen);
         }
-        findingDes.bottom = getHeight() * 3 / 4;
-
-        canvas.drawBitmap(scanningBmp, findingSrc, findingDes, mGreenPen);
         try {
             if (sh != null) {
                 sh.unlockCanvasAndPost(canvas);
@@ -140,6 +183,5 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
             e.printStackTrace();
         }
     }
-
 }
 

@@ -192,13 +192,13 @@ public class HomeFragment extends Fragment {
         //初始化sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
             @Override
-            public void onSuccess() {
-                ToastUtils.show(getContext(), "初始化成功");
+            public void onFailure(int code, String message) {
+                ToastUtils.show(getContext(), message);
             }
 
             @Override
-            public void onFailure(int code, String message) {
-                ToastUtils.show(getContext(), message);
+            public void onSuccess() {
+
             }
         });
 
@@ -260,6 +260,9 @@ public class HomeFragment extends Fragment {
                     paperImageView.setImageBitmap(paperResult.getPaperBitmap());
                     //开启外扩开关后 会返回不带边距bitmap
                     paperNoMarginImageView.setImageBitmap(paperResult.getNoMarginBitmap());
+                    //保存试纸TC线1080 108 0.43 0.64
+                    //Bitmap premomPaperBitmap = PremomImageUtils.getPremomBitmap(paperResult);
+                    //FileUtil.saveBitmap(premomPaperBitmap, paperResult.getPaperId() + "_small");
                     //显示试纸结果
                     FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                     paperResult.setPaperBitmap(null);

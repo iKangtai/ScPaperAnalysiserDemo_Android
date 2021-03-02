@@ -7,8 +7,6 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,7 +50,6 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
      * 试纸结果
      */
     private TextView analysisResultTitle;
-
     /**
      * 试纸结果描述
      */
@@ -66,10 +63,6 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
      * 试纸时间
      */
     private TextView paperTime;
-    /**
-     * 闹钟选择框
-     */
-    private CheckBox remindCB;
     /**
      * 保存
      */
@@ -100,7 +93,6 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         analysisDescHint = findViewById(R.id.analysisDescHint);
         updatePaperResult = findViewById(R.id.updatePaperResult);
         paperTime = findViewById(R.id.camera_result_time);
-        remindCB = findViewById(R.id.remindCB);
         saveBtn = findViewById(R.id.save_btn);
         console = findViewById(R.id.console);
         loadData();
@@ -120,6 +112,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
                 ToastUtils.show(PaperDetailActivity.this, message);
             }
         });
+
     }
 
     private void loadData() {
@@ -178,27 +171,16 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
             updatePaperResult.setOnClickListener(this);
         }
 
-        if (remindCB != null) {
-            remindCB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                }
-            });
-        }
-
         if (paperImg != null) {
             //显示试纸照片
-            String paperName;
-            paperName = paperNameId + PIC_JPG;
-            FileUtil.initPath(PaperDetailActivity.this,"");
+            String paperName = paperNameId + PIC_JPG;
+            FileUtil.initPath(PaperDetailActivity.this, "");
             String paperImgPath = FileUtil.getPlayCameraPath() + File.separator + paperName;
             File file = new File(paperImgPath);
             if (file.exists()) {
                 Glide.with(PaperDetailActivity.this).load("file://" + paperImgPath).into(paperImg);
             }
         }
-
         if (paperTime != null) {
             if (!TextUtils.isEmpty(paperDate)) {
                 int index = paperDate.lastIndexOf(":");
@@ -231,8 +213,15 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         console.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (paperBean != null) {
-                    console.setText(paperBean.toString());
+                if (TextUtils.equals(console.getText(), "console")) {
+                    StringBuffer stringBuffer = new StringBuffer();
+                    if (paperBean != null) {
+                        stringBuffer.append(paperBean.toString());
+                        stringBuffer.append("\n------------------------------\n");
+                    }
+                    console.setText(stringBuffer.toString());
+                } else {
+                    console.setText("");
                 }
             }
         });
@@ -250,19 +239,6 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
             String analysisResult = String.format(getString(R.string.lh_refer_result), paperResult);
             analysisResultTitle.setText(Html.fromHtml(analysisResult));
         }
-        if (lhPaperAlType != 7) {
-            //非孕橙试纸增加描述提醒
-            if (analysisDescHint != null) {
-                String desc = getString(R.string.paper_brand_shecare_result_hint);
-                String filterDesc = getString(R.string.buy_shecare_brand_paper);
-                int index = desc.indexOf(filterDesc);
-                if (index > 0) {
-                    analysisDescHint.setText(desc.substring(0, index));
-                }
-
-            }
-        }
-
     }
 
 

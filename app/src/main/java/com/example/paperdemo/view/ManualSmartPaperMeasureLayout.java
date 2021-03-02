@@ -5,21 +5,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.example.paperdemo.R;
 import com.ikangtai.papersdk.util.Utils;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * desc
@@ -33,10 +33,15 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
     private int width;
     private Data data = new Data();
     private Bitmap originSquareBitmap;
+    private int paperType;
 
     public void scanPaperCoordinatesData(Bitmap originSquareBitmap) {
         this.originSquareBitmap = originSquareBitmap;
         invalidate();
+    }
+
+    public void setPaperType(int paperType) {
+        this.paperType = paperType;
     }
 
     private void drawBitmap(Canvas canvas) {
@@ -73,9 +78,10 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         this.width = dm.widthPixels;
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.WHITE);
-        textPaint.setTextSize(Utils.sp2px(context, 14f));
+        textPaint.setTextSize(Utils.sp2px(context, 13f));
+        linePaint.setStyle(Paint.Style.FILL);
         linePaint.setAntiAlias(true);
-        linePaint.setColor(Color.parseColor("#F9F900"));
+        linePaint.setColor(Color.parseColor("#99000000"));
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         setBackgroundColor(Color.TRANSPARENT);
         data.outerWidth = this.width;
@@ -86,20 +92,27 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(widthMeasureSpec, widthMeasureSpec);
+        int resolvedHeight = View.resolveSize(width, heightMeasureSpec);
+        setMeasuredDimension(widthMeasureSpec, resolvedHeight);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawBitmap(canvas);
-        drawPaper(canvas);
         drawLine(canvas);
+        drawPaper(canvas);
     }
 
+    float scanPaperNoticeWidth;
+    float scanPaperNoticeHeight;
+    float scanPaperNoticeX;
+    float scanPaperNoticeY;
+
     private void drawPaper(Canvas canvas) {
+        Bitmap source = null;
         //画试纸参考条
-        Bitmap source = BitmapFactory.decodeResource(getResources(), R.drawable.paper_camera_ovulation_refrence);
+        source = BitmapFactory.decodeResource(getResources(), R.drawable.confirm_sample_pic_lh);
         int destBitmapHeight = source.getHeight();
         int padding = Utils.dp2px(context, 10);
         float left = padding;
@@ -110,84 +123,107 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         canvas.drawBitmap(source, null, rectF, null);
 
         //画扫描提醒
+        textPaint.setTextSize(Utils.sp2px(context, 13f));
         String scanNotice = getResources().getString(R.string.paper_scan_notice);
         float scanNoticeWidth = textPaint.measureText(scanNotice);
         float scanNoticeX = (width - scanNoticeWidth) / 2;
-        float scanNoticeY = top - Utils.dp2px(context, 30);
+        float scanNoticeY = top - Utils.dp2px(context, 50);
         canvas.drawText(scanNotice, scanNoticeX, scanNoticeY, textPaint);
 
+        //卡/笔形试纸？
+        String scanPaperNotice = getContext().getString(R.string.scan_paper_notice);
+        textPaint.setTextSize(Utils.sp2px(context, 11f));
+        scanPaperNoticeHeight = textPaint.getTextSize();
+        scanPaperNoticeWidth = textPaint.measureText(scanPaperNotice);
+        scanPaperNoticeX = width - padding - scanPaperNoticeWidth;
+        scanPaperNoticeY = top - Utils.dp2px(context, 13);
+        canvas.drawText(scanPaperNotice, scanPaperNoticeX, scanPaperNoticeY, textPaint);
+        int lineY = (int) (scanPaperNoticeY + Utils.dp2px(context, 3f));
+        textPaint.setStyle(Paint.Style.STROKE);
+        textPaint.setStrokeWidth(Utils.dp2px(context, 1));
+        canvas.drawLine(scanPaperNoticeX, lineY, width - padding, lineY, textPaint);
+        textPaint.setStyle(Paint.Style.FILL);
         //画T C
         textPaint.setFakeBoldText(true);
         textPaint.setTextSize(Utils.sp2px(context, 16f));
         final String T = "T";
         final String C = "C";
-        float tcY = top - Utils.dp2px(context, 5);
+        float tcY = top - Utils.dp2px(context, 8);
         float tWidth = textPaint.measureText(T);
         float cWidth = textPaint.measureText(C);
-        float tX = width / 2 - tWidth;
-        float cX = width / 2 + cWidth;
+        float tX = padding + (width - padding) * 578 / 1388 - tWidth / 2;
+        float cX = padding + (width - padding) * 661 / 1388 - cWidth / 2;
         canvas.drawText(T, tX, tcY, textPaint);
         canvas.drawText(C, cX, tcY, textPaint);
     }
 
     private void drawLine(Canvas canvas) {
-
-        linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setStrokeWidth(5);
-        linePaint.setPathEffect(new DashPathEffect(new float[]{12, 12}, 0));
+        //linePaint.setPathEffect(new DashPathEffect(new float[]{12, 12}, 0));
 
         int padding = Utils.dp2px(context, 10);
+        int paperHeight = Utils.dp2px(context, 26);
         float startX = padding;
         float stopX = width - startX;
-        float top = width / 3 + Utils.dp2px(context, 60);
+        float top = width / 3 + Utils.dp2px(context, 40);
         float startY = top;
         float stopY = top;
         //横向第一条线
-        canvas.drawLine(startX, startY, stopX, stopY, linePaint);
+        canvas.drawRect(0, 0, width, stopY, linePaint);
         data.innerLeft = (int) startX;
         data.innerTop = (int) startY;
         //横向第二条线
-        startY += Utils.dp2px(context, 20);
+        startY += paperHeight;
         stopY = startY;
-        canvas.drawLine(startX, startY, stopX, stopY, linePaint);
+        canvas.drawRect(0, startY, width, width, linePaint);
+
         data.innerRight = (int) stopX;
         data.innerBottom = (int) stopY;
         data.innerWidth = data.innerRight - data.innerLeft;
         data.innerHeight = data.innerBottom - data.innerTop;
 
-
-        //左边缘
-        String leftMarginContent = getResources().getString(R.string.left_margin);
-        //右边缘
-        String rightMarginContent = getResources().getString(R.string.right_margin);
-
-        //边缘线长度
-        int marginLength = Utils.dp2px(context, 130);
-
         //左边缘线
-        float leftMarginStartX = startX;
-        float leftMarginStartY = startY + Utils.dp2px(context, 20);
-        float leftMarginStopX = startX;
-        float leftMarginStopY = leftMarginStartY - marginLength;
-        canvas.drawLine(leftMarginStartX, leftMarginStartY, leftMarginStopX, leftMarginStopY, linePaint);
-
-        //左边缘描述
-        int diff = Utils.dp2px(context, 20);
-        textPaint.setFakeBoldText(false);
-        textPaint.setTextSize(Utils.sp2px(context, 14f));
-        canvas.drawText(leftMarginContent, leftMarginStartX, leftMarginStartY + diff, textPaint);
-
+        float leftMarginStartX = padding;
+        float leftMarginStartY = startY;
+        float leftMarginStopX = 0;
+        float leftMarginStopY = leftMarginStartY - paperHeight;
+        canvas.drawRect(leftMarginStartX, leftMarginStartY, leftMarginStopX, leftMarginStopY, linePaint);
 
         //右边缘线
-        float rightMarginStartX = stopX;
-        float rightMarginStartY = startY + Utils.dp2px(context, 20);
-        float rightMarginStopX = stopX;
-        float rightMarginStopY = rightMarginStartY - marginLength;
-        canvas.drawLine(rightMarginStartX, rightMarginStartY, rightMarginStopX, rightMarginStopY, linePaint);
+        float rightMarginStartX = width;
+        float rightMarginStartY = startY;
+        float rightMarginStopX = width - padding;
+        float rightMarginStopY = rightMarginStartY - paperHeight;
+        canvas.drawRect(rightMarginStartX, rightMarginStartY, rightMarginStopX, rightMarginStopY, linePaint);
 
-        //右边缘描述
-        float rightMarginContentWidth = textPaint.measureText(rightMarginContent);
-        canvas.drawText(rightMarginContent, rightMarginStartX - rightMarginContentWidth, rightMarginStartY + diff, textPaint);
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                float x = event.getX();
+                float y = event.getY();
+                if (x >= scanPaperNoticeX && y > scanPaperNoticeY-scanPaperNoticeHeight && x <= scanPaperNoticeX + scanPaperNoticeWidth && y <= scanPaperNoticeY + scanPaperNoticeHeight+20) {
+                    if (this.viewClick != null) {
+                        this.viewClick.onClick();
+                        return true;
+                    }
+                }
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    private ViewClick viewClick;
+
+    public void setViewClick(ViewClick viewClick) {
+        this.viewClick = viewClick;
+    }
+
+    //自定义点击事件接口
+    public interface ViewClick {
+        void onClick();
     }
 
     public Data getData() {

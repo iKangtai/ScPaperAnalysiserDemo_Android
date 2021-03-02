@@ -39,12 +39,27 @@
             android:layout_height="wrap_content"
             android:visibility="gone" />
 
+        <com.example.paperdemo.view.CardAutoSmartPaperMeasureLayout
+            android:id="@+id/card_auto_smart_paper_measureLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <com.example.paperdemo.view.PaperScanView
             android:id="@+id/paper_scan_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/switch_card_paper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_margin="@dimen/dp_20"
+            android:drawableRight="@drawable/ic_change"
+            android:text="@string/card_strip"
+            android:textColor="@color/white" />
 
     </com.example.paperdemo.view.SmartPaperMeasureContainerLayout>
     <!--闪光灯-->
@@ -71,7 +86,7 @@
             android:id="@+id/ovulationCameraTips"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/paper_open_album"
+            android:layout_above="@+id/paper_mode_switch"
             android:gravity="center"
             android:textColor="@color/white" />
 
@@ -85,16 +100,7 @@
             android:layout_margin="@dimen/dp_10"
             android:scaleType="centerInside"
             android:src="@drawable/btn_shutter_background"
-            android:visibility="gone"/>
-
-        <ImageView
-            android:id="@+id/paper_open_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="60dp"
-            android:src="@drawable/icon_album"
-            />
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/paper_mode_switch"

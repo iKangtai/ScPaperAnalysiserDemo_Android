@@ -3,52 +3,54 @@
 ## Demo
 <http://fir.ikangtai.cn/knu1>
 
-## Internationalization
-English | [中文文档](README_zh.md)
+## 国际化
+[English](README.md) | 中文文档
 
-## Access Guide
-### 一.Integrated SDK
+## 集成说明
+### 一.引入试纸sdk库
    ```java
        api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.8'
    ```
-### 二.Add dependency library url
+### 二.添加依赖库地址
    ```java
       maven { url 'https://dl.bintray.com/ikangtaijcenter123/ikangtai' }
    ```
-### 三.Instructions
+### 三.使用方法
   ```java
-      //The network configuration needs to be before the SDK initialization
-      //Test network
+      //网络配置需要在初始化sdk之前
+      //使用测试网络
       Config.setTestServer(true);
-      //Timeout
+      //网络超时时间
       Config.setNetTimeOut(30);
 
-      //Determine whether the mobile phone performance meets the SDK requirements
-      1.SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)#Inaccurate first time verification
-      2.Use SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret) in application init, and use SupportDeviceUtil.isSupport(getContext()) at the app
+      //判断手机性能是否满足sdk要求
+      1.SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)#第一次校验不准
+      2.application初始化中调用SupportDeviceUtil.isSupport(getContext(),AppConstant.appId, AppConstant.appSecret)，实际判断处调用SupportDeviceUtil.isSupport(getContext())
   ```
-  1.init
+  1.初始化
   ```java
+    //初始化sdk
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com");
   ```
-  2.General configuration
+  2.常规配置
   ```java
-    //Test paper to identify sdk related configuration
+    //试纸识别sdk相关配置
     Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).build();
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com",config);
   ```
-  3.Use recognition test paper picture
+
+  3.调用识别试纸图片
   ```java
     paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
                     @Override
                     public void showProgressDialog() {
-                        //show progress dialog
+                        //显示加载框
                         LogUtils.d("Show Loading Dialog");
                         that.showProgressDialog(new View.OnClickListener() {
 
                             @Override
                             public void onClick(View v) {
-                                //Stop network request
+                                //停止网络请求
                                 paperAnalysiserClient.stopShowProgressDialog();
                             }
                         });
@@ -56,21 +58,21 @@ English | [中文文档](README_zh.md)
 
                     @Override
                     public void dismissProgressDialog() {
-                        //hide progress dialog
+                        //隐藏加载框
                         LogUtils.d("Hide Loading Dialog");
                     }
 
                     @Override
                     public void cancel() {
-                        //Cancel test strip result confirm dialog
-                        LogUtils.d("Cancel test strip result dialog");
+                        LogUtils.d("取消试纸结果确认");
+                        //试纸结果确认框取消
                         ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
                     }
 
                     @Override
                     public void save(PaperResult paperResult) {
-                        //Save test paper analysis results
-                        LogUtils.d("Save test paper analysis results：\n"+paperResult.toString());
+                        LogUtils.d("保存试纸分析结果：\n"+paperResult.toString());
+                        //试纸结果确认框确认 显示试纸结果
                         if (paperResult.getErrNo() != 0) {
                             ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                         }
@@ -79,22 +81,22 @@ English | [中文文档](README_zh.md)
 
                     @Override
                     public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
-                        LogUtils.d("Test strips are automatically cut out successfully");
+                        LogUtils.d("试纸自动抠图成功");
                         return false;
                     }
 
                     @Override
                     public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
-                        //Test paper cutout failed result
-                        LogUtils.d("Error in automatic matting of test strips code：" + code + " errorResult:" + errorResult);
+                        LogUtils.d("试纸自动抠图出错 code：" + code + " errorResult:" + errorResult);
+                        //试纸抠图失败结果
                         ToastUtils.show(getContext(), AiCode.getMessage(code));
 
                     }
 
                     @Override
                     public void saasAnalysisError(String errorResult, int code) {
-                        //Test strip analysis error
-                        LogUtils.d("Test strip analysis error code：" + code + " errorResult:" + errorResult);
+                        LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
+                        //试纸saas分析失败
                         ToastUtils.show(getContext(), AiCode.getMessage(code));
 
                     }
@@ -105,8 +107,8 @@ English | [中文文档](README_zh.md)
                     }
                 });
   ```
-  4.Identify the video stream
-  TextureView video preview
+  4.识别视频流
+  TextureView视频预览
   ```java
     Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
             @Override
@@ -114,7 +116,27 @@ English | [中文文档](README_zh.md)
                 if (paperAnalysiserClient.isObtainPreviewFrame()) {
                     return;
                 }
-                //The top half of the video is a square image
+                startTime = System.currentTimeMillis();
+                //视频上半部分正方形图片
+                //Bitmap originSquareBitmap= TensorFlowTools.convertFrameToBitmap(data, camera, surfaceView.getWidth(), surfaceView.getWidth(), TensorFlowTools.getDegree(getActivity()));
+                //Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+                Bitmap originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
+                paperAnalysiserClient.analysisCameraData(originSquareBitmap);
+            }
+        };
+    cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
+  ```
+
+  SurfaceView视频预览
+  ```java
+        Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(final byte[] data, final Camera camera) {
+                if (paperAnalysiserClient.isObtainPreviewFrame()) {
+                    return;
+                }
+                startTime = System.currentTimeMillis();
+                //视频上半部分正方形图片
                 Bitmap originSquareBitmap;
                 if (textureView.getBitmap()!=null){
                     originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
@@ -124,25 +146,8 @@ English | [中文文档](README_zh.md)
                 paperAnalysiserClient.analysisCameraData(originSquareBitmap);
             }
         };
-    cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
-  ```
-
-  SurfaceView video preview
-  ```java
-        Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
-            @Override
-            public void onPreviewFrame(final byte[] data, final Camera camera) {
-                if (paperAnalysiserClient.isObtainPreviewFrame()) {
-                    return;
-                }
-                startTime = System.currentTimeMillis();
-                //The top half of the video is a square image
-                Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
-                paperAnalysiserClient.analysisCameraData(originSquareBitmap);
-            }
-        };
         cameraUtil.initCamera(getActivity(), surfaceView, mPreviewCallback);
-        //Need to perform coordinate conversion in analysisSuccess and analysisResult callback methods
+        //需要在analysisSuccess和analysisResult回调方法进行坐标转换
         ICameraAnalysisEvent iCameraAnalysisEvent = new ICameraAnalysisEvent() {
                 @Override
                 public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
@@ -160,85 +165,68 @@ English | [中文文档](README_zh.md)
                 }
         }
   ```
-  5.Actively release resources after use
+  5.调用完成释放资源
   ```java
     paperAnalysiserClient.closeSession();
   ```
 
-  ### View log
-  You can control whether the SDK run debug log is output and the output path by calling the following methods. By default, the SDK run debug log is turned on. The user can manually close it.
-  You can also filter the "sc-ble-log" Tag through Locat to display SDK specific logs.
-
-
-  ```java
-      /**
-       * There are two ways to configure log
-       * 1. {@link Config.Builder#logWriter(Writer)}
-       * 2. {@link Config.Builder#logFilePath(String)}
-       */
-      LogUtils.LOG_SWITCH=true;
-      Config config = new Config.Builder().logWriter(logWriter).build();
-      //Config config = new Config.Builder().logFilePath(logFilePath).build();
-      scPeripheralManager.init(getContext(), config);
-  ```
-
-  ### Custom UI
+  ### UI定制
     ```java
-      //Customized test paper Ui display
+      //定制试纸Ui显示
       /**
-       * title
+       * 标题
        */
       String titleText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_title);
       /**
-       * title color
+       * 标题颜色
        */
       int titleTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
       /**
-       * paper line
+       * 标尺线
        */
       int tagLineImageResId = com.ikangtai.papersdk.R.drawable.paper_line;
       /**
-       * t line slider icon
+       * t滑块图标
        */
       int tLineResId = com.ikangtai.papersdk.R.drawable.test_paper_t_line;
       /**
-       * c line slider icon
+       * c滑块图标
        */
       int cLineResId = com.ikangtai.papersdk.R.drawable.test_paper_c_line;
       /**
-       * Flip text horizontally
+       * 水平翻转文字
        */
       String flipText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_flip);
       /**
-       * Flip text color horizontally
+       * 水平翻转文字颜色
        */
       int flipTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
       /**
-       * Prompt text
+       * 提示文字
        */
       String hintText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_hit);
       /**
-       * Prompt text color
+       * 提示文字颜色
        */
       int hintTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
       /**
-       * Back button
+       * 返回按钮
        */
       int backResId = com.ikangtai.papersdk.R.drawable.test_paper_return;
       /**
-       * Confirm button
+       * 确认按钮
        */
       int confirmResId = com.ikangtai.papersdk.R.drawable.test_paper_confirm;
       /**
-       * Back button text color
+       * 返回按钮文字颜色
        */
       int backButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
       /**
-       * Confirm button text color
+       * 确认按钮文字颜色
        */
       int confirmButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
       /**
-       * Bottom menu way display button
+       * 显示底部按钮
        */
       boolean visibleBottomButton = false;
       UiOption uiOption = new UiOption.Builder()
@@ -257,13 +245,30 @@ English | [中文文档](README_zh.md)
               .confirmButtonTextColor(confirmButtonTextColor)
               .visibleBottomButton(visibleBottomButton)
               .build();
-      //Test paper to identify sdk related configuration
+      //试纸识别sdk相关配置
       Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).netTimeOutRetryCount(1).build();
       paperAnalysiserClient.init(config);
     ```
-
-  ### Confusion configuration
-  If your application uses code obfuscation, please add the following configuration to avoid SDK being unavailable due to incorrect obfuscation.
+  ### 查看日志
+  ```java
+    /**
+    * log默认路径/data/Android/pageName/files/Documents/log.txt,可以通过LogUtils.getLogFilePath()获取
+    * 自定义log文件有两种方式,设置一次即可
+    * 1. {@link Config.Builder#logWriter(Writer)}
+    * 2. {@link Config.Builder#logFilePath(String)}
+    */
+    String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
+    BufferedWriter logWriter = null;
+    try {
+        logWriter = new BufferedWriter(new FileWriter(logFilePath, true), 2048);
+    } catch (IOException e) {
+       e.printStackTrace();
+    }
+    //试纸识别sdk相关配置
+    Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).build();
+    paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com",config);
+  ```
+  ### 混淆代码过滤
   ```java
     -dontwarn  com.ikangtai.papersdk.**
     -keep class com.ikangtai.papersdk.** {*;}

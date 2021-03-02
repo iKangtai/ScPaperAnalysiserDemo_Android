@@ -11,23 +11,29 @@
         custom:midText="@string/paper_clip_title" />
 
     <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/topBar"
+        android:background="#80000000" />
+
+    <ImageView
         android:id="@+id/src_pic"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/topBar"
         android:scaleType="centerInside" />
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/topBar"
-        android:background="#70000000" />
-
     <com.example.paperdemo.view.ManualSmartPaperMeasureLayout
         android:id="@+id/paper_clip_measureLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        android:layout_below="@+id/topBar" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/paper_clip_measureLayout"
+        android:background="#99000000" />
 
     <Button
         android:id="@+id/paper_clip_save_button"
@@ -43,13 +49,52 @@
         android:text="@string/finish"
         android:textAllCaps="false" />
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/paper_photopage_pic_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/paper_clip_save_button"
-        android:layout_marginBottom="@dimen/dp_10"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/photopage_pic_zooming"
+            android:gravity="center"
+            android:text="@string/clip_picture_zoom"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/photopage_pic_shuffling"
+            android:gravity="center"
+            android:text="@string/clip_picture_rotate"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/paper_photopage_pic_view"
+        android:layout_marginBottom="@dimen/dp_40"
         android:gravity="center_horizontal"
         android:text="@string/paper_clip_text"
-        android:textColor="@color/white"
-        android:textSize="@dimen/button_text_size" />
+        android:textColor="@color/white" />
 </RelativeLayout>

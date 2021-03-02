@@ -9,6 +9,7 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_video">Video</string>
+    <string name="menu_video2">Video2</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
@@ -21,13 +22,15 @@
     <string name="paper_manau_clip">手动裁剪</string>
     <string name="paper_clip_pic">图片裁剪</string>
     <string name="paper_reset">重试</string>
-    <string name="paper_clip_text">可以拖动、旋转、放大或者缩小来操作照片</string>
+    <string name="clip_picture_zoom">放大缩小</string>
+    <string name="clip_picture_rotate">旋转</string>
+    <string name="paper_clip_text">温馨提示：可以通过以下操作调整图片到取景框中</string>
     <string name="try_take_photo">尝试直接拍照</string>
     <string name="intelligent_matting">智能扫描</string>
     <string name="paper_scan_notice">请务必保持试纸处在取景框内</string>
     <string name="left_margin">左边缘</string>
     <string name="right_margin">右边缘</string>
-    <string name="ovulation_camera_tips"><![CDATA[为避免试纸失效，请在显色后<font color="#f5ed04">10-15分钟</font>内拍照]]></string>
+    <string name="ovulation_camera_tips"><![CDATA[为避免试纸失效，请在显色后<font color="#79FA1E">10-15分钟</font>内拍照]]></string>
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="finish">完成</string>
@@ -39,10 +42,13 @@
     <string name="color_reference_bar_title_1">T线色值参考条:</string>
     <string name="color_reference_bar_title_2">T线色值参考条，拖动色卡修正结果！</string>
     <string name="lh_refer_result"><![CDATA[参考结果：<font color="#FF7486">%d</font>]]></string>
+    <string name="retio_refer_result"><![CDATA[Ratio结果：<font color="#FF7486">%s</font>]]></string>
     <string name="lh_time2">检测时间</string>
     <string name="save">保存</string>
-    <string name="paper_brand_shecare_result_hint"><![CDATA[算法根据孕橙品牌试纸显色原理开发，使用孕橙智能排卵试纸确定排卵更准确哦！点此立即购买>>]]></string>
-    <string name="buy_shecare_brand_paper"><![CDATA[点此立即购买>>]]></string>
+    <string name="card_strip">卡/笔型试纸</string>
+    <string name="bar_strip">条形试纸</string>
+    <string name="scan_paper_notice">卡/笔形试纸？</string>
+    <string name="card_paper_in_container">请将试纸【完整】的显示窗口放入取景框内\nT线在左，C线在右</string>
 
 
 </resources>

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -13,18 +12,17 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.paperdemo.R;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.util.AiCode;
-import com.ikangtai.papersdk.util.LogUtils;
+import com.ikangtai.papersdk.util.PxDxUtil;
 import com.ikangtai.papersdk.util.Utils;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * desc
@@ -37,6 +35,7 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
     private TextPaint linePaint = new TextPaint();
     private Context context;
     private int width;
+    private int height;
     private PaperCoordinatesData paperCoordinatesData;
     private Bitmap originSquareBitmap;
 
@@ -59,11 +58,13 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
         this.context = context;
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         this.width = dm.widthPixels;
+        this.height=this.width;
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.WHITE);
-        textPaint.setTextSize(Utils.sp2px(context, 14f));
+        textPaint.setTextSize(Utils.sp2px(context, 18f));
+        linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setAntiAlias(true);
-        linePaint.setColor(Color.parseColor("#F9F900"));
+        linePaint.setColor(Color.parseColor("#79FA1E"));
         textBackgroundPaint.setAntiAlias(true);
         textBackgroundPaint.setColor(Color.parseColor("#99444444"));
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -74,7 +75,8 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(widthMeasureSpec, widthMeasureSpec);
+        int resolvedHeight = View.resolveSize(width, heightMeasureSpec);
+        setMeasuredDimension(widthMeasureSpec, resolvedHeight);
     }
 
     @Override
@@ -86,7 +88,6 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
         drawLine(canvas);
         drawHint(canvas);
         long t2 = System.currentTimeMillis();
-        Log.i(LogUtils.LOG_TAG, "画布绘制消耗:" + (t2 - t1));
 
     }
 
@@ -96,6 +97,13 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
         invalidate();
     }
 
+    public PaperCoordinatesData getPaperCoordinatesData() {
+        return paperCoordinatesData;
+    }
+
+    public void setPaperCoordinatesData(PaperCoordinatesData paperCoordinatesData) {
+        this.paperCoordinatesData = paperCoordinatesData;
+    }
 
     public void scanPaperCoordinatesData(PaperCoordinatesData paperCoordinatesData) {
         this.paperCoordinatesData = paperCoordinatesData;
@@ -120,6 +128,7 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
     private void drawScanResult(Canvas canvas) {
         String scanResult = handleData(paperCoordinatesData);
         if (!TextUtils.isEmpty(scanResult)) {
+            textPaint.setTextSize(Utils.sp2px(context, 14f));
             float scanResultWidth = textPaint.measureText(scanResult);
             float scanResultBackgroundWidth = scanResultWidth * 1.5f;
             float scanResultBackgroundHeight = Utils.dp2px(context, 45);
@@ -140,18 +149,66 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
 
 
     private void drawLine(Canvas canvas) {
+        linePaint.setStrokeWidth(PxDxUtil.dip2px(getContext(), 5));
+        int lineWidth = Utils.dp2px(context, 30);
+        int padding = Utils.dp2px(context, 10);
+        int paddingTop = Utils.dp2px(context, 70);
+        float startX = padding + lineWidth;
+        float startY = padding + paddingTop;
+        float centerX = padding;
+        float centerY = padding + paddingTop;
+        float stopX = padding;
+        float stopY = padding + lineWidth + paddingTop;
+        //横向第一条线
+        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+
+        //横向第二条线
+        startX = padding + lineWidth;
+        startY = height - padding - paddingTop;
+        centerX = padding;
+        centerY = height - padding - paddingTop;
+        stopX = padding;
+        stopY = height - padding - lineWidth - paddingTop;
+        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+
+        //横向第三条线
+        startX = width - padding - lineWidth;
+        startY = height - padding - paddingTop;
+        centerX = width - padding;
+        centerY = height - padding - paddingTop;
+        stopX = width - padding;
+        stopY = height - padding - lineWidth - paddingTop;
+        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+
+        //横向第四条线
+        startX = width - padding - lineWidth;
+        startY = padding + paddingTop;
+        centerX = width - padding;
+        centerY = padding + paddingTop;
+        stopX = width - padding;
+        stopY = padding + lineWidth + paddingTop;
+        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+
         Path path = handlePath(paperCoordinatesData);
         if (path != null) {
-            linePaint.setStyle(Paint.Style.STROKE);
-            linePaint.setStrokeWidth(5);
-            linePaint.setPathEffect(new DashPathEffect(new float[]{12, 12}, 0));
+            //linePaint.setPathEffect(new DashPathEffect(new float[]{12, 12}, 0));
+            linePaint.setStrokeWidth(PxDxUtil.dip2px(getContext(), 4));
             canvas.drawPath(path, linePaint);
         }
+    }
+
+    private Path handleLinePath(float startX, float startY, float centerX, float centerY, float endX, float endY) {
+        Path p = new Path();
+        p.moveTo(startX, startY);
+        p.lineTo(centerX, centerY);
+        p.lineTo(endX, endY);
+        return p;
     }
 
     private void drawHint(Canvas canvas) {
         String hint = getResources().getString(R.string.paper_in_container);
         if (!TextUtils.isEmpty(hint)) {
+            textPaint.setTextSize(Utils.sp2px(context, 18f));
             float hintWidth = textPaint.measureText(hint);
             float x = (width - hintWidth) / 2;
             float y = Utils.dp2px(context, 78f);
@@ -184,5 +241,4 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
 
         return null;
     }
-
 }

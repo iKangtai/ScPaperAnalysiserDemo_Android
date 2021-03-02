@@ -41,7 +41,7 @@
                 <ImageView
                     android:id="@+id/paperImg"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/dp_25" />
+                    android:layout_height="wrap_content" />
 
                 <!--滑块拖动-->
                 <com.example.paperdemo.view.OvulationSeekBar
@@ -129,22 +129,6 @@
                     android:textSize="@dimen/button_text_small_size" />
             </LinearLayout>
 
-
-            <CheckBox
-                android:id="@+id/remindCB"
-                style="@style/CustomCheckboxTheme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/dp_20"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:button="@drawable/reminder_checkbox"
-                android:checked="true"
-                android:paddingHorizontal="@dimen/dp_10"
-                android:textColor="#666666"
-                android:textSize="@dimen/button_text_small_size_10"
-                android:visibility="invisible" />
-
             <Button
                 android:id="@+id/save_btn"
                 style="@style/commonButtonCornerStyle"
@@ -168,7 +152,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:padding="5dp"
-        android:gravity="right"
+        android:text="console"
         android:hint="console"
-        android:text="console" />
+        android:gravity="right"/>
 </RelativeLayout>

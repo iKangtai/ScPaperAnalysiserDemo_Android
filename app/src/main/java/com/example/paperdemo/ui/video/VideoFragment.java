@@ -3,7 +3,6 @@ package com.example.paperdemo.ui.video;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -12,11 +11,8 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.Html;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.TextureView;
@@ -24,14 +20,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.paperdemo.AppConstant;
-import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
-import com.example.paperdemo.view.ActionSheetDialog;
-import com.example.paperdemo.view.CameraSurfaceView;
+import com.example.paperdemo.view.CardAutoSmartPaperMeasureLayout;
 import com.example.paperdemo.view.ManualSmartPaperMeasureLayout;
 import com.example.paperdemo.view.ProgressDialog;
 import com.example.paperdemo.view.SmartPaperMeasureContainerLayout;
@@ -39,8 +32,8 @@ import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.PaperResultDialog;
 import com.ikangtai.papersdk.event.IBaseAnalysisEvent;
-import com.ikangtai.papersdk.event.IBitmapAnalysisEvent;
 import com.ikangtai.papersdk.event.ICameraAnalysisEvent;
+import com.ikangtai.papersdk.event.InitCallback;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.AiCode;
@@ -51,9 +44,6 @@ import com.ikangtai.papersdk.util.LogUtils;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
-import java.io.File;
-import java.io.IOException;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -63,11 +53,12 @@ public class VideoFragment extends Fragment {
     private PaperAnalysiserClient paperAnalysiserClient;
     private long startTime, endTime;
     private CameraUtil cameraUtil;
-    private TextView ovulationCameraTips, flashTv, modeSwitchTv;
-    private ImageView shutterBtn, openAlbumTv;
+    private TextView ovulationCameraTips, flashTv, modeSwitchTv, switchCardMode;
+    private ImageView shutterBtn;
     private int scanMode;
     private static final int AUTOSMART = 0;
     private static final int MANUALSMART = 1;
+    private boolean isCardMode = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -75,7 +66,17 @@ public class VideoFragment extends Fragment {
         Config.setNetTimeOut(30);
         //初始化sdk
         Config config = new Config.Builder().pixelOfdExtended(true).margin(5).build();
-        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
+        paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(int code, String message) {
+                ToastUtils.show(getContext(), message);
+            }
+        });
         paperAnalysiserClient.setCameraDataCallback(iCameraAnalysisEvent);
         View root = inflater.inflate(R.layout.fragment_video, container, false);
         root.findViewById(R.id.camera_scrollview).setOnTouchListener(new View.OnTouchListener() {
@@ -103,9 +104,9 @@ public class VideoFragment extends Fragment {
         smartPaperMeasureContainerLayout = view.findViewById(R.id.paper_scan_content_view);
         ovulationCameraTips = view.findViewById(R.id.ovulationCameraTips);
         flashTv = view.findViewById(R.id.paper_flash_tv);
-        openAlbumTv = view.findViewById(R.id.paper_open_album);
         modeSwitchTv = view.findViewById(R.id.paper_mode_switch);
         shutterBtn = view.findViewById(R.id.shutterBtn);
+        switchCardMode = view.findViewById(R.id.switch_card_paper);
     }
 
     private void initData() {
@@ -142,15 +143,6 @@ public class VideoFragment extends Fragment {
             }
         });
 
-        openAlbumTv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (scanMode == AUTOSMART) {
-                    paperAnalysiserClient.stop();
-                }
-                checkPerm();
-            }
-        });
         modeSwitchTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -162,56 +154,77 @@ public class VideoFragment extends Fragment {
                     }
                 }, 1000);
                 if (scanMode == AUTOSMART) {
-                    shutterBtn.setVisibility(View.VISIBLE);
-                    modeSwitchTv.setText(getText(R.string.intelligent_matting));
                     scanMode = MANUALSMART;
-                    if (smartPaperMeasureContainerLayout != null) {
-                        smartPaperMeasureContainerLayout.showManualSmartPaperMeasure();
-                    }
-                    paperAnalysiserClient.stop();
                 } else {
-                    shutterBtn.setVisibility(View.GONE);
-                    modeSwitchTv.setText(getText(R.string.paper_manau_clip));
                     scanMode = AUTOSMART;
-                    if (smartPaperMeasureContainerLayout != null) {
+                }
+                switchMode();
+            }
+        });
+        switchCardMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                v.setEnabled(false);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        v.setEnabled(true);
+                    }
+                }, 1000);
+                isCardMode = !isCardMode;
+                switchCardMode.setText(isCardMode ? getText(R.string.bar_strip) : getText(R.string.card_strip));
+                if (smartPaperMeasureContainerLayout != null) {
+                    if (isCardMode) {
+                        smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                    } else {
                         smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
                     }
-                    //重新扫描
-                    restartScan(false);
                 }
             }
         });
     }
 
+    private void switchMode() {
+        if (scanMode == AUTOSMART) {
+            switchCardMode.setVisibility(View.VISIBLE);
+            switchCardMode.setText(isCardMode ? getText(R.string.bar_strip) : getText(R.string.card_strip));
+            shutterBtn.setVisibility(View.GONE);
+            modeSwitchTv.setText(getText(R.string.paper_manau_clip));
+            if (smartPaperMeasureContainerLayout != null) {
+                if (isCardMode) {
+                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                } else {
+                    smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
+                }
+            }
+            //重新扫描
+            restartScan(false);
+        } else {
+            switchCardMode.setVisibility(View.GONE);
+            shutterBtn.setVisibility(View.VISIBLE);
+            modeSwitchTv.setText(getText(R.string.intelligent_matting));
+            if (smartPaperMeasureContainerLayout != null) {
+                smartPaperMeasureContainerLayout.showManualSmartPaperMeasure();
+            }
+            paperAnalysiserClient.stop();
+        }
+    }
+
     private void restartScan(boolean restartOpenCamera) {
         scanMode = AUTOSMART;
+        switchCardMode.setVisibility(View.VISIBLE);
         if (smartPaperMeasureContainerLayout != null) {
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
+            if (isCardMode) {
+                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+            } else {
+                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
+            }
             paperAnalysiserClient.setObtainPreviewFrame(false);
             paperAnalysiserClient.reset();
         }
         if (restartOpenCamera) {
             handleCamera();
         }
-    }
-
-    private void checkPerm() {
-        if (!Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)) {
-            Toast.makeText(getContext(), R.string.write_permission, Toast.LENGTH_SHORT).show();
-        } else {//权限被授予
-            choosePhoto();
-            //直接操作
-        }
-    }
-
-    /**
-     * 打开选择图片的界面
-     */
-    private void choosePhoto() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, 1001);
     }
 
     private void handleCamera() {
@@ -252,29 +265,7 @@ public class VideoFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         LogUtils.d("页面返回结果 requestCode：" + requestCode + " resultCode:" + resultCode);
-        if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                // 得到图片的全路径
-                //String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
-                Uri fileUri = data.getData();
-                if (fileUri != null) {
-                    //File file = ImageUtil.getFileFromUril(uriStr);
-                    Bitmap fileBitmap = null;
-                    try {
-                        fileBitmap = ImageUtil.getUriToBitmap(getContext(), fileUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (fileBitmap == null) {
-                        ToastUtils.show(getContext(), "解析试纸图片出现异常");
-                        return;
-                    }
-                    showPaperDialog(fileBitmap, fileUri);
-                } else {
-                    ToastUtils.show(getContext(), "权限不足");
-                }
-            }
-        } else if (requestCode == 1002) {
+        if (requestCode == 1002) {
             if (resultCode == Activity.RESULT_OK) {
                 int paperValue = data.getIntExtra("paperValue", 0);
                 //手动修改lhValue
@@ -294,7 +285,7 @@ public class VideoFragment extends Fragment {
         Point upLeftPoint = new Point(data.innerLeft, data.innerTop);
         Point rightBottomPoint = new Point(data.innerRight, data.innerBottom);
         startTime = System.currentTimeMillis();
-        paperAnalysiserClient.analysisClipBitmapFromCamera(fileBitmap, upLeftPoint, rightBottomPoint, new IBaseAnalysisEvent() {
+        IBaseAnalysisEvent iBaseAnalysisEvent=new IBaseAnalysisEvent() {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
@@ -344,113 +335,10 @@ public class VideoFragment extends Fragment {
             public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
 
             }
-        });
-
-
+        };
+        paperAnalysiserClient.analysisClipBitmapFromCamera(fileBitmap, upLeftPoint, rightBottomPoint, iBaseAnalysisEvent);
     }
 
-    private void showPaperDialog(Bitmap fileBitmap, final Uri fileUri) {
-
-        startTime = System.currentTimeMillis();
-        paperAnalysiserClient.analysisBitmap(fileBitmap, new IBitmapAnalysisEvent() {
-            @Override
-            public void showProgressDialog() {
-                LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.showProgressDialog(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        paperAnalysiserClient.stopShowProgressDialog();
-                    }
-                });
-            }
-
-            @Override
-            public void dismissProgressDialog() {
-                LogUtils.d("Show Loading Dialog");
-                VideoFragment.this.dismissProgressDialog();
-            }
-
-            @Override
-            public void cancel() {
-                LogUtils.d("取消试纸结果确认");
-                ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
-            }
-
-            @Override
-            public void save(PaperResult paperResult) {
-                LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
-                if (paperResult.getErrNo() != 0) {
-                    ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
-                }
-                //显示试纸结果
-                FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
-                paperResult.setPaperBitmap(null);
-                paperResult.setNoMarginBitmap(null);
-                Intent intent = new Intent(getContext(), PaperDetailActivity.class);
-                intent.putExtra("bean", paperResult);
-                startActivityForResult(intent, 1002);
-            }
-
-            @Override
-            public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
-                LogUtils.d("试纸自动抠图成功");
-                endTime = System.currentTimeMillis();
-                return false;
-            }
-
-            @Override
-            public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
-                LogUtils.d("试纸自动抠图出错 code：" + code + " errorResult:" + errorResult);
-                ToastUtils.show(getContext(), AiCode.getMessage(code));
-                if (fileUri != null) {
-                    final String uriStr = ImageUtil.getPathFromUri(getContext(), fileUri);
-                    if (TextUtils.isEmpty(uriStr)) {
-                        return;
-                    }
-                    new ActionSheetDialog(getContext())
-                            .builder()
-                            .setCancelable(false)
-                            .setCanceledOnTouchOutside(false)
-                            .setTitle(errorResult)
-                            .addSheetItem(getString(R.string.paper_clip_pic), ActionSheetDialog.SheetItemColor.Blue,
-                                    new ActionSheetDialog.OnSheetItemClickListener() {
-                                        @Override
-                                        public void onClick(int which) {
-                                            Intent intent = new Intent(getContext(), PaperClipActivity.class);
-                                            intent.putExtra("paperUri", uriStr);
-                                            startActivityForResult(intent, 1003);
-                                        }
-                                    })
-                            .addSheetItem(getString(R.string.paper_reset), ActionSheetDialog.SheetItemColor.Blue,
-                                    new ActionSheetDialog.OnSheetItemClickListener() {
-                                        @Override
-                                        public void onClick(int which) {
-                                            checkPerm();
-                                        }
-                                    }).setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                        }
-                    }).show();
-                }
-            }
-
-            @Override
-            public void saasAnalysisError(String errorResult, int code) {
-                LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
-                ToastUtils.show(getContext(), AiCode.getMessage(code));
-
-            }
-
-            @Override
-            public void paperResultDialogShow(PaperResultDialog paperResultDialog) {
-
-            }
-        });
-
-
-    }
 
     /**
      * 实时预览回调
@@ -464,13 +352,22 @@ public class VideoFragment extends Fragment {
             startTime = System.currentTimeMillis();
             //视频上半部分正方形图片
             //Bitmap originSquareBitmap= TensorFlowTools.convertFrameToBitmap(data, camera, surfaceView.getWidth(), surfaceView.getWidth(), TensorFlowTools.getDegree(getActivity()));
+            //Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
             Bitmap originSquareBitmap;
-            if (textureView.getBitmap()!=null){
+            if (textureView.getBitmap() != null) {
                 originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
-            }else {
+            } else {
                 originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
             }
-            paperAnalysiserClient.analysisCameraData(originSquareBitmap);
+            if (isCardMode) {
+                CardAutoSmartPaperMeasureLayout.Data imageData = smartPaperMeasureContainerLayout.getCardAutoSmartPaperMeasureData();
+                if (imageData != null) {
+                    Bitmap smallSquareBitmap = ImageUtil.cropBitmap(originSquareBitmap, imageData.innerLeft, imageData.innerTop, imageData.innerWidth, imageData.innerHeight);
+                    paperAnalysiserClient.analysisCameraCardData(originSquareBitmap, smallSquareBitmap, imageData.innerLeft, imageData.innerTop);
+                }
+            } else {
+                paperAnalysiserClient.analysisCameraData(originSquareBitmap);
+            }
         }
     };
     private Dialog progressDialog;
@@ -511,7 +408,11 @@ public class VideoFragment extends Fragment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
+            if (isCardMode) {
+                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure(originSquareBitmap);
+            } else {
+                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
+            }
             return false;
         }
 
@@ -523,7 +424,9 @@ public class VideoFragment extends Fragment {
             LogUtils.d("试纸自动抠图画线");
             LogUtils.d("抠图耗时 " + (System.currentTimeMillis() - startTime));
             //ToastUtils.show(getContext(), "抠图中间结果");
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
+            if (!isCardMode) {
+                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
+            }
         }
 
         @Override
@@ -533,6 +436,7 @@ public class VideoFragment extends Fragment {
             scanMode = MANUALSMART;
             shutterBtn.setVisibility(View.VISIBLE);
             modeSwitchTv.setText(getText(R.string.intelligent_matting));
+            switchCardMode.setVisibility(View.GONE);
             smartPaperMeasureContainerLayout.showManualSmartPaperMeasure();
         }
 
@@ -564,7 +468,11 @@ public class VideoFragment extends Fragment {
         @Override
         public void cancel() {
             LogUtils.d("取消试纸结果确认");
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
+            if (isCardMode) {
+                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+            } else {
+                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
+            }
             //重新开始扫描
             restartScan(false);
         }
@@ -575,7 +483,11 @@ public class VideoFragment extends Fragment {
             if (paperResult.getErrNo() != 0) {
                 ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
             }
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
+            if (isCardMode) {
+                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+            } else {
+                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
+            }
 
             //显示试纸结果
             FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
@@ -603,7 +515,9 @@ public class VideoFragment extends Fragment {
 
             }
             paperCoordinatesData.setCode(code);
-            smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
+            if (!isCardMode) {
+                smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
+            }
         }
 
         @Override
