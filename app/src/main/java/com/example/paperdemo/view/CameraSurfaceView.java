@@ -1,17 +1,10 @@
 package com.example.paperdemo.view;
 
-/**
- * desc
- *
- * @author xiongyl 2019/11/6 21:17
- */
-
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
 
 public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
     Context mContext;

@@ -37,7 +37,7 @@ public class OvulationSeekBar extends LinearLayout  {
     private final int VALUE_8 = 65;
 
     private TextView seekbarTitle;
-    private MySeekBar mySeekBar;
+    private PaperSeekBar paperSeekBar;
     private LinearLayout seekbar1, seekbar2, seekbar3, seekbar4, seekbar5, seekbar6,seekbar7,seekbar8;
 
     public OvulationSeekBar(Context context) {
@@ -52,7 +52,7 @@ public class OvulationSeekBar extends LinearLayout  {
         super(context, attrs, defStyleAttr);
 
         LayoutInflater.from(context).inflate(R.layout.activity_show_lh_seekbar, this);
-        mySeekBar = findViewById(R.id.seekBar_shecare);
+        paperSeekBar = findViewById(R.id.seekBar_shecare);
         seekbarTitle = findViewById(R.id.seekbarTitle);
         seekbar1 = findViewById(R.id.ll_seekbar_1);
         seekbar2 = findViewById(R.id.ll_seekbar_2);
@@ -65,7 +65,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar1.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_1);
+                paperSeekBar.setProgress(POS_1);
                 if (callback != null) {
                     callback.changeResult(1);
                 }
@@ -74,7 +74,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar2.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_2);
+                paperSeekBar.setProgress(POS_2);
                 if (callback != null) {
                     callback.changeResult(5);
                 }
@@ -83,7 +83,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar3.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_3);
+                paperSeekBar.setProgress(POS_3);
                 if (callback != null) {
                     callback.changeResult(10);
                 }
@@ -92,7 +92,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar4.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_4);
+                paperSeekBar.setProgress(POS_4);
                 if (callback != null) {
                     callback.changeResult(15);
                 }
@@ -101,7 +101,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar5.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_5);
+                paperSeekBar.setProgress(POS_5);
                 if (callback != null) {
                     callback.changeResult(20);
                 }
@@ -110,7 +110,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar6.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_6);
+                paperSeekBar.setProgress(POS_6);
                 if (callback != null) {
                     callback.changeResult(25);
                 }
@@ -119,7 +119,7 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar7.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_7);
+                paperSeekBar.setProgress(POS_7);
                 if (callback != null) {
                     callback.changeResult(45);
                 }
@@ -128,14 +128,14 @@ public class OvulationSeekBar extends LinearLayout  {
         seekbar8.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mySeekBar.setProgress(POS_8);
+                paperSeekBar.setProgress(POS_8);
                 if (callback != null) {
                     callback.changeResult(65);
                 }
             }
         });
-        mySeekBar.setEnabled(false);
-        mySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        paperSeekBar.setEnabled(false);
+        paperSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
@@ -184,28 +184,28 @@ public class OvulationSeekBar extends LinearLayout  {
     public void setSeekBarStatus(int result) {
         switch (result) {
             case VALUE_1:
-                mySeekBar.setProgress(POS_1);
+                paperSeekBar.setProgress(POS_1);
                 break;
             case VALUE_2:
-                mySeekBar.setProgress(POS_2);
+                paperSeekBar.setProgress(POS_2);
                 break;
             case VALUE_3:
-                mySeekBar.setProgress(POS_3);
+                paperSeekBar.setProgress(POS_3);
                 break;
             case VALUE_4:
-                mySeekBar.setProgress(POS_4);
+                paperSeekBar.setProgress(POS_4);
                 break;
             case VALUE_5:
-                mySeekBar.setProgress(POS_5);
+                paperSeekBar.setProgress(POS_5);
                 break;
             case VALUE_6:
-                mySeekBar.setProgress(POS_6);
+                paperSeekBar.setProgress(POS_6);
                 break;
             case VALUE_7:
-                mySeekBar.setProgress(POS_7);
+                paperSeekBar.setProgress(POS_7);
                 break;
             case VALUE_8:
-                mySeekBar.setProgress(POS_8);
+                paperSeekBar.setProgress(POS_8);
                 break;
         }
     }
@@ -217,14 +217,14 @@ public class OvulationSeekBar extends LinearLayout  {
     }
 
     public void setSeekbarEnable(boolean enable) {
-        if (mySeekBar != null) {
-            mySeekBar.setEnabled(enable);
+        if (paperSeekBar != null) {
+            paperSeekBar.setEnabled(enable);
         }
     }
 
     public void setSeekbarMapEnable(boolean enable) {
-        if (mySeekBar != null) {
-            mySeekBar.setDrawMap(enable);
+        if (paperSeekBar != null) {
+            paperSeekBar.setDrawMap(enable);
         }
     }
 

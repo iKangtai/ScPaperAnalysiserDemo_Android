@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="textAllCaps">false</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -87,7 +88,7 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
-    <declare-styleable name="MySeekBar">
+    <declare-styleable name="PaperSeekBar">
         <attr name="myimg" format="reference" />
     </declare-styleable>
 

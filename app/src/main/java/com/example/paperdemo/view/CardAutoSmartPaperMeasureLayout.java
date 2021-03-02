@@ -21,8 +21,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.example.paperdemo.R;
+import com.example.paperdemo.util.AiCode;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
-import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.Utils;
 
 import androidx.annotation.NonNull;
@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
 
 
 /**
- * 手动拍照测量坐标线
+ * Card Automatic identification of test paper View
  *
  * @author
  */
@@ -141,7 +141,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         float paperTop = width / 2 + Utils.dp2px(context, 10);
 
         //canvas.drawRect(0, paperTop + paperHeight, width, width, bgPaint);
-        //画试纸参考条
+        //Reference strip for drawing test paper
         destBitmapWidth = width - padding * 2;
         destBitmapHeight = destBitmapWidth * 177 / 1053;
         float left = padding;
@@ -151,15 +151,15 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         RectF rectF = new RectF(left, top, right, bottom);
         canvas.drawBitmap(sampleBitmap, null, rectF, null);
         canvas.saveLayer(0, 0, width, height, null, Canvas.ALL_SAVE_FLAG);
-        //绘制黑色蒙板
+        //Draw black mask
         canvas.drawRect(0, 0, width, height, bgPaint);
         int lineWidth = Utils.dp2px(context, 10);
         canvas.drawRect(padding + destBitmapWidth * 142 / 351f, top + destBitmapHeight * 12 / 60f, padding + destBitmapWidth * 216 / 351f, top + destBitmapHeight * 43 / 60f, eraser);
         float fixY = (paperHeight - destBitmapHeight) / 2;
-        //取景框镂空遮盖
+        //Hollow cover for viewing frame
         canvas.drawRect(padding + destBitmapWidth * 124 / 351f, paperTop + fixY + destBitmapHeight * 10 / 60f, padding + destBitmapWidth * 232 / 351f, paperTop + fixY + destBitmapHeight * 55 / 60f, eraser);
         canvas.saveLayer(0, 0, width, height, null, Canvas.ALL_SAVE_FLAG);
-        //画T C
+        //draw T C
         textPaint.setFakeBoldText(true);
         textPaint.setTextSize(Utils.sp2px(context, 16f));
         final String T = "T";
@@ -173,7 +173,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         canvas.drawText(T, tX, tcY, textPaint);
         canvas.drawText(C, cX, tcY, textPaint);
         textPaint.setFakeBoldText(false);
-        //第一角标
+        //First corner
         float centerX = padding + destBitmapWidth * 142 / 351f;
         float centerY = top + destBitmapHeight * 12 / 60f;
         float startX = centerX + lineWidth;
@@ -182,7 +182,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         float stopY = centerY + lineWidth;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //第二角标
+        //Second corner
         centerX = padding + destBitmapWidth * 142 / 351f;
         centerY = top + destBitmapHeight * 43 / 60f;
         startX = centerX;
@@ -191,7 +191,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         stopY = centerY;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //第三角标
+        //Third corner
         centerX = padding + destBitmapWidth * 216 / 351f;
         centerY = top + destBitmapHeight * 43 / 60f;
         startX = centerX - lineWidth;
@@ -200,7 +200,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         stopY = centerY - lineWidth;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //第四角标
+        //Fourth corner
         centerX = padding + destBitmapWidth * 216 / 351f;
         centerY = top + destBitmapHeight * 12 / 60f;
         startX = centerX - lineWidth;
@@ -212,7 +212,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         lineWidth = Utils.dp2px(context, 15);
 
 
-        //第5角标
+        //No.5 corner mark
         centerX = padding + destBitmapWidth * 124 / 351f;
         centerY = paperTop + fixY + destBitmapHeight * 10 / 60f;
         startX = centerX + lineWidth;
@@ -221,7 +221,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         stopY = centerY + lineWidth;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //第6角标
+        //No.6 corner mark
         centerX = padding + destBitmapWidth * 124 / 351f;
         centerY = paperTop + fixY + destBitmapHeight * 55 / 60f;
         startX = centerX;
@@ -230,7 +230,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         stopY = centerY;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //第7角标
+        //No.7 corner mark
         centerX = padding + destBitmapWidth * 232 / 351f;
         centerY = paperTop + fixY + destBitmapHeight * 55 / 60f;
         startX = centerX - lineWidth;
@@ -239,7 +239,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         stopY = centerY - lineWidth;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //第8角标
+        //No.8 corner mark
         centerX = padding + destBitmapWidth * 232 / 351f;
         centerY = paperTop + fixY + destBitmapHeight * 10 / 60f;
         startX = centerX - lineWidth;
@@ -283,9 +283,9 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
             float layerTop = width / 2 - scanResultBackgroundHeight / 2;
             float layerRight = layerLeft + scanResultBackgroundWidth;
             float layerBottom = layerTop + scanResultBackgroundHeight;
-            // 设置个新的长方形
+            //Set a new rectangle
             RectF layerOval = new RectF(layerLeft, layerTop, layerRight, layerBottom);
-            //第二个参数是x半径，第三个参数是y半径
+            //The second parameter is the x radius, and the third parameter is the y radius
             canvas.drawRoundRect(layerOval, 10, 10, textBackgroundPaint);
             float x = (width - scanResultWidth) / 2;
             float y = width / 2 + 10;
@@ -323,63 +323,38 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
 
     public static final class Data {
         /**
-         * 最外层宽度
+         * Outermost width
          */
         public int outerWidth;
         /**
-         * 最外层高度
+         * Outermost height
          */
         public int outerHeight;
         /**
-         * 裁剪框宽度
+         * Crop frame width
          */
         public int innerWidth;
         /**
-         * 裁剪框高度
+         * Crop frame height
          */
         public int innerHeight;
         /**
-         * 裁剪框左上角left坐标
+         * The left coordinate of the upper left corner of the cropping box
          */
         public int innerLeft;
         /**
-         * 裁剪框左上角top坐标
+         * The top coordinate of the upper left corner of the cropping box
          */
         public int innerTop;
         /**
-         * 裁剪框右下角right坐标
+         * The right coordinate of the upper left corner of the cropping box
          */
         public int innerRight;
         /**
-         * 裁剪框右下角bottom坐标
+         * The bottom coordinate of the upper left corner of the cropping box
          */
         public int innerBottom;
 
-        public float tagLineLoc;
-        /**
-         * 裁剪框左上角left坐标
-         */
-        public int enlargeLeft;
-        /**
-         * 裁剪框左上角top坐标
-         */
-        public int enlargeTop;
-        /**
-         * 裁剪框右下角right坐标
-         */
-        public int enlargeRight;
-        /**
-         * 裁剪框右下角bottom坐标
-         */
-        public int enlargeBottom;
-        /**
-         * 裁剪框宽度
-         */
-        public int enlargeWidth;
-        /**
-         * 裁剪框高度
-         */
-        public int enlargeHeight;
 
         public String getPointPath() {
             String flag = "_";

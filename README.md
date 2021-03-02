@@ -241,22 +241,55 @@ English | [中文文档](README_zh.md)
        * Bottom menu way display button
        */
       boolean visibleBottomButton = false;
-      UiOption uiOption = new UiOption.Builder()
-              .titleText(titleText)
-              .tagLineImageResId(tagLineImageResId)
-              .titleTextColor(titleTextColor)
-              .tLineResId(tLineResId)
-              .cLineResId(cLineResId)
-              .flipText(flipText)
-              .flipTextColor(flipTextColor)
-              .hintText(hintText)
-              .hintTextColor(hintTextColor)
-              .backResId(backResId)
-              .confirmResId(confirmResId)
-              .backButtonTextColor(backButtonTextColor)
-              .confirmButtonTextColor(confirmButtonTextColor)
-              .visibleBottomButton(visibleBottomButton)
-              .build();
+      /**
+       * tc line default value width
+       */
+      float tcLineWidth = getContext().getResources().getDimension(com.ikangtai.papersdk.R.dimen.dp_2);
+      /**
+       * Back button background id
+       */
+      int backButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+      /**
+       * Confirm button background id
+       */
+      int confirmButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+      /**
+       * Back button text
+       */
+      String backButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_back);
+      /**
+       * Confirm button text
+       */
+      String confirmButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_confirm);
+      /**
+       * sample pic id
+       */
+      int sampleResId = com.ikangtai.papersdk.R.drawable.confirm_sample_pic_lh;
+      int feedbackTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
+      UiOption uiOption = new UiOption.Builder(getContext())
+                      .titleText(titleText)
+                      .tagLineImageResId(tagLineImageResId)
+                      .titleTextColor(titleTextColor)
+                      .tLineResId(tLineResId)
+                      .cLineResId(cLineResId)
+                      .flipText(flipText)
+                      .flipTextColor(flipTextColor)
+                      .hintText(hintText)
+                      .hintTextColor(hintTextColor)
+                      .backResId(backResId)
+                      .confirmResId(confirmResId)
+                      .tcLineWidth(tcLineWidth)
+                      .backButtonBgResId(backButtonBgResId)
+                      .backButtonText(backButtonText)
+                      .confirmButtonBgResId(confirmButtonBgResId)
+                      .confirmButtonText(confirmButtonText)
+                      .backButtonTextColor(backButtonTextColor)
+                      .confirmButtonTextColor(confirmButtonTextColor)
+                      .visibleBottomButton(visibleBottomButton)
+                      .sampleResId(sampleResId)
+                      .feedbackTextColor(feedbackTextColor)
+                      .language(Locale.ENGLISH.getLanguage())
+                      .build();
       //Test paper to identify sdk related configuration
       Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).netTimeOutRetryCount(1).build();
       paperAnalysiserClient.init(config);

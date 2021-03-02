@@ -8,6 +8,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.text.Layout;
+import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -16,8 +18,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.example.paperdemo.R;
+import com.example.paperdemo.util.AiCode;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
-import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.PxDxUtil;
 import com.ikangtai.papersdk.util.Utils;
 
@@ -25,7 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * desc
+ * Automatic identification of test paper View
  *
  * @author xiongyl 2019/12/11 16:26
  */
@@ -136,9 +138,9 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
             float layerTop = width / 2 - scanResultBackgroundHeight / 2;
             float layerRight = layerLeft + scanResultBackgroundWidth;
             float layerBottom = layerTop + scanResultBackgroundHeight;
-            // 设置个新的长方形
+            // Set a new rectangle
             RectF layerOval = new RectF(layerLeft, layerTop, layerRight, layerBottom);
-            //第二个参数是x半径，第三个参数是y半径
+            //The second parameter is the x radius, and the third parameter is the y radius
             canvas.drawRoundRect(layerOval, 10, 10, textBackgroundPaint);
             float x = (width - scanResultWidth) / 2;
             float y = width / 2 + 10;
@@ -159,10 +161,10 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
         float centerY = padding + paddingTop;
         float stopX = padding;
         float stopY = padding + lineWidth + paddingTop;
-        //横向第一条线
+        //First horizontal line
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //横向第二条线
+        //Second horizontal line
         startX = padding + lineWidth;
         startY = height - padding - paddingTop;
         centerX = padding;
@@ -171,7 +173,7 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
         stopY = height - padding - lineWidth - paddingTop;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //横向第三条线
+        //Third horizontal line
         startX = width - padding - lineWidth;
         startY = height - padding - paddingTop;
         centerX = width - padding;
@@ -180,7 +182,7 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
         stopY = height - padding - lineWidth - paddingTop;
         canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        //横向第四条线
+        //Fourth horizontal line
         startX = width - padding - lineWidth;
         startY = padding + paddingTop;
         centerX = width - padding;
@@ -208,11 +210,14 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
     private void drawHint(Canvas canvas) {
         String hint = getResources().getString(R.string.paper_in_container);
         if (!TextUtils.isEmpty(hint)) {
-            textPaint.setTextSize(Utils.sp2px(context, 18f));
+            textPaint.setTextSize(Utils.sp2px(context, 14f));
             float hintWidth = textPaint.measureText(hint);
             float x = (width - hintWidth) / 2;
-            float y = Utils.dp2px(context, 78f);
-            canvas.drawText(hint, x, y, textPaint);
+            float y = Utils.dp2px(context, 50f);
+            StaticLayout layout = new StaticLayout(hint, textPaint, (int) hintWidth - 10, Layout.Alignment.ALIGN_CENTER, 1.2f, 0, false);
+            //canvas.drawText(hint, x, y, textPaint);
+            canvas.translate(x, y);
+            layout.draw(canvas);
         }
     }
 

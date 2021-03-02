@@ -8,11 +8,6 @@ import android.view.MotionEvent;
 
 import androidx.appcompat.widget.AppCompatImageView;
 
-/**
- * desc
- *
- * @author xiongyl 2019/12/11 15:36
- */
 public class AlphaImage extends AppCompatImageView {
     public AlphaImage(Context context) {
         super(context);

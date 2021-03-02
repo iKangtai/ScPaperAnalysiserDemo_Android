@@ -7,11 +7,6 @@ import android.view.MotionEvent;
 
 import androidx.appcompat.widget.AppCompatButton;
 
-/**
- * desc
- *
- * @author xiongyl 2019/11/29 17:10
- */
 public class AlphaButton extends AppCompatButton {
     public AlphaButton(Context context) {
         super(context);

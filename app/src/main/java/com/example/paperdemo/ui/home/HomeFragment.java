@@ -19,6 +19,7 @@ import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
+import com.example.paperdemo.util.AiCode;
 import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.ProgressDialog;
 import com.ikangtai.papersdk.Config;
@@ -29,7 +30,6 @@ import com.ikangtai.papersdk.event.InitCallback;
 import com.ikangtai.papersdk.event.SampleBitmapAnalysisEventAdapter;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
-import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
@@ -47,6 +47,11 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+/**
+ * Test paper picture recognition
+ *
+ * @author
+ */
 public class HomeFragment extends Fragment {
     private PaperAnalysiserClient paperAnalysiserClient;
     private ImageView paperImageView, paperNoMarginImageView;
@@ -55,99 +60,99 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
+        AiCode.initCodeData(getContext());
         /**
-         * 使用测试网络
+         * Use test network
          */
         Config.setTestServer(true);
         /**
-         * 网络超时时间
+         * Network timeout
          */
         Config.setNetTimeOut(30);
 
         if (!SupportDeviceUtil.isSupport(getContext(), AppConstant.appId, AppConstant.appSecret)) {
-            new AlertDialog.Builder(getContext()).setMessage("当前设备性能太差,SDK自动识别较慢").show();
+            new AlertDialog.Builder(getContext()).setMessage("The current device performance is too poor, and the automatic SDK recognition is slow").show();
         }
 
-        //定制试纸Ui显示
+        //Customized test paper Ui display
         /**
-         * 标题
+         * title
          */
         String titleText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_title);
         /**
-         * 标题颜色
+         * title color
          */
         int titleTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
         /**
-         * 标尺线
+         * paper line
          */
         int tagLineImageResId = com.ikangtai.papersdk.R.drawable.paper_line;
         /**
-         * t滑块图标
+         * t line slider icon
          */
         int tLineResId = com.ikangtai.papersdk.R.drawable.test_paper_t_line;
         /**
-         * c滑块图标
+         * c line slider icon
          */
         int cLineResId = com.ikangtai.papersdk.R.drawable.test_paper_c_line;
         /**
-         * 水平翻转文字
+         * Flip text horizontally
          */
         String flipText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_flip);
         /**
-         * 水平翻转文字颜色
+         * Flip text color horizontally
          */
         int flipTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
         /**
-         * 提示文字
+         * Prompt text
          */
         String hintText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_hit);
         /**
-         * 提示文字颜色
+         * Prompt text color
          */
         int hintTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
         /**
-         * 返回图片
+         * Back button
          */
         int backResId = com.ikangtai.papersdk.R.drawable.test_paper_return;
         /**
-         * 确认图片
+         * Confirm button
          */
         int confirmResId = com.ikangtai.papersdk.R.drawable.test_paper_confirm;
         /**
-         * tc线默认值宽度
-         */
-        float tcLineWidth = getContext().getResources().getDimension(com.ikangtai.papersdk.R.dimen.dp_2);
-        /**
-         * 返回按钮背景
-         */
-        int backButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
-        /**
-         * 确认按钮背景
-         */
-        int confirmButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
-        /**
-         * 返回按钮文字
-         */
-        String backButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_back);
-        /**
-         * 确认按钮文字
-         */
-        String confirmButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_confirm);
-        /**
-         * 返回按钮文字颜色
+         * Back button text color
          */
         int backButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
         /**
-         * 确认按钮文字颜色
+         * Confirm button text color
          */
         int confirmButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
         /**
-         * 显示底部按钮
+         * Bottom menu way display button
          */
         boolean visibleBottomButton = false;
         /**
-         * 样张
+         * tc line default value width
+         */
+        float tcLineWidth = getContext().getResources().getDimension(com.ikangtai.papersdk.R.dimen.dp_2);
+        /**
+         * Back button background id
+         */
+        int backButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+        /**
+         * Confirm button background id
+         */
+        int confirmButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+        /**
+         * Back button text
+         */
+        String backButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_back);
+        /**
+         * Confirm button text
+         */
+        String confirmButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_confirm);
+        /**
+         * sample pic id
          */
         int sampleResId = com.ikangtai.papersdk.R.drawable.confirm_sample_pic_lh;
         int feedbackTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
@@ -171,12 +176,12 @@ public class HomeFragment extends Fragment {
                 .backButtonTextColor(backButtonTextColor)
                 .confirmButtonTextColor(confirmButtonTextColor)
                 .visibleBottomButton(visibleBottomButton)
-                .sampleResUrl("https:/yunchengfile.oss-cn-beijing.aliyuncs.com/app/confirm_sample_pic_lh.png")
+                .sampleResId(sampleResId)
                 .feedbackTextColor(feedbackTextColor)
                 .language(Locale.ENGLISH.getLanguage())
                 .build();
         /**
-         * 自定义log文件有两种方式,设置一次即可
+         * There are two ways to customize the log file, just set it once
          * 1.new Config.Builder().logWriter(logWriter).
          * 2.new Config.Builder().logFilePath(logFilePath).
          */
@@ -187,9 +192,9 @@ public class HomeFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //试纸识别sdk相关配置
+        //Test paper to identify sdk related configuration
         Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).netTimeOutRetryCount(1).build();
-        //初始化sdk
+        //init sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
             @Override
             public void onFailure(int code, String message) {
@@ -224,7 +229,7 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * 打开选择图片的界面
+     * Open the interface for selecting pictures
      */
     private void choosePhoto() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -234,7 +239,6 @@ public class HomeFragment extends Fragment {
 
     private void showPaperDialog(final Uri fileUri) {
         if (fileUri != null) {
-            //File file = ImageUtil.getFileFromUril(fileUri.toString());
             Bitmap fileBitmap = null;
             try {
                 fileBitmap = ImageUtil.getUriToBitmap(getContext(), fileUri);
@@ -242,7 +246,7 @@ public class HomeFragment extends Fragment {
                 e.printStackTrace();
             }
             if (fileBitmap == null) {
-                ToastUtils.show(getContext(), "解析试纸图片出现异常");
+                ToastUtils.show(getContext(), getString(R.string.image_file_error));
                 return;
             }
             startTime = System.currentTimeMillis();
@@ -250,20 +254,17 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void save(PaperResult paperResult) {
                     super.save(paperResult);
-                    LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
-                    //试纸结果确认框确认 显示试纸结果
+                    LogUtils.d("Save test paper analysis results：\n" + paperResult.toString());
+                    //Confirmation of test paper result confirmation box Display test paper result
                     if (paperResult.getErrNo() != 0) {
                         ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                     }
-                    detailTv.setText("耗时 " + (endTime - startTime) + "\n" + paperResult.toString());
-                    //试纸抠图结果
+                    detailTv.setText("time " + (endTime - startTime) + "\n" + paperResult.toString());
+                    //Test paper cutout result
                     paperImageView.setImageBitmap(paperResult.getPaperBitmap());
-                    //开启外扩开关后 会返回不带边距bitmap
+                    //After turning on the external expansion switch, it will return to the bitmap without margins
                     paperNoMarginImageView.setImageBitmap(paperResult.getNoMarginBitmap());
-                    //保存试纸TC线1080 108 0.43 0.64
-                    //Bitmap premomPaperBitmap = PremomImageUtils.getPremomBitmap(paperResult);
-                    //FileUtil.saveBitmap(premomPaperBitmap, paperResult.getPaperId() + "_small");
-                    //显示试纸结果
+                    //Show test strip result
                     FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
                     paperResult.setPaperBitmap(null);
                     paperResult.setNoMarginBitmap(null);
@@ -275,8 +276,8 @@ public class HomeFragment extends Fragment {
                 @Override
                 public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
                     super.analysisSuccess(paperCoordinatesData, originSquareBitmap, clipPaperBitmap);
-                    LogUtils.d("试纸自动抠图成功");
-                    //试纸抠图成功结果
+                    //Test paper cutout successful result
+                    LogUtils.d("Test strips are automatically cut out successfully");
                     endTime = System.currentTimeMillis();
                     return false;
                 }
@@ -284,10 +285,10 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
                     super.analysisError(paperCoordinatesData, errorResult, code);
-                    LogUtils.d("试纸自动抠图出错 code：" + code + " errorResult:" + errorResult);
-                    //试纸抠图失败结果
+                    //Test paper cutout failed result
+                    LogUtils.d("Error in automatic matting of test strips code：" + code + " errorResult:" + errorResult);
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
-                    detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n" + "模糊值 " + (paperCoordinatesData != null ? paperCoordinatesData.getBlurValue() : 0) + "\n" + "错误码 " + code + "\n" + "message " + errorResult);
+                    detailTv.setText("time " + (System.currentTimeMillis() - startTime) + "\n" + "Blur Value " + (paperCoordinatesData != null ? paperCoordinatesData.getBlurValue() : 0) + "\n" + "Error " + code + "\n" + "message " + errorResult);
                     paperNoMarginImageView.setImageBitmap(null);
                     if (paperCoordinatesData != null && paperCoordinatesData.getImageL() != null) {
                         paperImageView.setImageBitmap(TensorFlowTools.getBitmapByMat(paperCoordinatesData.getImageL()));
@@ -331,13 +332,13 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void saasAnalysisError(String errorResult, int code) {
                     super.saasAnalysisError(errorResult, code);
-                    LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
-                    //试纸saas分析失败
+                    //Test paper saas analysis failed
+                    LogUtils.d("Test strip analysis error code：" + code + " errorResult:" + errorResult);
                     ToastUtils.show(getContext(), AiCode.getMessage(code));
                 }
             });
         } else {
-            ToastUtils.show(getContext(), "权限不足");
+            ToastUtils.show(getContext(), "Insufficient permissions");
         }
     }
 
@@ -345,7 +346,6 @@ public class HomeFragment extends Fragment {
 
     private void showPaperType(final Uri fileUri) {
         if (fileUri != null) {
-            //File file = ImageUtil.getFileFromUril(fileUri.toString());
             try {
                 paperBitmap = ImageUtil.getUriToBitmap(getContext(), fileUri);
             } catch (IOException e) {
@@ -355,8 +355,8 @@ public class HomeFragment extends Fragment {
             paperAnalysiserClient.paperTypeAnalysis(paperBitmap, new IPaperTypeAnalysisResultEvent() {
                 @Override
                 public void onSuccessPaperTypeAnalysis(int paperType) {
-                    LogUtils.d("试纸识类型：\n" + paperType);
-                    detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n试纸识类型 " + paperType);
+                    LogUtils.d("Type：\n" + paperType);
+                    detailTv.setText("Time " + (System.currentTimeMillis() - startTime) + "\nType " + paperType);
                     paperImageView.setImageBitmap(paperBitmap);
                     paperNoMarginImageView.setImageBitmap(null);
 
@@ -364,36 +364,32 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onFailurePaperTypeAnalysis(int errorCode, String message) {
-                    LogUtils.d("试纸类型分析出错 code：" + errorCode + " errorResult:" + message);
+                    LogUtils.d("Test paper type analysis error code：" + errorCode + " errorResult:" + message);
                     ToastUtils.show(getContext(), AiCode.getMessage(errorCode));
                     paperImageView.setImageBitmap(null);
                     paperNoMarginImageView.setImageBitmap(null);
-                    detailTv.setText("耗时 " + (System.currentTimeMillis() - startTime) + "\n" + message);
+                    detailTv.setText("Time " + (System.currentTimeMillis() - startTime) + "\n" + message);
                 }
             });
         } else {
-            ToastUtils.show(getContext(), "权限不足");
+            ToastUtils.show(getContext(), "Insufficient permissions");
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        LogUtils.d("页面返回结果 requestCode：" + requestCode + " resultCode:" + resultCode);
+        LogUtils.d("requestCode：" + requestCode + " resultCode:" + resultCode);
         if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                // 得到图片的全路径
-                //String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
                 showPaperDialog(data.getData());
             }
         } else if (requestCode == 1002 && resultCode == Activity.RESULT_OK) {
             int paperValue = data.getIntExtra("paperValue", 0);
-            //手动修改lhValue
+            //Manually modify lhValue
             paperAnalysiserClient.updatePaperValue(paperValue);
         } else if (requestCode == 1003 && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                // 得到图片的全路径
-                //String uriStr = ImageUtil.getPathFromUri(getContext(), data.getData());
                 showPaperType(data.getData());
             }
         }

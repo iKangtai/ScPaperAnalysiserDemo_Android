@@ -15,7 +15,7 @@
         android:textColor="#444444"
         android:textSize="@dimen/button_text_size" />
 
-    <com.example.paperdemo.view.MySeekBar
+    <com.example.paperdemo.view.PaperSeekBar
         android:id="@+id/seekBar_shecare"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

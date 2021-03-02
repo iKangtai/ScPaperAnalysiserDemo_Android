@@ -23,29 +23,29 @@ import com.ikangtai.papersdk.util.PxDxUtil;
  */
 public class TopBar extends RelativeLayout {
     /**
-     * 最左侧按钮
+     * Leftmost button
      */
     private AlphaButton mLeftButton;
     private LinearLayout mLinearLayout;
     /**
-     * 中间文本左侧按钮
+     * Left button of middle text
      */
     private AlphaButton mMidLeftButton;
     /**
-     * 中间文本
+     * middle text
      */
     private TextView mMidTextView;
     /**
-     * 中间文本右侧按钮
+     * right button of middle text
      */
     private AlphaButton mMidRightButton;
     /**
-     * 最右侧按钮
+     * Rightmost button
      */
     private AlphaButton mRightButton;
 
     /**
-     * 最右侧倒数第二个
+     * Second to last on the right
      */
     private AlphaButton mRightSecondButton;
 

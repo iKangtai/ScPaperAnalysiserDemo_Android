@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         checkPermission();
     }
 
-    //android6.0之后要动态获取权限
+    //After android6.0 to dynamically obtain permissions
     private void checkPermission() {
         // Storage Permissions
         String[] PERMISSIONS_LIST = {

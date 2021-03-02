@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * desc
+ * Manually cut out the test paper to identify View
  *
  * @author xiongyl 2019/12/11 16:26
  */
@@ -111,7 +111,7 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
 
     private void drawPaper(Canvas canvas) {
         Bitmap source = null;
-        //画试纸参考条
+        //Reference strip for drawing test paper
         source = BitmapFactory.decodeResource(getResources(), R.drawable.confirm_sample_pic_lh);
         int destBitmapHeight = source.getHeight();
         int padding = Utils.dp2px(context, 10);
@@ -122,7 +122,7 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         RectF rectF = new RectF(left, top, right, bottom);
         canvas.drawBitmap(source, null, rectF, null);
 
-        //画扫描提醒
+        //Draw scan reminder
         textPaint.setTextSize(Utils.sp2px(context, 13f));
         String scanNotice = getResources().getString(R.string.paper_scan_notice);
         float scanNoticeWidth = textPaint.measureText(scanNotice);
@@ -130,7 +130,7 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         float scanNoticeY = top - Utils.dp2px(context, 50);
         canvas.drawText(scanNotice, scanNoticeX, scanNoticeY, textPaint);
 
-        //卡/笔形试纸？
+        //Card/pen-shaped test paper?
         String scanPaperNotice = getContext().getString(R.string.scan_paper_notice);
         textPaint.setTextSize(Utils.sp2px(context, 11f));
         scanPaperNoticeHeight = textPaint.getTextSize();
@@ -143,7 +143,7 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         textPaint.setStrokeWidth(Utils.dp2px(context, 1));
         canvas.drawLine(scanPaperNoticeX, lineY, width - padding, lineY, textPaint);
         textPaint.setStyle(Paint.Style.FILL);
-        //画T C
+        //draw T C
         textPaint.setFakeBoldText(true);
         textPaint.setTextSize(Utils.sp2px(context, 16f));
         final String T = "T";
@@ -167,11 +167,11 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         float top = width / 3 + Utils.dp2px(context, 40);
         float startY = top;
         float stopY = top;
-        //横向第一条线
+        //First horizontal line
         canvas.drawRect(0, 0, width, stopY, linePaint);
         data.innerLeft = (int) startX;
         data.innerTop = (int) startY;
-        //横向第二条线
+        //Second horizontal line
         startY += paperHeight;
         stopY = startY;
         canvas.drawRect(0, startY, width, width, linePaint);
@@ -181,14 +181,14 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         data.innerWidth = data.innerRight - data.innerLeft;
         data.innerHeight = data.innerBottom - data.innerTop;
 
-        //左边缘线
+        //Left margin line
         float leftMarginStartX = padding;
         float leftMarginStartY = startY;
         float leftMarginStopX = 0;
         float leftMarginStopY = leftMarginStartY - paperHeight;
         canvas.drawRect(leftMarginStartX, leftMarginStartY, leftMarginStopX, leftMarginStopY, linePaint);
 
-        //右边缘线
+        //Right margin line
         float rightMarginStartX = width;
         float rightMarginStartY = startY;
         float rightMarginStopX = width - padding;
@@ -221,7 +221,7 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
         this.viewClick = viewClick;
     }
 
-    //自定义点击事件接口
+    //Custom click event interface
     public interface ViewClick {
         void onClick();
     }
@@ -232,35 +232,35 @@ public class ManualSmartPaperMeasureLayout extends FrameLayout {
 
     public static final class Data {
         /**
-         * 最外层宽度
+         * Outermost width
          */
         public int outerWidth;
         /**
-         * 最外层高度
+         * Outermost height
          */
         public int outerHeight;
         /**
-         * 裁剪框宽度
+         * Crop frame width
          */
         public int innerWidth;
         /**
-         * 裁剪框高度
+         * Crop frame height
          */
         public int innerHeight;
         /**
-         * 裁剪框左上角left坐标
+         * The left coordinate of the upper left corner of the cropping box
          */
         public int innerLeft;
         /**
-         * 裁剪框左上角top坐标
+         * The top coordinate of the upper left corner of the cropping box
          */
         public int innerTop;
         /**
-         * 裁剪框右下角right坐标
+         * The right coordinate of the upper left corner of the cropping box
          */
         public int innerRight;
         /**
-         * 裁剪框右下角bottom坐标
+         * The bottom coordinate of the upper left corner of the cropping box
          */
         public int innerBottom;
 

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.example.paperdemo.AppConstant;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
+import com.example.paperdemo.util.AiCode;
 import com.example.paperdemo.view.CardAutoSmartPaperMeasureLayout;
 import com.example.paperdemo.view.ManualSmartPaperMeasureLayout;
 import com.example.paperdemo.view.ProgressDialog;
@@ -36,7 +37,6 @@ import com.ikangtai.papersdk.event.ICameraAnalysisEvent;
 import com.ikangtai.papersdk.event.InitCallback;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
-import com.ikangtai.papersdk.util.AiCode;
 import com.ikangtai.papersdk.util.CameraUtil;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
@@ -47,6 +47,11 @@ import com.ikangtai.papersdk.util.ToastUtils;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+/**
+ * Test paper video stream recognition
+ *
+ * @author
+ */
 public class VideoFragment extends Fragment {
     private TextureView textureView;
     private SmartPaperMeasureContainerLayout smartPaperMeasureContainerLayout;
@@ -64,7 +69,7 @@ public class VideoFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
-        //初始化sdk
+        //init sdk
         Config config = new Config.Builder().pixelOfdExtended(true).margin(5).build();
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
             @Override
@@ -133,7 +138,7 @@ public class VideoFragment extends Fragment {
         shutterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //手动拍照
+                //Manually take photos
                 cameraUtil.takePicture(new CameraUtil.ICameraTakeEvent() {
                     @Override
                     public void takeBitmap(Bitmap originSquareBitmap) {
@@ -197,7 +202,7 @@ public class VideoFragment extends Fragment {
                     smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
                 }
             }
-            //重新扫描
+            //rescan
             restartScan(false);
         } else {
             switchCardMode.setVisibility(View.GONE);
@@ -264,17 +269,17 @@ public class VideoFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        LogUtils.d("页面返回结果 requestCode：" + requestCode + " resultCode:" + resultCode);
+        LogUtils.d("requestCode：" + requestCode + " resultCode:" + resultCode);
         if (requestCode == 1002) {
             if (resultCode == Activity.RESULT_OK) {
                 int paperValue = data.getIntExtra("paperValue", 0);
-                //手动修改lhValue
+                //Manually modify lhValue
                 paperAnalysiserClient.updatePaperValue(paperValue);
             }
-            //重新开始扫描
+            //Restart scanning
             restartScan(false);
         } else if (requestCode == 1003) {
-            //重新开始扫描
+            //Restart scanning
             restartScan(false);
         }
     }
@@ -285,7 +290,7 @@ public class VideoFragment extends Fragment {
         Point upLeftPoint = new Point(data.innerLeft, data.innerTop);
         Point rightBottomPoint = new Point(data.innerRight, data.innerBottom);
         startTime = System.currentTimeMillis();
-        IBaseAnalysisEvent iBaseAnalysisEvent=new IBaseAnalysisEvent() {
+        IBaseAnalysisEvent iBaseAnalysisEvent = new IBaseAnalysisEvent() {
             @Override
             public void showProgressDialog() {
                 LogUtils.d("Show Loading Dialog");
@@ -306,13 +311,13 @@ public class VideoFragment extends Fragment {
 
             @Override
             public void cancel() {
-                LogUtils.d("取消试纸结果确认");
+                LogUtils.d("Cancel test strip result confirmation");
                 ToastUtils.show(getContext(), AiCode.getMessage(AiCode.CODE_201));
             }
 
             @Override
             public void save(PaperResult paperResult) {
-                LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
+                LogUtils.d("Save test paper analysis results：\n" + paperResult.toString());
                 if (paperResult.getErrNo() != 0) {
                     ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
                 }
@@ -327,7 +332,7 @@ public class VideoFragment extends Fragment {
 
             @Override
             public void saasAnalysisError(String errorResult, int code) {
-                LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
+                LogUtils.d("Test strip analysis error code：" + code + " errorResult:" + errorResult);
                 ToastUtils.show(getContext(), AiCode.getMessage(code));
             }
 
@@ -341,7 +346,7 @@ public class VideoFragment extends Fragment {
 
 
     /**
-     * 实时预览回调
+     * Real-time preview callback
      */
     private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
         @Override
@@ -350,9 +355,7 @@ public class VideoFragment extends Fragment {
                 return;
             }
             startTime = System.currentTimeMillis();
-            //视频上半部分正方形图片
-            //Bitmap originSquareBitmap= TensorFlowTools.convertFrameToBitmap(data, camera, surfaceView.getWidth(), surfaceView.getWidth(), TensorFlowTools.getDegree(getActivity()));
-            //Bitmap originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+            //The top half of the video is a square image
             Bitmap originSquareBitmap;
             if (textureView.getBitmap() != null) {
                 originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
@@ -394,8 +397,8 @@ public class VideoFragment extends Fragment {
             if (scanMode == MANUALSMART) {
                 return false;
             }
-            LogUtils.d("试纸自动抠图成功");
-            ToastUtils.show(getContext(), "抠图最终结果");
+            LogUtils.d("Test strips are automatically cut out successfully");
+            ToastUtils.show(getContext(), "Cutout the final result");
             try {
                 AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
                 int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
@@ -421,9 +424,8 @@ public class VideoFragment extends Fragment {
             if (scanMode == MANUALSMART) {
                 return;
             }
-            LogUtils.d("试纸自动抠图画线");
-            LogUtils.d("抠图耗时 " + (System.currentTimeMillis() - startTime));
-            //ToastUtils.show(getContext(), "抠图中间结果");
+            LogUtils.d("Automatic drawing line on test paper");
+            LogUtils.d("Time " + (System.currentTimeMillis() - startTime));
             if (!isCardMode) {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
             }
@@ -431,8 +433,8 @@ public class VideoFragment extends Fragment {
 
         @Override
         public void analysisEnd(Bitmap originSquareBitmap, int code, String errorResult) {
-            LogUtils.d("试纸抠图结束 code：" + code + " errorResult:" + errorResult);
-            ToastUtils.show(getContext(), "抠图超时");
+            LogUtils.d("Test paper cutout end code：" + code + " errorResult:" + errorResult);
+            ToastUtils.show(getContext(), getString(R.string.cutout_timeout));
             scanMode = MANUALSMART;
             shutterBtn.setVisibility(View.VISIBLE);
             modeSwitchTv.setText(getText(R.string.intelligent_matting));
@@ -442,8 +444,8 @@ public class VideoFragment extends Fragment {
 
         @Override
         public void analysisCancel(Bitmap originSquareBitmap, int code, String errorResult) {
-            LogUtils.d("试纸抠图取消 code：" + code + " errorResult:" + errorResult);
-            ToastUtils.show(getContext(), "切换抠图模式，取消视频流分析");
+            LogUtils.d("Test paper cutout cancel code：" + code + " errorResult:" + errorResult);
+            ToastUtils.show(getContext(), getString(R.string.cutout_cancel));
             smartPaperMeasureContainerLayout.showManualSmartPaperMeasure();
         }
 
@@ -467,19 +469,19 @@ public class VideoFragment extends Fragment {
 
         @Override
         public void cancel() {
-            LogUtils.d("取消试纸结果确认");
+            LogUtils.d("Cancel test strip result confirmation");
             if (isCardMode) {
                 smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
             } else {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
             }
-            //重新开始扫描
+            //Restart scanning
             restartScan(false);
         }
 
         @Override
         public void save(PaperResult paperResult) {
-            LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
+            LogUtils.d("Save test paper analysis results：\n" + paperResult.toString());
             if (paperResult.getErrNo() != 0) {
                 ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
             }
@@ -489,7 +491,7 @@ public class VideoFragment extends Fragment {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
             }
 
-            //显示试纸结果
+            //Show test strip result
             FileUtil.saveBitmap(paperResult.getPaperBitmap(), paperResult.getPaperId());
             paperResult.setPaperBitmap(null);
             paperResult.setNoMarginBitmap(null);
@@ -503,12 +505,12 @@ public class VideoFragment extends Fragment {
             if (scanMode == MANUALSMART) {
                 return;
             }
-            LogUtils.d("试纸抠图出错 code：" + code + " errorResult:" + errorResult);
-            LogUtils.d("抠图耗时 " + (System.currentTimeMillis() - startTime));
+            LogUtils.d("Test paper cutout error code：" + code + " errorResult:" + errorResult);
+            LogUtils.d("Time " + (System.currentTimeMillis() - startTime));
             if (paperCoordinatesData == null) {
                 paperCoordinatesData = new PaperCoordinatesData();
             } else if (code == AiCode.CODE_11) {
-                //画面模糊重新对焦
+                //The picture is blurred and refocus
                 if (cameraUtil != null) {
                     cameraUtil.holdFocus();
                 }
@@ -522,7 +524,7 @@ public class VideoFragment extends Fragment {
 
         @Override
         public void saasAnalysisError(String errorResult, int code) {
-            LogUtils.d("试纸分析错误 code：" + code + " errorResult:" + errorResult);
+            LogUtils.d("Test paper analysis error code：" + code + " errorResult:" + errorResult);
             ToastUtils.show(getContext(), errorResult + code);
         }
 

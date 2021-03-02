@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import androidx.annotation.Nullable;
 
 /**
- * 试纸详情
+ * Test paper details
  *
  * @author
  */
@@ -38,33 +38,32 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
     public static final String TAG = PaperDetailActivity.class.getSimpleName();
     private TopBar topBar;
     /**
-     * 试纸条
+     * Test strip
      */
     private ImageView paperImg;
     /**
-     * 修改试纸条参考值
+     * Modify the reference value of the test strip
      */
     private TextView updatePaperResult;
     private OvulationSeekBar ovulationSeekBar;
     /**
-     * 试纸结果
+     * Test paper result
      */
     private TextView analysisResultTitle;
     /**
-     * 试纸结果描述
+     * Test paper result description
      */
-
     private TextView analysisResult;
     /**
-     * 试纸结果描述提醒
+     * Test paper result description reminder
      */
     private TextView analysisDescHint;
     /**
-     * 试纸时间
+     * Test paper time
      */
     private TextView paperTime;
     /**
-     * 保存
+     * save
      */
     private Button saveBtn;
     private String paperDate;
@@ -82,7 +81,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
-        //初始化sdk
+        //init sdk
         paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
         setContentView(R.layout.activity_paper_detail_layout);
         topBar = findViewById(R.id.topBar);
@@ -172,7 +171,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         }
 
         if (paperImg != null) {
-            //显示试纸照片
+            //Show test strip photo
             String paperName = paperNameId + PIC_JPG;
             FileUtil.initPath(PaperDetailActivity.this, "");
             String paperImgPath = FileUtil.getPlayCameraPath() + File.separator + paperName;
@@ -196,7 +195,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         }
 
 
-        //新的试纸需要sass返回的结果进行分析
+        //The new test paper needs to analyze the results returned by sass
         AnalysisOvulationPaperEventBus analysisOvulationPaperEventBus
                 = new AnalysisOvulationPaperEventBus();
         analysisOvulationPaperEventBus.setValue(paperResult);
@@ -258,10 +257,10 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
                 analysisResult.setText("");
             }
         } else {
-            //获取sass分析出的试纸品牌信息
+            //Get the brand information of the test paper analyzed by sass
             lhPaperAlType = analysisOvulationPaperEventBus.getLhPaperAlType();
             int result = analysisOvulationPaperEventBus.getValue();
-            //用户未拖动滑块，按照智能分析结果进行展示
+            //The user did not drag the slider and displayed according to the intelligent analysis results
             showAnalysisResult(result);
             ovulationSeekBar.setSeekBarStatus(result);
         }

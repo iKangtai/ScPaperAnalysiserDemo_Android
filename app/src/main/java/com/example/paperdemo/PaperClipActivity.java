@@ -31,9 +31,9 @@ import com.ikangtai.papersdk.util.ToastUtils;
 import java.io.File;
 
 /**
- * desc
+ * Test paper cutout
  *
- * @author xiongyl 2019/12/11 22:23
+ * @author
  */
 public class PaperClipActivity extends Activity implements View.OnTouchListener {
     private ImageView srcPic;
@@ -46,28 +46,28 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     float oldRotation = 0;
 
     /**
-     * 动作标志：无
+     * Action flag: None
      */
     private static final int NONE = 0;
     /**
-     * 动作标志：拖动
+     * Action sign: drag
      */
     private static final int DRAG = 1;
     /**
-     * 动作标志：缩放
+     * Action flag: zoom
      */
     private static final int ZOOM = 2;
     /**
-     * 初始化动作标志
+     * Init action flag
      */
     private int mode = NONE;
 
     /**
-     * 记录起始坐标
+     * Record start coordinates
      */
     private PointF start = new PointF();
     /**
-     * 记录缩放时两指中间点坐标
+     * Record the coordinates of the middle point of the two fingers when zooming
      */
     private PointF mid = new PointF();
     private float oldDist = 1f;
@@ -83,9 +83,9 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         super.onCreate(savedInstanceState);
         Config.setTestServer(true);
         Config.setNetTimeOut(30);
-        //试纸识别sdk相关配置
+        //Test paper to identify sdk related configuration
         Config config = new Config.Builder().margin(10).build();
-        //初始化sdk
+        //init sdk
         paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
 
         setContentView(R.layout.activity_paper_clip_picture);
@@ -140,12 +140,12 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                     @Override
                     public void cancel() {
-                        LogUtils.d("取消试纸结果确认");
+                        LogUtils.d("Cancel test strip result confirmation");
                     }
 
                     @Override
                     public void save(PaperResult paperResult) {
-                        LogUtils.d("保存试纸分析结果：\n" + paperResult.toString());
+                        LogUtils.d("Save test paper analysis results：\n" + paperResult.toString());
                         if (paperResult.getErrNo() != 0) {
                             ToastUtils.show(PaperClipActivity.this, AiCode.getMessage(paperResult.getErrNo()));
                         }
@@ -159,7 +159,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                     @Override
                     public void saasAnalysisError(String errorResult, int code) {
-                        LogUtils.d("试纸分析出错 code：" + code + " errorResult:" + errorResult);
+                        LogUtils.d("Test strip analysis error code：" + code + " errorResult:" + errorResult);
                     }
 
                     @Override
@@ -215,7 +215,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     }
 
     /**
-     * 初始化截图区域，并将源图按裁剪框比例缩放
+     * Initialize the screenshot area, and zoom the source image according to the crop box ratio
      */
     private void initClipView() {
         Intent intent = getIntent();
@@ -231,16 +231,16 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
                 int imageWidth = bitmap.getWidth();
                 int imageHeight = bitmap.getHeight();
-                // 按裁剪框求缩放比例
+                // Seek zoom ratio by crop box
                 float scale = (clipWidth * 1.0f) / imageWidth;
-                // 起始中心点
+                // Starting center point
                 float imageMidX = imageWidth * scale / 2;
                 float imageMidY = imageHeight * scale / 2;
                 srcPic.setScaleType(ImageView.ScaleType.MATRIX);
 
-                // 缩放
+                // zoom
                 matrix.postScale(scale, scale);
-                // 平移
+                // translate
                 matrix.postTranslate(0, clipHeight / 2 - imageMidY);
 
                 srcPic.setImageMatrix(matrix);
@@ -255,7 +255,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 savedMatrix.set(matrix);
-                // 设置开始点位置
+                // Set the starting point position
                 start.set(event.getX(), event.getY());
                 mode = DRAG;
                 break;
@@ -283,9 +283,9 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
                         matrix.set(savedMatrix);
                         float rotation = rotation(event) - oldRotation;
                         float scale = newDist / oldDist;
-                        // 缩放
+                        // zoom
                         matrix.postScale(scale, scale, mid.x, mid.y);
-                        // 旋转
+                        // rotate
                         matrix.postRotate(rotation, mid.x, mid.y);
                     }
                 }
@@ -296,7 +296,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     }
 
     /**
-     * 多点触控时，计算最先放下的两指距离
+     * For multi-touch, calculate the distance between the first two fingers dropped
      *
      * @param event
      * @return
@@ -308,7 +308,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     }
 
     /**
-     * 多点触控时，计算最先放下的两指中心坐标
+     * When multi-touch, calculate the center coordinates of the first two fingers dropped
      *
      * @param point
      * @param event
@@ -321,7 +321,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
 
 
     /**
-     * 获取裁剪框内截图
+     * Get a screenshot in the crop box
      *
      * @return
      */
@@ -333,26 +333,8 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         return bitmap;
     }
 
-    private Bitmap getPaperBitmap() {
-
-        mImageView.setDrawingCacheEnabled(true);
-        mImageView.buildDrawingCache();
-        Bitmap bitmap = mImageView.getDrawingCache();
-        int x = measureLayout.getLeft();
-        int y = measureLayout.getTop() -
-                PxDxUtil.dip2px(this, 50);
-        int width = measureLayout.getWidth();
-        int height = measureLayout.getHeight();
-        Bitmap finalBitmap = Bitmap.createBitmap(bitmap,
-                x, y, width, height);
-
-        // 释放资源
-        mImageView.destroyDrawingCache();
-        return finalBitmap;
-    }
-
     /**
-     * 取旋转角度
+     * Take the rotation angle
      *
      * @param event
      * @return
@@ -367,7 +349,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // 释放资源
+        // release
         mImageView.destroyDrawingCache();
 
     }
@@ -378,7 +360,7 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
         if (requestCode == 2001) {
             if (resultCode == Activity.RESULT_OK) {
                 int paperValue = data.getIntExtra("paperValue", 0);
-                //手动修改lhValue
+                //Manually modify lhValue
                 paperAnalysiserClient.updatePaperValue(paperValue);
             }
             setResult(RESULT_OK);

@@ -20,7 +20,7 @@ import androidx.appcompat.widget.AppCompatSeekBar;
  * 类描述：伊仕半定量试纸专用
  * 创建时间：2018/4/27 19:15
  */
-public class MySeekBar extends AppCompatSeekBar {
+public class PaperSeekBar extends AppCompatSeekBar {
     private boolean drawMap;
     /**
      * 文本的颜色
@@ -70,17 +70,17 @@ public class MySeekBar extends AppCompatSeekBar {
      */
     private int textAlign;
 
-    public MySeekBar(Context context) {
+    public PaperSeekBar(Context context) {
         this(context, null);
     }
 
-    public MySeekBar(Context context, AttributeSet attrs) {
+    public PaperSeekBar(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public MySeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PaperSeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        TypedArray array = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MySeekBar, defStyleAttr, 0);
+        TypedArray array = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PaperSeekBar, defStyleAttr, 0);
         img = array.getResourceId(0, R.drawable.cr_yishi_tc0);
         array.recycle();
         getImgWH();

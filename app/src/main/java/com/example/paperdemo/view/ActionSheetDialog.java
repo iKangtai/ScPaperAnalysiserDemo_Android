@@ -67,20 +67,20 @@ public class ActionSheetDialog {
     }
 
     public ActionSheetDialog builder() {
-        // 获取Dialog布局
+        // Get Dialog layout
         View view = LayoutInflater.from(context).inflate(
                 R.layout.view_actionsheet, null);
 
-        // 设置Dialog最小宽度为屏幕宽度
+        // Set the minimum width of Dialog to the screen width
         view.setMinimumWidth(display.getWidth());
 
-        // 获取自定义Dialog布局中的控件
+        // Get the controls in the custom Dialog layout
         sLayout_content = view.findViewById(R.id.sLayout_content);
         lLayout_content = view
                 .findViewById(R.id.lLayout_content);
         txt_title = view.findViewById(R.id.txt_title);
         txt_cancel = view.findViewById(R.id.txt_cancel);
-        //关闭cameraActivity
+        //Close Activity
         txt_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,7 +88,7 @@ public class ActionSheetDialog {
             }
         });
 
-        // 定义Dialog布局和参数
+        // Define Dialog layout and parameters
         dialog = new Dialog(context, R.style.ActionSheetDialogStyle);
         dialog.setContentView(view);
         Window dialogWindow = dialog.getWindow();
@@ -130,8 +130,8 @@ public class ActionSheetDialog {
     }
 
     /**
-     * @param strItem  条目名称
-     * @param color    条目字体颜色，设置null则默认蓝色
+     * @param strItem  name
+     * @param color    Font color, set null to default to blue
      * @param listener
      * @return
      */
@@ -154,9 +154,7 @@ public class ActionSheetDialog {
         }
 
         int size = sheetItemList.size();
-
-        // TODO 高度控制，非最佳解决办法
-        // 添加条目过多的时候控制高度
+        // Control the height when adding too many entries
         if (size >= 7) {
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) sLayout_content
                     .getLayoutParams();
@@ -164,7 +162,7 @@ public class ActionSheetDialog {
             sLayout_content.setLayoutParams(params);
         }
 
-        // 循环添加条目
+        // Add items in a loop
         for (int i = 1; i <= size; i++) {
             final int index = i;
             SheetItem sheetItem = sheetItemList.get(i - 1);
@@ -181,7 +179,7 @@ public class ActionSheetDialog {
             view.setBackgroundColor(Color.parseColor("#aaaaaa"));
             view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
 
-            // 背景图片
+            // Background
             if (size == 1) {
                 if (showTitle) {
                     textView.setBackgroundResource(R.drawable.actionsheet_bottom_selector);
@@ -206,7 +204,7 @@ public class ActionSheetDialog {
                 }
             }
 
-            // 字体颜色
+            // color
             if (color == null) {
                 textView.setTextColor(Color.parseColor(SheetItemColor.Blue
                         .getName()));
@@ -214,13 +212,13 @@ public class ActionSheetDialog {
                 textView.setTextColor(Color.parseColor(color.getName()));
             }
 
-            // 高度
+            // height
             float scale = context.getResources().getDisplayMetrics().density;
             int height = (int) (45 * scale + 0.5f);
             textView.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, height));
 
-            // 点击事件
+            // click
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -256,11 +254,7 @@ public class ActionSheetDialog {
     }
 
     public ActionSheetDialog show() {
-        //8.0新特性
         setSheetItems();
-        if (Build.VERSION.SDK_INT >= 26) {
-            //dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1);
-        }
         dialog.show();
         return this;
     }

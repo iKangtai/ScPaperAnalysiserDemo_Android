@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * desc
+ * Test paper finder frame View
  *
  * @author xiongyl 2019/11/6 21:22
  */
@@ -51,7 +51,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 显示手动拍照试纸
+     * Show manual photo test strip
      */
     public void showManualSmartPaperMeasure() {
 
@@ -74,7 +74,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 显示卡型试纸自动识别
+     * Display card type test paper automatic recognition
      */
     public void showCardAutoSmartPaperMeasure() {
 
@@ -98,7 +98,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 手动测量范围 Data
+     * Manually cut out the measurement range Data
      *
      * @return
      */
@@ -110,7 +110,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 卡型抠图范围 Data
+     * Card type matting range Data
      *
      * @return
      */
@@ -122,7 +122,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 显示自动拍照试纸
+     * Show automatic photo test strip
      */
     public void showAutoSmartPaperMeasure() {
         if (manualSmartPaperMeasureLayout != null) {
@@ -145,7 +145,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 显示自动扫描试纸结果
+     * Display the results of automatic scanning test paper
      */
     public void showAutoSmartPaperMeasure(PaperCoordinatesData paperCoordinatesData) {
 
@@ -171,7 +171,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 显示自动扫描试纸结果
+     * Display the results of automatic scanning test paper
      */
     public void showAutoSmartPaperMeasure(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap) {
 
@@ -196,7 +196,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * 显示手动拍照试纸结果
+     * Display the results of manual photo test strips
      */
     public void showManualSmartPaperMeasure(Bitmap originSquareBitmap) {
 

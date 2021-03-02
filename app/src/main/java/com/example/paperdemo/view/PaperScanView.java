@@ -22,9 +22,7 @@ import com.ikangtai.papersdk.util.Utils;
  * @author xiongyl 2019/12/11 16:40
  */
 public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
-    private static final int SCAN_COUNT = 190;
-
-    protected SurfaceHolder sh; // 专门用于控制surfaceView的
+    protected SurfaceHolder sh;
     public int error;
     private int height;
 
@@ -41,15 +39,12 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
         setMeasuredDimension(widthMeasureSpec, widthMeasureSpec);
     }
 
-    // XML文件解析需要调用View的构造函数View(Context , AttributeSet)
-    // 因此自定义SurfaceView中也需要该构造函数
     public PaperScanView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        // TODO Auto-generated constructor stub
         sh = getHolder();
         sh.addCallback(this);
-        sh.setFormat(PixelFormat.TRANSPARENT); // 设置为透明
-        setZOrderOnTop(true);// 设置为顶端
+        sh.setFormat(PixelFormat.TRANSPARENT);
+        setZOrderOnTop(true);
 
         mGreenPen = new Paint();
         mGreenPen.setAntiAlias(true);
@@ -123,7 +118,7 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
 
         if (isCardMode) {
             int padding = Utils.dp2px(getContext(), 10);
-            //画试纸参考条
+            //Reference strip for drawing test paper
             int destBitmapWidth = width - padding * 2;
             int destBitmapHeight = destBitmapWidth * 177 / 1053;
             int paperHeight = width * 2 / 7;
@@ -137,7 +132,7 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
 
             int scanWidth = (int) (centerRight - centerLeft);
             int scanHeight = (int) (centerBottom - centerTop);
-            // 绘制扫描条
+            // Draw scan bar
             float rate = (float) i % 150 / 150;
             int srcW = (int) (rate * scanWidth);
             Rect findingSrc = new Rect(0, 0, scanningBmp.getWidth(), scanningBmp.getHeight());
@@ -155,7 +150,7 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
             findingDes.bottom = (int) centerBottom;
             canvas.drawBitmap(scanningBmp, findingSrc, findingDes, mGreenPen);
         } else {
-            // 绘制扫描条
+            // Draw scan bar
             float rate = (float) i % 250 / 250;
             int srcW = rate < 1 ? (int) (rate * width) : width;
             Rect findingSrc = new Rect(0, 0, srcW, scanningBmp.getHeight());
