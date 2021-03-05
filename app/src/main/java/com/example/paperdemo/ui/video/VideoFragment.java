@@ -398,7 +398,6 @@ public class VideoFragment extends Fragment {
                 return false;
             }
             LogUtils.d("Test strips are automatically cut out successfully");
-            ToastUtils.show(getContext(), "Cutout the final result");
             try {
                 AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
                 int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
