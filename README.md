@@ -165,7 +165,7 @@ English | [中文文档](README_zh.md)
     paperAnalysiserClient.closeSession();
   ```
 
-  ### View log
+### View log
   You can control whether the SDK run debug log is output and the output path by calling the following methods. By default, the SDK run debug log is turned on. The user can manually close it.
   You can also filter the "sc-ble-log" Tag through Locat to display SDK specific logs.
 
@@ -182,7 +182,7 @@ English | [中文文档](README_zh.md)
       scPeripheralManager.init(getContext(), config);
   ```
 
-  ### Custom UI
+### Custom UI
     ```java
       //Customized test paper Ui display
       /**
@@ -295,7 +295,7 @@ English | [中文文档](README_zh.md)
       paperAnalysiserClient.init(config);
     ```
 
-  ### Confusion configuration
+### Confusion configuration
   If your application uses code obfuscation, please add the following configuration to avoid SDK being unavailable due to incorrect obfuscation.
   ```java
     -dontwarn  com.ikangtai.papersdk.**
@@ -306,3 +306,9 @@ English | [中文文档](README_zh.md)
     -keep class org.tensorflow.** {*;}
     -keep class tensorflow.** {*;}
   ```
+## SDK Privacy Agreement
+   a) Purpose/purpose of collecting personal information: optimize and improve test strip algorithm<br/>
+   b) The type of personal information collected: device model, operating system, mobile phone developer identifier, network data<br/>
+   c) Required permissions: network permissions, camera permissions<br/>
+   d) Third-party SDK privacy policy link: https://static.shecarefertility.com/shecare/resource/dist/#/papersdk_privacy_policy<br/>
+   e) Provider: Beijing ikangtai Technology Co., Ltd.<br/>

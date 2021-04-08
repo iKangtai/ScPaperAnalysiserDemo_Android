@@ -168,7 +168,7 @@
     paperAnalysiserClient.closeSession();
   ```
 
-  ### UI定制
+### UI定制
     ```java
       //定制试纸Ui显示
       /**
@@ -247,7 +247,7 @@
       Config config = new Config.Builder().pixelOfdExtended(true).margin(50).uiOption(uiOption).netTimeOutRetryCount(1).build();
       paperAnalysiserClient.init(config);
     ```
-  ### 查看日志
+### 查看日志
   ```java
     /**
     * log默认路径/data/Android/pageName/files/Documents/log.txt,可以通过LogUtils.getLogFilePath()获取
@@ -266,7 +266,7 @@
     Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).build();
     paperAnalysiserClient = new PaperAnalysiserClient(getContext(), appId, appSecret, "xyl1@qq.com",config);
   ```
-  ### 混淆代码过滤
+### 混淆代码过滤
   ```java
     -dontwarn  com.ikangtai.papersdk.**
     -keep class com.ikangtai.papersdk.** {*;}
@@ -276,3 +276,10 @@
     -keep class org.tensorflow.** {*;}
     -keep class tensorflow.** {*;}
   ```
+
+## SDK隐私协议
+  a)收集个人信息目的/用途：优化、改善试纸算法<br/>
+  b)收集个人信息类型：设备型号、操作系统、手机开发商标识符、网络数据<br/>
+  c)需要获取的权限：网络权限、相机权限<br/>
+  d)第三方SDK隐私政策链接：https://static.shecarefertility.com/shecare/resource/dist/#/papersdk_privacy_policy<br/>
+  e)提供方：北京爱康泰科技有限责任公司<br/>
