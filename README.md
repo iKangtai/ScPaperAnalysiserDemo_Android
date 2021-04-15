@@ -9,13 +9,9 @@ English | [中文文档](README_zh.md)
 ## Access Guide
 ### 一.Integrated SDK
    ```java
-       api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.8'
+       api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.9'
    ```
-### 二.Add dependency library url
-   ```java
-      maven { url 'https://dl.bintray.com/ikangtaijcenter123/ikangtai' }
-   ```
-### 三.Instructions
+### 二.Instructions
   ```java
       //The network configuration needs to be before the SDK initialization
       //Test network
