@@ -9,7 +9,7 @@
 ## 集成说明
 ### 一.引入试纸sdk库
    ```java
-       api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.5.9'
+       api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.6.2-tf'
    ```
 ### 三.使用方法
   ```java
