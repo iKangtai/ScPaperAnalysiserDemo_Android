@@ -239,7 +239,7 @@ public class VideoFragment extends Fragment {
                 if (cameraUtil == null) {
                     cameraUtil = new CameraUtil();
                 }
-                cameraUtil.initCamera(getActivity(), textureView, mPreviewCallback);
+                cameraUtil.initCenterCamera(getActivity(), textureView, mPreviewCallback);
             }
         }, 200);
     }
@@ -358,9 +358,9 @@ public class VideoFragment extends Fragment {
             //The top half of the video is a square image
             Bitmap originSquareBitmap;
             if (textureView.getBitmap() != null) {
-                originSquareBitmap = ImageUtil.topCropBitmap(textureView.getBitmap());
+                originSquareBitmap = ImageUtil.cropBitmap(textureView.getBitmap());
             } else {
-                originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+                originSquareBitmap = TensorFlowTools.convertCenterFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
             }
             if (isCardMode) {
                 CardAutoSmartPaperMeasureLayout.Data imageData = smartPaperMeasureContainerLayout.getCardAutoSmartPaperMeasureData();
