@@ -70,10 +70,6 @@ public class HomeFragment extends Fragment {
          */
         Config.setNetTimeOut(30);
 
-        if (!SupportDeviceUtil.isSupport(getContext(), AppConstant.appId, AppConstant.appSecret)) {
-            new AlertDialog.Builder(getContext()).setMessage("The current device performance is too poor, and the automatic SDK recognition is slow").show();
-        }
-
         //Customized test paper Ui display
         /**
          * title
@@ -203,7 +199,9 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onSuccess() {
-
+                if (!SupportDeviceUtil.isSupport(getContext(), AppConstant.appId, AppConstant.appSecret)) {
+                    new AlertDialog.Builder(getContext()).setMessage("The current device performance is too poor, and the automatic SDK recognition is slow").show();
+                }
             }
         });
 
