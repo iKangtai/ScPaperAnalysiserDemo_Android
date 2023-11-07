@@ -8,7 +8,7 @@ android {
         minSdkVersion 22
         targetSdkVersion 29
         versionCode 85
-        versionName "1.6.8.5-tf"
+        versionName "1.7.7-alpha2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -49,5 +49,5 @@ dependencies {
     //implementation  'io.reactivex.rxjava2:rxjava:2.2.6'
     implementation  'com.github.bumptech.glide:glide:4.9.0'
 
-    implementation 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.6.8.5-tf'
+    implementation 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.7.7-alpha2'
 }
