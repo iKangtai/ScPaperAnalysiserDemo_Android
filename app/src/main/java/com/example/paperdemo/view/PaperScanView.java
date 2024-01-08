@@ -110,6 +110,7 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
 
     private void drawScanning(int i) {
         int width = getWidth();
+        height = width;
         Canvas canvas = sh.lockCanvas();
         if (canvas == null) {
             return;
@@ -119,16 +120,25 @@ public class PaperScanView extends SurfaceView implements SurfaceHolder.Callback
         if (isCardMode) {
             int padding = Utils.dp2px(getContext(), 10);
             //Reference strip for drawing test paper
-            int destBitmapWidth = width - padding * 2;
+            int destBitmapWidth = width - padding - Utils.dp2px(getContext(), 14);
             int destBitmapHeight = destBitmapWidth * 177 / 1053;
-            int paperHeight = width * 2 / 7;
+            float bigPaperFrameWidth = destBitmapWidth * 104 / 350.7f;
+            float bigPaperFrameHeight = destBitmapHeight * 43 / 60.2f;
+
+            /*int paperHeight = width * 2 / 7;
             float fixY = (paperHeight - destBitmapHeight) / 2;
             float paperTop = width / 2 + Utils.dp2px(getContext(), 10);
             float centerLeft = padding + destBitmapWidth * 124 / 351f;
             float centerTop = paperTop + fixY + destBitmapHeight * 10 / 60f;
 
             float centerRight = padding + destBitmapWidth * 232 / 351f;
-            float centerBottom = paperTop + fixY + destBitmapHeight * 55 / 60f;
+            float centerBottom = paperTop + fixY + destBitmapHeight * 55 / 60f;*/
+            float paperCenterX = width / 2;
+            float paperCenterY = height / 2;
+            float centerLeft = paperCenterX - bigPaperFrameWidth / 2;
+            float centerTop = paperCenterY;
+            float centerRight = paperCenterX + bigPaperFrameWidth / 2;
+            float centerBottom = paperCenterY + bigPaperFrameHeight;
 
             int scanWidth = (int) (centerRight - centerLeft);
             int scanHeight = (int) (centerBottom - centerTop);

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
     <ScrollView
         android:id="@+id/camera_scrollview"
@@ -13,8 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextureView
-                android:id="@+id/camera_textureview"
+            <com.google.android.cameraview.CameraView
+                android:id="@+id/camera_cameraView"
                 android:layout_width="match_parent"
                 android:layout_height="500dp" />
         </LinearLayout>
@@ -43,7 +44,13 @@
             android:id="@+id/card_auto_smart_paper_measureLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:visibility="gone" />
+
+        <com.example.paperdemo.view.ShecareCardAutoSmartPaperMeasureLayout
+            android:id="@+id/shecare_card_auto_smart_paper_measureLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
         <com.example.paperdemo.view.PaperScanView
             android:id="@+id/paper_scan_view"
@@ -87,10 +94,10 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_above="@+id/paper_mode_switch"
-            android:gravity="left"
             android:layout_centerHorizontal="true"
-            android:textColor="@color/white"
-            android:layout_margin="@dimen/dp_10"/>
+            android:layout_margin="@dimen/dp_20"
+            android:gravity="left"
+            android:textColor="@color/white" />
 
 
         <com.example.paperdemo.view.AlphaImage
@@ -112,11 +119,11 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/dp_20"
             android:drawableRight="@drawable/ic_change"
+            android:drawablePadding="@dimen/dp_5"
             android:padding="@dimen/dp_10"
             android:text="@string/paper_manau_clip"
             android:textColor="@color/white"
-            android:textSize="@dimen/button_text_size"
-            android:drawablePadding="@dimen/dp_5"/>
+            android:textSize="@dimen/button_text_size" />
     </RelativeLayout>
 
 </RelativeLayout>

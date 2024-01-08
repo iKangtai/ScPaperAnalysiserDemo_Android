@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import com.example.paperdemo.R;
 import com.example.paperdemo.util.AiCode;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
+import com.ikangtai.papersdk.util.PxDxUtil;
 import com.ikangtai.papersdk.util.Utils;
 
 import androidx.annotation.NonNull;
@@ -138,26 +139,44 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
     private void drawLine(Canvas canvas) {
         int padding = Utils.dp2px(context, 10);
         int paperHeight = width * 2 / 7;
-        float paperTop = width / 2 + Utils.dp2px(context, 10);
-
+        //float paperTop = width / 2 + Utils.dp2px(context, 10);
+        float paperCenterX = width / 2;
+        float paperCenterY = height / 2;
         //canvas.drawRect(0, paperTop + paperHeight, width, width, bgPaint);
         //Reference strip for drawing test paper
-        destBitmapWidth = width - padding * 2;
+        destBitmapWidth = width - padding - Utils.dp2px(context, 14);
         destBitmapHeight = destBitmapWidth * 177 / 1053;
+        float smallPaperFrameWidth = destBitmapWidth * 151 / 780f;
+        float smallPaperFrameHeight = destBitmapHeight * 62 / 134f;
+        float bigPaperFrameWidth = destBitmapWidth * 104 / 350.7f;
+        float bigPaperFrameHeight = destBitmapHeight * 43 / 60.2f;
+
         float left = padding;
-        float top = width / 2 - destBitmapHeight;
+        float top = paperCenterY - (height / 2 - destBitmapHeight) / 3 - destBitmapHeight;
         float right = destBitmapWidth + left;
-        float bottom = width / 2;
+        float bottom = top + destBitmapHeight;
         RectF rectF = new RectF(left, top, right, bottom);
         canvas.drawBitmap(sampleBitmap, null, rectF, null);
         canvas.saveLayer(0, 0, width, height, null, Canvas.ALL_SAVE_FLAG);
         //Draw black mask
         canvas.drawRect(0, 0, width, height, bgPaint);
         int lineWidth = Utils.dp2px(context, 10);
-        canvas.drawRect(padding + destBitmapWidth * 142 / 351f, top + destBitmapHeight * 12 / 60f, padding + destBitmapWidth * 216 / 351f, top + destBitmapHeight * 43 / 60f, eraser);
+
+        float smallPaperCenterX = width / 2;
+        float smallPaperCenterY = top + destBitmapHeight * 32 / 134f + destBitmapHeight * 30 / 134f;
+
+        float smallPaperLeft = smallPaperCenterX - smallPaperFrameWidth / 2;
+        float smallPaperTop = smallPaperCenterY - smallPaperFrameHeight / 2;
+        float smallPaperRight = smallPaperCenterX + smallPaperFrameWidth / 2;
+        float smallPaperBottom = smallPaperCenterY + smallPaperFrameHeight / 2;
+        canvas.drawRect(smallPaperLeft, smallPaperTop, smallPaperRight, smallPaperBottom, eraser);
         float fixY = (paperHeight - destBitmapHeight) / 2;
         //Hollow cover for viewing frame
-        canvas.drawRect(padding + destBitmapWidth * 124 / 351f, paperTop + fixY + destBitmapHeight * 10 / 60f, padding + destBitmapWidth * 232 / 351f, paperTop + fixY + destBitmapHeight * 55 / 60f, eraser);
+        float paperLeft = paperCenterX - bigPaperFrameWidth / 2;
+        float paperTop = paperCenterY;
+        float paperRight = paperCenterX + bigPaperFrameWidth / 2;
+        float paperBottom = paperCenterY + bigPaperFrameHeight;
+        canvas.drawRect(paperLeft, paperTop, paperRight, paperBottom, eraser);
         canvas.saveLayer(0, 0, width, height, null, Canvas.ALL_SAVE_FLAG);
         //draw T C
         textPaint.setFakeBoldText(true);
@@ -168,90 +187,90 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         float tcY = top + destBitmapHeight * 22 / 60f + tcMargin;
         float tWidth = textPaint.measureText(T);
         float cWidth = textPaint.measureText(C);
-        float tX = padding + destBitmapWidth * 142 / 351f - tWidth / 2 - tcMargin;
-        float cX = padding + destBitmapWidth * 216 / 351f - cWidth / 2 + tcMargin;
+        float tX = smallPaperLeft - tWidth / 2 - tcMargin;
+        float cX = smallPaperRight - cWidth / 2 + tcMargin;
         canvas.drawText(T, tX, tcY, textPaint);
         canvas.drawText(C, cX, tcY, textPaint);
         textPaint.setFakeBoldText(false);
         //First corner
-        float centerX = padding + destBitmapWidth * 142 / 351f;
-        float centerY = top + destBitmapHeight * 12 / 60f;
+        float centerX = paperLeft;
+        float centerY = paperTop;
         float startX = centerX + lineWidth;
         float startY = centerY;
         float stopX = centerX;
         float stopY = centerY + lineWidth;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
         //Second corner
-        centerX = padding + destBitmapWidth * 142 / 351f;
-        centerY = top + destBitmapHeight * 43 / 60f;
+        centerX = paperLeft;
+        centerY = paperBottom;
         startX = centerX;
         startY = centerY - lineWidth;
         stopX = centerX + lineWidth;
         stopY = centerY;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
         //Third corner
-        centerX = padding + destBitmapWidth * 216 / 351f;
-        centerY = top + destBitmapHeight * 43 / 60f;
+        centerX = paperRight;
+        centerY = paperBottom;
         startX = centerX - lineWidth;
         startY = centerY;
         stopX = centerX;
         stopY = centerY - lineWidth;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
         //Fourth corner
-        centerX = padding + destBitmapWidth * 216 / 351f;
-        centerY = top + destBitmapHeight * 12 / 60f;
+        centerX = paperRight;
+        centerY = paperTop;
         startX = centerX - lineWidth;
         startY = centerY;
         stopX = centerX;
         stopY = centerY + lineWidth;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
         lineWidth = Utils.dp2px(context, 15);
 
 
         //No.5 corner mark
-        centerX = padding + destBitmapWidth * 124 / 351f;
-        centerY = paperTop + fixY + destBitmapHeight * 10 / 60f;
+        centerX = paperLeft;
+        centerY = paperTop;
         startX = centerX + lineWidth;
         startY = centerY;
         stopX = centerX;
         stopY = centerY + lineWidth;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
         //No.6 corner mark
-        centerX = padding + destBitmapWidth * 124 / 351f;
-        centerY = paperTop + fixY + destBitmapHeight * 55 / 60f;
+        centerX = paperLeft;
+        centerY = paperBottom;
         startX = centerX;
         startY = centerY - lineWidth;
         stopX = centerX + lineWidth;
         stopY = centerY;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
         //No.7 corner mark
-        centerX = padding + destBitmapWidth * 232 / 351f;
-        centerY = paperTop + fixY + destBitmapHeight * 55 / 60f;
+        centerX = paperRight;
+        centerY = paperBottom;
         startX = centerX - lineWidth;
         startY = centerY;
         stopX = centerX;
         stopY = centerY - lineWidth;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
         //No.8 corner mark
-        centerX = padding + destBitmapWidth * 232 / 351f;
-        centerY = paperTop + fixY + destBitmapHeight * 10 / 60f;
+        centerX = paperRight;
+        centerY = paperTop;
         startX = centerX - lineWidth;
         startY = centerY;
         stopX = centerX;
         stopY = centerY + lineWidth;
-        canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
+        //canvas.drawPath(handleLinePath(startX, startY, centerX, centerY, stopX, stopY), linePaint);
 
-        data.innerLeft = (int) (destBitmapWidth * 124 / 351f) + padding;
-        data.innerTop = (int) (paperTop + fixY + destBitmapHeight * 10 / 60f);
-        data.innerRight = (int) (destBitmapWidth * 232 / 351f) + padding;
-        data.innerBottom = (int) (paperTop + fixY + destBitmapHeight * 55 / 60f);
+        data.innerLeft = (int) paperLeft;
+        data.innerTop = (int) paperTop;
+        data.innerRight = (int) paperRight;
+        data.innerBottom = (int) paperBottom;
         data.innerWidth = data.innerRight - data.innerLeft;
         data.innerHeight = data.innerBottom - data.innerTop;
         if (isFixSquareImage) {
@@ -262,6 +281,14 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
         }
         data.outerWidth = destBitmapWidth;
         data.outerHeight = destBitmapHeight;
+        int offsetX = 0;
+        int offsetY = 0;
+        Path path = handlePath(paperCoordinatesData, offsetX, offsetY);
+        if (path != null) {
+            //linePaint.setPathEffect(new DashPathEffect(new float[]{12, 12}, 0));
+            linePaint.setStrokeWidth(PxDxUtil.dip2px(getContext(), 4));
+            canvas.drawPath(path, linePaint);
+        }
     }
 
     private Path handleLinePath(float startX, float startY, float centerX, float centerY, float endX, float endY) {
@@ -280,7 +307,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
             float scanResultBackgroundWidth = scanResultWidth * 1.5f;
             float scanResultBackgroundHeight = Utils.dp2px(context, 45);
             float layerLeft = (width - scanResultBackgroundWidth) / 2;
-            float layerTop = width / 2 - scanResultBackgroundHeight / 2;
+            float layerTop = width / 2 - scanResultBackgroundHeight;
             float layerRight = layerLeft + scanResultBackgroundWidth;
             float layerBottom = layerTop + scanResultBackgroundHeight;
             //Set a new rectangle
@@ -288,7 +315,7 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
             //The second parameter is the x radius, and the third parameter is the y radius
             canvas.drawRoundRect(layerOval, 10, 10, textBackgroundPaint);
             float x = (width - scanResultWidth) / 2;
-            float y = width / 2 + 10;
+            float y = width / 2 + 10 - scanResultBackgroundHeight / 2;
             canvas.drawText(scanResult, x, y, textPaint);
         }
 
@@ -297,10 +324,10 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
     private void drawHint(Canvas canvas) {
         String hint = getContext().getString(R.string.card_paper_in_container);
         if (!TextUtils.isEmpty(hint)) {
-            textPaint.setTextSize(Utils.sp2px(context, 14f));
+            textPaint.setTextSize(Utils.sp2px(context, 12f));
             float hintWidth = textPaint.measureText(hint);
             float x = (width - hintWidth) / 2;
-            float y = Utils.dp2px(context, 50f);
+            float y = ((height - destBitmapHeight) / 3 - Utils.dp2px(context, 12f)) / 2;
             StaticLayout layout = new StaticLayout(hint, textPaint, (int) hintWidth - 10, Layout.Alignment.ALIGN_CENTER, 1.2f, 0, false);
             //canvas.drawText(hint, x, y, textPaint);
             canvas.translate(x, y);
@@ -314,6 +341,22 @@ public class CardAutoSmartPaperMeasureLayout extends FrameLayout {
                 return AiCode.getMessage(data.getCode());
             }
         }
+        return null;
+    }
+
+    private Path handlePath(PaperCoordinatesData data, int offsetX, int offsetY) {
+        if (data != null) {
+            if (data.getCode() == AiCode.CODE_0) {
+                Path p = new Path();
+                p.moveTo(data.getPoint1().x + offsetX, data.getPoint1().y + offsetY);
+                p.lineTo(data.getPoint2().x + offsetX, data.getPoint2().y + offsetY);
+                p.lineTo(data.getPoint3().x + offsetX, data.getPoint3().y + offsetY);
+                p.lineTo(data.getPoint4().x + offsetX, data.getPoint4().y + offsetY);
+                p.close();
+                return p;
+            }
+        }
+
         return null;
     }
 

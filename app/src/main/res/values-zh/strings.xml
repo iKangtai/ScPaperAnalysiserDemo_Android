@@ -30,6 +30,7 @@
     <string name="left_margin">左边缘</string>
     <string name="right_margin">右边缘</string>
     <string name="ovulation_camera_tips"><![CDATA[为避免试纸失效，请在显色后<font color="#79FA1E">10-15分钟</font>内拍照]]></string>
+    <string name="ovulation_camera_card_tips">淋完尿，即可揭掉保护膜，平放，为避免失效，定时10分钟，褪红完毕后进行拍照</string>
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="finish">完成</string>
@@ -40,7 +41,7 @@
     <string name="error_in_color_recognition">颜色识别有误差？</string>
     <string name="color_reference_bar_title_1">T线色值参考条:</string>
     <string name="color_reference_bar_title_2">T线色值参考条，拖动色卡修正结果！</string>
-    <string name="lh_refer_result"><![CDATA[参考结果：<font color="#FF7486">%d</font>]]></string>
+    <string name="lh_refer_result"><![CDATA[LH结果：<font color="#FF7486">%d</font>]]></string>
     <string name="retio_refer_result"><![CDATA[Ratio结果：<font color="#FF7486">%s</font>]]></string>
     <string name="lh_time2">检测时间</string>
     <string name="save">保存</string>
@@ -88,4 +89,5 @@
     <string name="cutout_timeout">抠图超时</string>
     <string name="cutout_cancel">切换至抠图模式，取消视频流分析</string>
     <string name="image_file_error">分析试纸图片异常</string>
+    <string name="card_ben_auto_hint">请将卡/笔型试纸放入框内</string>
 </resources>

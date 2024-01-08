@@ -15,13 +15,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.paperdemo.AppConstant;
+import com.example.paperdemo.BuildConfig;
 import com.example.paperdemo.PaperClipActivity;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
 import com.example.paperdemo.util.AiCode;
 import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.ProgressDialog;
+import com.google.zxing.Result;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.UiOption;
@@ -33,7 +38,7 @@ import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
-import com.ikangtai.papersdk.util.PxDxUtil;
+import com.ikangtai.papersdk.util.QRCodeUtil;
 import com.ikangtai.papersdk.util.SupportDeviceUtil;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
@@ -43,9 +48,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 /**
  * Test paper picture recognition
@@ -62,9 +64,9 @@ public class HomeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         AiCode.initCodeData(getContext());
         /**
-         * Use test network
+         * Use test network Debug
          */
-        Config.setTestServer(true);
+        Config.setDebug(BuildConfig.DEBUG);
         /**
          * Network timeout
          */
@@ -74,55 +76,55 @@ public class HomeFragment extends Fragment {
         /**
          * title
          */
-        String titleText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_title);
+        String titleText = getContext().getString(R.string.paper_result_dialog_title);
         /**
          * title color
          */
-        int titleTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        int titleTextColor = getContext().getResources().getColor(R.color.color_444444);
         /**
          * paper line
          */
-        int tagLineImageResId = com.ikangtai.papersdk.R.drawable.paper_line;
+        int tagLineImageResId = R.drawable.paper_line;
         /**
          * t line slider icon
          */
-        int tLineResId = com.ikangtai.papersdk.R.drawable.test_paper_t_line;
+        int tLineResId = R.drawable.test_paper_t_line;
         /**
          * c line slider icon
          */
-        int cLineResId = com.ikangtai.papersdk.R.drawable.test_paper_c_line;
+        int cLineResId = R.drawable.test_paper_c_line;
         /**
          * Flip text horizontally
          */
-        String flipText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_flip);
+        String flipText = getContext().getString(R.string.paper_result_dialog_flip);
         /**
          * Flip text color horizontally
          */
-        int flipTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
+        int flipTextColor = getContext().getResources().getColor(R.color.color_67A3FF);
         /**
          * Prompt text
          */
-        String hintText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_dialog_hit);
+        String hintText = getContext().getString(R.string.paper_result_dialog_hit);
         /**
          * Prompt text color
          */
-        int hintTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        int hintTextColor = getContext().getResources().getColor(R.color.color_444444);
         /**
          * Back button
          */
-        int backResId = com.ikangtai.papersdk.R.drawable.test_paper_return;
+        int backResId = R.drawable.test_paper_return;
         /**
          * Confirm button
          */
-        int confirmResId = com.ikangtai.papersdk.R.drawable.test_paper_confirm;
+        int confirmResId = R.drawable.test_paper_confirm;
         /**
          * Back button text color
          */
-        int backButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        int backButtonTextColor = getContext().getResources().getColor(R.color.color_444444);
         /**
          * Confirm button text color
          */
-        int confirmButtonTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_444444);
+        int confirmButtonTextColor = getContext().getResources().getColor(R.color.color_444444);
         /**
          * Bottom menu way display button
          */
@@ -130,28 +132,28 @@ public class HomeFragment extends Fragment {
         /**
          * tc line default value width
          */
-        float tcLineWidth = getContext().getResources().getDimension(com.ikangtai.papersdk.R.dimen.dp_2);
+        float tcLineWidth = getContext().getResources().getDimension(R.dimen.dp_2);
         /**
          * Back button background id
          */
-        int backButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+        int backButtonBgResId = R.drawable.paper_button_drawable;
         /**
          * Confirm button background id
          */
-        int confirmButtonBgResId = com.ikangtai.papersdk.R.drawable.paper_button_drawable;
+        int confirmButtonBgResId = R.drawable.paper_button_drawable;
         /**
          * Back button text
          */
-        String backButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_back);
+        String backButtonText = getContext().getString(R.string.paper_result_back);
         /**
          * Confirm button text
          */
-        String confirmButtonText = getContext().getString(com.ikangtai.papersdk.R.string.paper_result_confirm);
+        String confirmButtonText = getContext().getString(R.string.paper_result_confirm);
         /**
          * sample pic id
          */
-        int sampleResId = com.ikangtai.papersdk.R.drawable.confirm_sample_pic_lh;
-        int feedbackTextColor = getContext().getResources().getColor(com.ikangtai.papersdk.R.color.color_67A3FF);
+        int sampleResId = R.drawable.confirm_sample_pic_lh;
+        int feedbackTextColor = getContext().getResources().getColor(R.color.color_67A3FF);
         UiOption uiOption = new UiOption.Builder(getContext())
                 .titleText(titleText)
                 .tagLineImageResId(tagLineImageResId)
@@ -181,7 +183,7 @@ public class HomeFragment extends Fragment {
          * 1.new Config.Builder().logWriter(logWriter).
          * 2.new Config.Builder().logFilePath(logFilePath).
          */
-        String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
+        String logFilePath = new File(FileUtil.createRootPath(getContext()), "paper_sdk_log.txt").getAbsolutePath();
         BufferedWriter logWriter = null;
         try {
             logWriter = new BufferedWriter(new FileWriter(logFilePath, true), 2048);
@@ -189,7 +191,8 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
         //Test paper to identify sdk related configuration
-        Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 20)).uiOption(uiOption).logWriter(logWriter).netTimeOutRetryCount(1).build();
+        Config config = new Config.Builder().pixelOfdExtended(true).margin(5).uiOption(uiOption).logWriter(logWriter).netTimeOutRetryCount(1).build();
+        //Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 24)).analysisTime(60).netTimeOutRetryCount(1).blurLimitValue(16).minBlurLimitValue(8).showYcPaperResultDialog(false).scanYcBarcode(true).paperType(Config.PAPER_LH).paperBrand(Config.PAPER_BRAND_YC).red(1).build();
         //init sdk
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
             @Override
@@ -248,6 +251,33 @@ public class HomeFragment extends Fragment {
                 return;
             }
             startTime = System.currentTimeMillis();
+            if (false) {
+                paperAnalysiserClient.analysisDocBitmap(fileBitmap, new SampleBitmapAnalysisEventAdapter() {
+                    @Override
+                    public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
+                        if (paperCoordinatesData != null && paperCoordinatesData.getImageL() != null) {
+                            paperImageView.setImageBitmap(TensorFlowTools.getBitmapByMat(paperCoordinatesData.getImageL()));
+                        } else {
+                            paperImageView.setImageBitmap(null);
+                        }
+                        return true;
+                    }
+
+                    @Override
+                    public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
+                        super.analysisError(paperCoordinatesData, errorResult, code);
+                        LogUtils.d("Error in automatic matting of test strips code：" + code + " errorResult:" + errorResult);
+                        ToastUtils.show(getContext(), AiCode.getMessage(code));
+                    }
+                });
+                return;
+            }
+            if (false) {
+                double blur = TensorFlowTools.blurLevel2(fileBitmap);
+                Result result = QRCodeUtil.decodeImage(fileBitmap);
+                LogUtils.i("试纸条模糊值:" + blur + " " + result != null ? result.getText() : "");
+                return;
+            }
             paperAnalysiserClient.analysisBitmap(fileBitmap, new SampleBitmapAnalysisEventAdapter() {
                 @Override
                 public void save(PaperResult paperResult) {
@@ -320,10 +350,10 @@ public class HomeFragment extends Fragment {
                                                 choosePhoto();
                                             }
                                         }).setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                            }
-                        }).show();
+                                    @Override
+                                    public void onDismiss(DialogInterface dialog) {
+                                    }
+                                }).show();
                     }
                 }
 

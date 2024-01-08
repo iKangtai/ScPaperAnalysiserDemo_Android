@@ -81,10 +81,9 @@ public class PaperClipActivity extends Activity implements View.OnTouchListener 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Config.setTestServer(true);
         Config.setNetTimeOut(30);
         //Test paper to identify sdk related configuration
-        Config config = new Config.Builder().margin(10).build();
+        Config config = new Config.Builder().build();
         //init sdk
         paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config);
 

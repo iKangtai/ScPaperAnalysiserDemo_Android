@@ -16,6 +16,21 @@ public class AiCode {
     private static Map<Integer, String> codes = new HashMap<>();
     //图片错误
     public static final int CODE_IMAGE_ERROR = -1001;
+    //保持手机水平
+    public static final int CODE_ORIENTATION_ERROR = -1002;
+    //保持手机静止
+    public static final int CODE_MOVE_ERROR = -1003;
+    //未找到完整的孕橙试纸
+    public static final int CODE_NOT_FOUND_SHECARE_ERROR = -1004;
+    //发现孕橙试纸，请重新选择试纸类型
+    public static final int CODE_FOUND_SHECARE_ERROR = -1005;
+    public static final int CODE_MOVE_YC_BOX = -1006;
+    public static final int CODE_NOT_FOUND_SHECARE_CARD_ERROR = -1007;
+    public static final int CODE_FOUND_SHECARE_CARD_ARUCO_ERROR = -1008;
+    public static final int CODE_NOT_FOUND_SHECARE_HCG_MUL_CARD_ERROR = -1009;
+    public static final int CODE_FOUND_SHECARE_HCG_MUL_CARD_ARUCO_ERROR = -1010;
+    //孕橙卡型试纸宽高比错误 发现非孕橙试纸 不显示错误消息类型
+    public static final int CODE_DEFAULT_ERROR = -99;
     //网络错误
     public static final int CODE_NET_ERROR = -3;
     //SDK 校验失败或无效
@@ -54,12 +69,19 @@ public class AiCode {
     public static final int CODE_50 = 50;
     //抠图成功，但是分析失败
     public static final int CODE_101 = 101;
+    //发现孕橙早孕试纸，请重新选择试纸类型
+    public static final int CODE_FOUND_SHECARE_HCG_ERROR = 106;
+    //发现孕橙笔型试纸，请重新选择试纸类型
+    public static final int CODE_FOUND_SHECARE_LH_CARD_ERROR = 107;
+    public static final int CODE_FOUND_SHECARE_HCG_MUL_CARD_ERROR = 108;
     //抠图成功，分析成功，但是用户取消确认抠图和分析结果
     public static final int CODE_201 = 201;
     //抠图成功，分析成功，但未检测到参考线，请确认试纸有参考线显示
     public static final int CODE_202 = 202;
     //抠图成功，分析成功，但未检测到T线，请确认试纸有T线显示
     public static final int CODE_203 = 203;
+    //褪红问题
+    public static final int CODE_204 = 204;
 
 
     /*410，401	缺少相关参数
@@ -83,6 +105,7 @@ public class AiCode {
     public static final int CODE_304 = 304;
     public static final int CODE_510 = 510;
     public static final int CODE_511 = 511;
+    public static final int CODE_600 = 600;
 
     /*// 试纸抠图、分析错误码
     /// 抠图成功、分析成功，流程内没有错误产生；
@@ -139,6 +162,23 @@ public class AiCode {
     static {
         //图片错误
         codes.put(CODE_IMAGE_ERROR, "图片错误");
+        //方向错误
+        codes.put(CODE_ORIENTATION_ERROR, "为了更准确的识别，请将手机和笔型试纸保持平行");
+        //手机在运动
+        codes.put(CODE_MOVE_ERROR, "手机未静止");
+        codes.put(CODE_NOT_FOUND_SHECARE_ERROR, "未找到完整的孕橙试纸");
+        codes.put(CODE_FOUND_SHECARE_ERROR, "发现孕橙试纸，请重新选择试纸类型");
+        //请将试纸的显示窗口放入取景框内
+        codes.put(CODE_MOVE_YC_BOX, "请将试纸的显示窗口放入取景框内");
+        codes.put(CODE_FOUND_SHECARE_HCG_ERROR, "发现孕橙早孕试纸，请重新选择试纸类型");
+        codes.put(CODE_NOT_FOUND_SHECARE_CARD_ERROR, "没有找到孕橙笔型试纸");
+        codes.put(CODE_FOUND_SHECARE_LH_CARD_ERROR, "发现孕橙笔型排卵试纸，请重新选择试纸类型");
+        codes.put(CODE_FOUND_SHECARE_CARD_ARUCO_ERROR, "请将笔型试纸放在取景框中央");
+
+        codes.put(CODE_FOUND_SHECARE_HCG_MUL_CARD_ERROR, "发现孕橙半定量HCG检测试纸，请重新选择试纸类型");
+        codes.put(CODE_NOT_FOUND_SHECARE_HCG_MUL_CARD_ERROR, "没有找到孕橙半定量HCG检测试纸");
+        codes.put(CODE_FOUND_SHECARE_HCG_MUL_CARD_ARUCO_ERROR, "请将孕橙半定量HCG检测试纸放在取景框中央");
+        codes.put(CODE_DEFAULT_ERROR, "");
         //未知错误
         codes.put(CODE_ERROR, "未知错误");
         //抠图成功
@@ -176,6 +216,7 @@ public class AiCode {
         //抠图成功，分析成功，但未检测到参考线，请确认试纸有参考线显示
         codes.put(CODE_202, "未检测到T线和C线，如果T线和C线存在，请拖动到相应的位置");
         codes.put(CODE_203, "未检测到T线，如果T线存在，请拖动到相应的位置");
+        codes.put(CODE_204, "褪红问题");
         //抠图成功，但是分析失败
         codes.put(CODE_101, "试纸分析出错");
         //SDK 校验失败或无效
@@ -204,6 +245,7 @@ public class AiCode {
         codes.put(CODE_304, "图片base64编解码失败");
         codes.put(CODE_510, "分析失败");
         codes.put(CODE_511, "试纸无效");
+        codes.put(CODE_600, "为了更准确的识别，请将手机和笔型试纸保持平行");
     }
 
     public static void initCodeData(Context context) {

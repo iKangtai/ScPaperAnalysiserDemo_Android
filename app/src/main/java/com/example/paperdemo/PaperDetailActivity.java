@@ -15,9 +15,9 @@ import com.example.paperdemo.view.OvulationSeekBar;
 import com.example.paperdemo.view.TopBar;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
-import com.ikangtai.papersdk.event.ICycleAnalysisResultEvent;
-import com.ikangtai.papersdk.http.reqmodel.PaperCycleAnalysisReq;
-import com.ikangtai.papersdk.http.respmodel.PaperCycleAnalysisResp;
+import com.ikangtai.papersdk.event.ICyclesAnalysisResultEvent;
+import com.ikangtai.papersdk.http.reqmodel.PaperCyclesAnalysisReq;
+import com.ikangtai.papersdk.http.respmodel.PaperCyclesAnalysisResp;
 import com.ikangtai.papersdk.model.PaperResult;
 import com.ikangtai.papersdk.util.DateUtil;
 import com.ikangtai.papersdk.util.FileUtil;
@@ -50,6 +50,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
      * Test paper result
      */
     private TextView analysisResultTitle;
+    private TextView analysisRatioResultTitle;
     /**
      * Test paper result description
      */
@@ -79,7 +80,6 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Config.setTestServer(true);
         Config.setNetTimeOut(30);
         //init sdk
         paperAnalysiserClient = new PaperAnalysiserClient(this, AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com");
@@ -88,6 +88,7 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         ovulationSeekBar = findViewById(R.id.ovulationSeekBar);
         paperImg = findViewById(R.id.paperImg);
         analysisResultTitle = findViewById(R.id.analysisResultTitle);
+        analysisRatioResultTitle = findViewById(R.id.analysisRatioResultTitle);
         analysisResult = findViewById(R.id.analysisResult);
         analysisDescHint = findViewById(R.id.analysisDescHint);
         updatePaperResult = findViewById(R.id.updatePaperResult);
@@ -95,19 +96,27 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
         saveBtn = findViewById(R.id.save_btn);
         console = findViewById(R.id.console);
         loadData();
-        ArrayList<PaperCycleAnalysisReq.Paper> papers = new ArrayList<>();
-        PaperCycleAnalysisReq.Paper paper = new PaperCycleAnalysisReq.Paper();
+        ArrayList<PaperCyclesAnalysisReq.Paper> papers = new ArrayList<>();
+        PaperCyclesAnalysisReq.Paper paper = new PaperCyclesAnalysisReq.Paper();
         paper.setTimestamp(DateUtil.getStringToDate(paperBean.getPaperTime()));
         paper.setValue(paperBean.getPaperValue());
+        paper.setRatio((float) paperBean.getRatioValue());
         papers.add(paper);
-        paperAnalysiserClient.paperCycleAnalysis(papers, new ICycleAnalysisResultEvent() {
+
+        PaperCyclesAnalysisReq.CyclePaper cyclePaper = new PaperCyclesAnalysisReq.CyclePaper();
+        cyclePaper.setYcSemiQuantitative(papers);
+        ArrayList<PaperCyclesAnalysisReq.CyclePaper> cyclePapers = new ArrayList<>();
+        cyclePapers.add(cyclePaper);
+        paperAnalysiserClient.paperCyclesAnalysis(true, 0, cyclePapers, new ICyclesAnalysisResultEvent() {
             @Override
-            public void onSuccessPaperCycleAnalysis(PaperCycleAnalysisResp.Data bean) {
-                ToastUtils.show(PaperDetailActivity.this, bean.getInfo());
+            public void onSuccessPaperCyclesAnalysis(ArrayList<PaperCyclesAnalysisResp.Data> beans) {
+                if (!beans.isEmpty()) {
+                    ToastUtils.show(PaperDetailActivity.this, TextUtils.isEmpty(beans.get(0).getYcQuanInfo()) ? beans.get(0).getYcSemiQuanInfo() : beans.get(0).getYcQuanInfo());
+                }
             }
 
             @Override
-            public void onFailurePaperCycleAnalysis(int errorCode, String message) {
+            public void onFailurePaperCyclesAnalysis(int errorCode, String message) {
                 ToastUtils.show(PaperDetailActivity.this, message);
             }
         });
@@ -225,7 +234,6 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
             }
         });
         showAnalysisResult(paperResult);
-
     }
 
     private void showAnalysisResult(int paperResult) {
@@ -238,6 +246,9 @@ public class PaperDetailActivity extends Activity implements View.OnClickListene
             String analysisResult = String.format(getString(R.string.lh_refer_result), paperResult);
             analysisResultTitle.setText(Html.fromHtml(analysisResult));
         }
+
+        String analysisRatioResult = String.format(getString(R.string.retio_refer_result), paperBean.getRatioValue() + "");
+        analysisRatioResultTitle.setText(Html.fromHtml(analysisRatioResult));
     }
 
 

@@ -60,7 +60,7 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
         this.context = context;
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         this.width = dm.widthPixels;
-        this.height=this.width;
+        this.height = this.width;
         textPaint.setAntiAlias(true);
         textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(Utils.sp2px(context, 18f));
@@ -233,7 +233,7 @@ public class AutoSmartPaperMeasureLayout extends FrameLayout {
 
     private Path handlePath(PaperCoordinatesData data) {
         if (data != null) {
-            if (data.getCode() == AiCode.CODE_0) {
+            if (data.getCode() == AiCode.CODE_0 && data.getPoint1() != null && data.getPoint4() != null) {
                 Path p = new Path();
                 p.moveTo(data.getPoint1().x, data.getPoint1().y);
                 p.lineTo(data.getPoint2().x, data.getPoint2().y);

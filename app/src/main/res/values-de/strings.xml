@@ -30,7 +30,7 @@
     <string name="left_margin">Left Edge</string>
     <string name="right_margin">Right Edge</string>
     <string name="ovulation_camera_tips"><![CDATA[To ensure valid results, please scan Shecare test strips within 10-15 minutes after coloration.<br>For other types of test strips, please refer to the relevant instructions.]]></string>
-
+    <string name="ovulation_camera_card_tips">淋完尿，即可揭掉保护膜，平放，为避免失效，定时10分钟，褪红完毕后进行拍照</string>
     <string name="sure">Ok</string>
     <string name="cancel">Cancel</string>
     <string name="finish">Finish</string>
@@ -41,7 +41,7 @@
     <string name="error_in_color_recognition">Error in color identification?</string>
     <string name="color_reference_bar_title_1">T line color value bar for reference:</string>
     <string name="color_reference_bar_title_2">T line color value bar for reference. Move the color card to adjust your result.</string>
-    <string name="lh_refer_result"><![CDATA[Results：<font color="#FF7486">%d</font>]]></string>
+    <string name="lh_refer_result"><![CDATA[LH Results：<font color="#FF7486">%d</font>]]></string>
     <string name="retio_refer_result"><![CDATA[Ratio Results：<font color="#FF7486">%s</font>]]></string>
     <string name="lh_time2">Test time:</string>
     <string name="save">Save</string>
@@ -89,4 +89,5 @@
     <string name="cutout_timeout">Cutout timeout</string>
     <string name="cutout_cancel">Switch to cutout mode, cancel video stream analysis</string>
     <string name="image_file_error">Analyzing the test paper picture is abnormal</string>
+    <string name="card_ben_auto_hint">Please put the card/pen type test paper in the box</string>
 </resources>

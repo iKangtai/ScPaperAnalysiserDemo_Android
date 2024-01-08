@@ -11,16 +11,12 @@ import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-/**
- * Test paper finder frame View
- *
- * @author xiongyl 2019/11/6 21:22
- */
 public class SmartPaperMeasureContainerLayout extends FrameLayout {
 
     private ManualSmartPaperMeasureLayout manualSmartPaperMeasureLayout;
     private AutoSmartPaperMeasureLayout autoSmartPaperMeasureLayout;
     private CardAutoSmartPaperMeasureLayout cardAutoSmartPaperMeasureLayout;
+    private ShecareCardAutoSmartPaperMeasureLayout shecareCardAutoSmartPaperMeasureLayout;
     private PaperScanView paperScanView;
 
     public SmartPaperMeasureContainerLayout(@NonNull Context context) {
@@ -47,11 +43,12 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
         manualSmartPaperMeasureLayout = findViewById(R.id.paper_manual_smart_paper_measureLayout);
         autoSmartPaperMeasureLayout = findViewById(R.id.paper_auto_smart_paper_measureLayout);
         cardAutoSmartPaperMeasureLayout = findViewById(R.id.card_auto_smart_paper_measureLayout);
+        shecareCardAutoSmartPaperMeasureLayout = findViewById(R.id.shecare_card_auto_smart_paper_measureLayout);
         paperScanView = findViewById(R.id.paper_scan_view);
     }
 
     /**
-     * Show manual photo test strip
+     * 显示手动拍照试纸
      */
     public void showManualSmartPaperMeasure() {
 
@@ -67,6 +64,10 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
             cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
         }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
         if (paperScanView != null) {
             paperScanView.setVisibility(GONE);
         }
@@ -74,7 +75,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * Display card type test paper automatic recognition
+     * 显示卡型试纸自动识别
      */
     public void showCardAutoSmartPaperMeasure() {
 
@@ -90,15 +91,47 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
             cardAutoSmartPaperMeasureLayout.setVisibility(VISIBLE);
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
         }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
         if (paperScanView != null) {
             paperScanView.setCardMode(true);
+            paperScanView.setVisibility(VISIBLE);
+        }
+
+    }
+
+    /**
+     * 显示孕橙卡型试纸自动识别
+     */
+    public void showShecareCardAutoSmartPaperMeasure() {
+
+        if (manualSmartPaperMeasureLayout != null) {
+            manualSmartPaperMeasureLayout.setVisibility(GONE);
+            manualSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (autoSmartPaperMeasureLayout != null) {
+            autoSmartPaperMeasureLayout.setVisibility(GONE);
+            autoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+
+        if (cardAutoSmartPaperMeasureLayout != null) {
+            cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(VISIBLE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (paperScanView != null) {
             paperScanView.setVisibility(GONE);
         }
 
     }
 
     /**
-     * Manually cut out the measurement range Data
+     * 手动测量范围 Data
      *
      * @return
      */
@@ -110,19 +143,31 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * Card type matting range Data
+     * 卡型抠图范围 Data
      *
      * @return
      */
     public CardAutoSmartPaperMeasureLayout.Data getCardAutoSmartPaperMeasureData() {
-        if (manualSmartPaperMeasureLayout != null) {
+        if (cardAutoSmartPaperMeasureLayout != null) {
             return cardAutoSmartPaperMeasureLayout.getData();
         }
         return null;
     }
 
     /**
-     * Show automatic photo test strip
+     * 孕橙卡型抠图范围 Data
+     *
+     * @return
+     */
+    public ShecareCardAutoSmartPaperMeasureLayout.Data getShecareCardAutoSmartPaperMeasureData() {
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            return shecareCardAutoSmartPaperMeasureLayout.getData();
+        }
+        return null;
+    }
+
+    /**
+     * 显示自动拍照试纸
      */
     public void showAutoSmartPaperMeasure() {
         if (manualSmartPaperMeasureLayout != null) {
@@ -137,6 +182,10 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
             cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
         }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
         if (paperScanView != null) {
             paperScanView.setCardMode(false);
             paperScanView.setVisibility(VISIBLE);
@@ -144,8 +193,28 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
 
     }
 
+    public void showAutoSmartPaperMeasureLayout() {
+        if (manualSmartPaperMeasureLayout != null) {
+            manualSmartPaperMeasureLayout.setVisibility(GONE);
+            manualSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (autoSmartPaperMeasureLayout != null) {
+            autoSmartPaperMeasureLayout.setVisibility(VISIBLE);
+            autoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (cardAutoSmartPaperMeasureLayout != null) {
+            cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+
+    }
+
     /**
-     * Display the results of automatic scanning test paper
+     * 显示自动扫描试纸结果
      */
     public void showAutoSmartPaperMeasure(PaperCoordinatesData paperCoordinatesData) {
 
@@ -160,6 +229,10 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
             cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
         }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
         if (paperScanView != null) {
             paperScanView.setCardMode(false);
             paperScanView.setVisibility(VISIBLE);
@@ -171,7 +244,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * Display the results of automatic scanning test paper
+     * 显示自动扫描试纸结果
      */
     public void showAutoSmartPaperMeasure(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap) {
 
@@ -183,12 +256,20 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
             autoSmartPaperMeasureLayout.setVisibility(VISIBLE);
         }
         if (paperScanView != null) {
-            paperScanView.setCardMode(false);
-            paperScanView.setVisibility(VISIBLE);
+            if (originSquareBitmap != null) {
+                paperScanView.setVisibility(GONE);
+            } else {
+                paperScanView.setCardMode(false);
+                paperScanView.setVisibility(VISIBLE);
+            }
         }
         if (cardAutoSmartPaperMeasureLayout != null) {
             cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
         }
         if (autoSmartPaperMeasureLayout != null) {
             autoSmartPaperMeasureLayout.scanPaperCoordinatesData(paperCoordinatesData, originSquareBitmap);
@@ -196,7 +277,7 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
     }
 
     /**
-     * Display the results of manual photo test strips
+     * 显示手动拍照试纸结果
      */
     public void showManualSmartPaperMeasure(Bitmap originSquareBitmap) {
 
@@ -211,6 +292,10 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
         if (cardAutoSmartPaperMeasureLayout != null) {
             cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
         }
         if (paperScanView != null) {
             paperScanView.setVisibility(GONE);
@@ -231,8 +316,82 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
             cardAutoSmartPaperMeasureLayout.setVisibility(VISIBLE);
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(originSquareBitmap);
         }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
         if (paperScanView != null) {
             paperScanView.setCardMode(true);
+            paperScanView.setVisibility(VISIBLE);
+        }
+    }
+
+    public void showShecareCardAutoSmartPaperMeasure(Bitmap originSquareBitmap) {
+
+        if (manualSmartPaperMeasureLayout != null) {
+            manualSmartPaperMeasureLayout.setVisibility(GONE);
+            manualSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (autoSmartPaperMeasureLayout != null) {
+            autoSmartPaperMeasureLayout.setVisibility(GONE);
+            autoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (cardAutoSmartPaperMeasureLayout != null) {
+            cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(VISIBLE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(originSquareBitmap);
+        }
+        if (paperScanView != null) {
+            paperScanView.setVisibility(GONE);
+        }
+    }
+
+    public void showCardAutoSmartPaperMeasure(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap) {
+
+        if (manualSmartPaperMeasureLayout != null) {
+            manualSmartPaperMeasureLayout.setVisibility(GONE);
+            manualSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (autoSmartPaperMeasureLayout != null) {
+            autoSmartPaperMeasureLayout.setVisibility(GONE);
+            autoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (cardAutoSmartPaperMeasureLayout != null) {
+            cardAutoSmartPaperMeasureLayout.setVisibility(VISIBLE);
+            cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(originSquareBitmap, paperCoordinatesData);
+        }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (paperScanView != null) {
+            paperScanView.setCardMode(true);
+            paperScanView.setVisibility(VISIBLE);
+        }
+    }
+
+    public void showShecareCardAutoSmartPaperMeasure(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap) {
+
+        if (manualSmartPaperMeasureLayout != null) {
+            manualSmartPaperMeasureLayout.setVisibility(GONE);
+            manualSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (autoSmartPaperMeasureLayout != null) {
+            autoSmartPaperMeasureLayout.setVisibility(GONE);
+            autoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (cardAutoSmartPaperMeasureLayout != null) {
+            cardAutoSmartPaperMeasureLayout.setVisibility(GONE);
+            cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.setVisibility(VISIBLE);
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(originSquareBitmap, paperCoordinatesData);
+        }
+        if (paperScanView != null) {
             paperScanView.setVisibility(GONE);
         }
     }
@@ -250,7 +409,29 @@ public class SmartPaperMeasureContainerLayout extends FrameLayout {
             cardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
         }
 
+        if (shecareCardAutoSmartPaperMeasureLayout != null) {
+            shecareCardAutoSmartPaperMeasureLayout.scanPaperCoordinatesData(null);
+        }
+    }
+
+
+    public void setPaperType(int paperType) {
+        if (manualSmartPaperMeasureLayout != null) {
+            manualSmartPaperMeasureLayout.setPaperType(paperType);
+        }
+    }
+
+    public void setPaperViewClick(ManualSmartPaperMeasureLayout.ViewClick viewClick) {
+        if (manualSmartPaperMeasureLayout != null) {
+            manualSmartPaperMeasureLayout.setViewClick(viewClick);
+        }
+    }
+
+
+    public void destroy() {
+        if (paperScanView != null) {
+            paperScanView.drawStop();
+        }
     }
 
 }
-

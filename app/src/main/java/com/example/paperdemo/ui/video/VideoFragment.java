@@ -3,11 +3,13 @@ package com.example.paperdemo.ui.video;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Point;
-import android.hardware.Camera;
 import android.media.AudioManager;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,37 +17,41 @@ import android.os.Handler;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.paperdemo.AppConstant;
+import com.example.paperdemo.BuildConfig;
 import com.example.paperdemo.PaperDetailActivity;
 import com.example.paperdemo.R;
 import com.example.paperdemo.util.AiCode;
+import com.example.paperdemo.view.ActionSheetDialog;
 import com.example.paperdemo.view.CardAutoSmartPaperMeasureLayout;
 import com.example.paperdemo.view.ManualSmartPaperMeasureLayout;
 import com.example.paperdemo.view.ProgressDialog;
 import com.example.paperdemo.view.SmartPaperMeasureContainerLayout;
+import com.google.android.cameraview.CameraUtil;
+import com.google.android.cameraview.CameraView;
 import com.ikangtai.papersdk.Config;
 import com.ikangtai.papersdk.PaperAnalysiserClient;
 import com.ikangtai.papersdk.PaperResultDialog;
 import com.ikangtai.papersdk.event.IBaseAnalysisEvent;
 import com.ikangtai.papersdk.event.ICameraAnalysisEvent;
+import com.ikangtai.papersdk.event.IScanBarcodeResultEvent;
 import com.ikangtai.papersdk.event.InitCallback;
 import com.ikangtai.papersdk.model.PaperCoordinatesData;
 import com.ikangtai.papersdk.model.PaperResult;
-import com.ikangtai.papersdk.util.CameraUtil;
 import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
+import com.ikangtai.papersdk.util.PxDxUtil;
 import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 /**
  * Test paper video stream recognition
@@ -53,7 +59,7 @@ import androidx.fragment.app.Fragment;
  * @author
  */
 public class VideoFragment extends Fragment {
-    private TextureView textureView;
+    private CameraView cameraView;
     private SmartPaperMeasureContainerLayout smartPaperMeasureContainerLayout;
     private PaperAnalysiserClient paperAnalysiserClient;
     private long startTime, endTime;
@@ -63,14 +69,20 @@ public class VideoFragment extends Fragment {
     private int scanMode;
     private static final int AUTOSMART = 0;
     private static final int MANUALSMART = 1;
+    private static final int SCANBARCODE = 2;
+    private static final int ALBUM = 4;
+    private static final int AUTOSMART_MANUALSMART = 5;
     private boolean isCardMode = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        Config.setTestServer(true);
         Config.setNetTimeOut(30);
+        Config.setDebug(BuildConfig.DEBUG);
         //init sdk
-        Config config = new Config.Builder().pixelOfdExtended(true).margin(5).build();
+        //识别孕橙品牌试纸
+        //Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(),24)).netTimeOutRetryCount(1).showYcPaperResultDialog(false).scanYcBarcode(true).paperType(Config.PAPER_LH).paperBrand(Config.PAPER_BRAND_YC).blurLimitValue(25).minBlurLimitValue(8).build();
+        //识别其它品牌试纸
+        Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 24)).analysisTime(60).netTimeOutRetryCount(1).blurLimitValue(16).minBlurLimitValue(8).showYcPaperResultDialog(true).scanYcBarcode(true).paperType(Config.PAPER_LH).paperBrand(Config.PAPER_BRAND_OTHER).red(1).build();
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
             @Override
             public void onSuccess() {
@@ -96,16 +108,7 @@ public class VideoFragment extends Fragment {
     }
 
     private void initView(View view) {
-        textureView = view.findViewById(R.id.camera_textureview);
-        textureView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (cameraUtil != null) {
-                    cameraUtil.focusOnTouch(event);
-                }
-                return true;
-            }
-        });
+        cameraView = view.findViewById(R.id.camera_cameraView);
         smartPaperMeasureContainerLayout = view.findViewById(R.id.paper_scan_content_view);
         ovulationCameraTips = view.findViewById(R.id.ovulationCameraTips);
         flashTv = view.findViewById(R.id.paper_flash_tv);
@@ -139,12 +142,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Manually take photos
-                cameraUtil.takePicture(new CameraUtil.ICameraTakeEvent() {
-                    @Override
-                    public void takeBitmap(Bitmap originSquareBitmap) {
-                        clipPaperDialog(originSquareBitmap);
-                    }
-                });
+                cameraUtil.takePicture();
             }
         });
 
@@ -158,11 +156,6 @@ public class VideoFragment extends Fragment {
                         v.setEnabled(true);
                     }
                 }, 1000);
-                if (scanMode == AUTOSMART) {
-                    scanMode = MANUALSMART;
-                } else {
-                    scanMode = AUTOSMART;
-                }
                 switchMode();
             }
         });
@@ -177,10 +170,29 @@ public class VideoFragment extends Fragment {
                     }
                 }, 1000);
                 isCardMode = !isCardMode;
+                if (isCardMode) {
+                    if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC) {
+                        paperAnalysiserClient.getConfig().setPaperBrand(Config.PAPER_BRAND_YC_CARD);
+                    } else {
+                        paperAnalysiserClient.getConfig().setPaperBrand(Config.PAPER_BRAND_OTHER_CARD);
+                    }
+                    ovulationCameraTips.setText(getContext().getString(R.string.ovulation_camera_card_tips));
+                } else {
+                    if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                        paperAnalysiserClient.getConfig().setPaperBrand(Config.PAPER_BRAND_YC);
+                    } else {
+                        paperAnalysiserClient.getConfig().setPaperBrand(Config.PAPER_BRAND_OTHER);
+                    }
+                    ovulationCameraTips.setText(Html.fromHtml(getContext().getString(R.string.ovulation_camera_tips)));
+                }
                 switchCardMode.setText(isCardMode ? getText(R.string.bar_strip) : getText(R.string.card_strip));
                 if (smartPaperMeasureContainerLayout != null) {
                     if (isCardMode) {
-                        smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                        if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                            smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure();
+                        } else {
+                            smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                        }
                     } else {
                         smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
                     }
@@ -197,30 +209,37 @@ public class VideoFragment extends Fragment {
             modeSwitchTv.setText(getText(R.string.paper_manau_clip));
             if (smartPaperMeasureContainerLayout != null) {
                 if (isCardMode) {
-                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                    if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                        smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure();
+                    } else {
+                        smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                    }
                 } else {
                     smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
                 }
             }
             //rescan
-            restartScan(false);
-        } else {
-            switchCardMode.setVisibility(View.GONE);
-            shutterBtn.setVisibility(View.VISIBLE);
-            modeSwitchTv.setText(getText(R.string.intelligent_matting));
-            if (smartPaperMeasureContainerLayout != null) {
-                smartPaperMeasureContainerLayout.showManualSmartPaperMeasure();
-            }
+
             paperAnalysiserClient.stop();
+        } else {
+            LogUtils.d("切换自动扫描");
+            //重新扫描
+            restartScan(false);
         }
     }
 
     private void restartScan(boolean restartOpenCamera) {
+        firstSuccessFocus = false;
         scanMode = AUTOSMART;
+        shutterBtn.setVisibility(View.GONE);
         switchCardMode.setVisibility(View.VISIBLE);
         if (smartPaperMeasureContainerLayout != null) {
             if (isCardMode) {
-                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                    smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure();
+                } else {
+                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                }
             } else {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure();
             }
@@ -233,15 +252,17 @@ public class VideoFragment extends Fragment {
     }
 
     private void handleCamera() {
-        new Handler().postDelayed(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (cameraUtil == null) {
                     cameraUtil = new CameraUtil();
+                    cameraUtil.setHoldCameraHigh(true);
                 }
-                cameraUtil.initCenterCamera(getActivity(), textureView, mPreviewCallback);
+                cameraUtil.initCenterCamera(getActivity(), cameraView, mPreviewCallback);
+                cameraUtil.startCamera();
             }
-        }, 200);
+        });
     }
 
     @Override
@@ -287,8 +308,15 @@ public class VideoFragment extends Fragment {
     private void clipPaperDialog(Bitmap fileBitmap) {
         final ManualSmartPaperMeasureLayout.Data data =
                 smartPaperMeasureContainerLayout.getManualSmartPaperMeasuereData();
-        Point upLeftPoint = new Point(data.innerLeft, data.innerTop);
-        Point rightBottomPoint = new Point(data.innerRight, data.innerBottom);
+        float scaleValue = fileBitmap.getWidth() * 1f / data.outerWidth;
+        Point upLeftPoint = new Point((int) (data.innerLeft * scaleValue), (int) (data.innerTop * scaleValue));
+        Point rightBottomPoint = new Point((int) (data.innerRight * scaleValue), (int) (data.innerBottom * scaleValue));
+        Integer boxXEnd = null;
+        Integer boxXStart = null;
+        if (isCardMode) {
+            boxXStart = data.outerWidth / 2 - 128;
+            boxXEnd = data.outerWidth / 2 + 128;
+        }
         startTime = System.currentTimeMillis();
         IBaseAnalysisEvent iBaseAnalysisEvent = new IBaseAnalysisEvent() {
             @Override
@@ -317,6 +345,7 @@ public class VideoFragment extends Fragment {
 
             @Override
             public void save(PaperResult paperResult) {
+                dismissProgressDialog();
                 LogUtils.d("Save test paper analysis results：\n" + paperResult.toString());
                 if (paperResult.getErrNo() != 0) {
                     ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
@@ -341,35 +370,85 @@ public class VideoFragment extends Fragment {
 
             }
         };
-        paperAnalysiserClient.analysisClipBitmapFromCamera(fileBitmap, upLeftPoint, rightBottomPoint, iBaseAnalysisEvent);
+        if (isCardMode) {
+            paperAnalysiserClient.analysisClipCardBitmapFromCamera(fileBitmap, upLeftPoint, rightBottomPoint, boxXStart, boxXEnd, iBaseAnalysisEvent);
+        } else {
+            paperAnalysiserClient.analysisClipBitmapFromCamera(fileBitmap, upLeftPoint, rightBottomPoint, iBaseAnalysisEvent);
+        }
     }
 
-
+    private Bitmap highOriginSquareBitmap;
     /**
      * Real-time preview callback
      */
-    private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
+    private CameraView.Callback mPreviewCallback = new CameraView.Callback() {
         @Override
-        public void onPreviewFrame(final byte[] data, final Camera camera) {
+        public void onPictureTaken(CameraView cameraView, Bitmap bitmap) {
+            super.onPictureTaken(cameraView, bitmap);
+            clipPaperDialog(bitmap);
+        }
+
+        @Override
+        public void onPreviewFrame(CameraView cameraView, Image image) {
+            super.onPreviewFrame(cameraView, image);
+            if (paperAnalysiserClient.isObtainPreviewFrame()) {
+                return;
+            }
+            onPreviewFrame(cameraView, CameraUtil.YUV_420_888toNV21(image));
+        }
+
+        public void onPreviewFrame(CameraView cameraView, byte[] data) {
+            super.onPreviewFrame(cameraView, data);
             if (paperAnalysiserClient.isObtainPreviewFrame()) {
                 return;
             }
             startTime = System.currentTimeMillis();
+            float scaleValue = 1;
+            if (cameraView.getWidth() != cameraView.getPreviewHeight()) {
+                int sourceWidth = cameraView.getPreviewHeight();
+                scaleValue = ((float) cameraView.getWidth()) / sourceWidth;
+            }
             //The top half of the video is a square image
             Bitmap originSquareBitmap;
-            if (textureView.getBitmap() != null) {
-                originSquareBitmap = ImageUtil.cropBitmap(textureView.getBitmap());
+            if (cameraView.getBitmap() != null) {
+                originSquareBitmap = ImageUtil.cropBitmap(cameraView.getBitmap(), cameraUtil != null ? cameraUtil.getLightFix() : 0);
             } else {
-                originSquareBitmap = TensorFlowTools.convertCenterFrameToBitmap(data, camera, TensorFlowTools.getDegree(getActivity()));
+                originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, cameraView.getPreviewWidth(), cameraView.getPreviewHeight(), TensorFlowTools.getDegree(getActivity()), cameraUtil != null ? (int) (cameraUtil.getLightFix() / scaleValue) : 0);
             }
-            if (isCardMode) {
-                CardAutoSmartPaperMeasureLayout.Data imageData = smartPaperMeasureContainerLayout.getCardAutoSmartPaperMeasureData();
-                if (imageData != null) {
-                    Bitmap smallSquareBitmap = ImageUtil.cropBitmap(originSquareBitmap, imageData.innerLeft, imageData.innerTop, imageData.innerWidth, imageData.innerHeight);
-                    paperAnalysiserClient.analysisCameraCardData(originSquareBitmap, smallSquareBitmap, imageData.innerLeft, imageData.innerTop);
+            if (originSquareBitmap != null && scaleValue != 1) {
+                int sourceWidth = originSquareBitmap.getWidth();
+                int sourceHeight = originSquareBitmap.getHeight();
+                Matrix matrix = new Matrix();
+                matrix.postScale(scaleValue, scaleValue);
+                highOriginSquareBitmap = originSquareBitmap;
+                originSquareBitmap = Bitmap.createBitmap(highOriginSquareBitmap, 0, 0, sourceWidth, sourceHeight, matrix, true);
+            } else {
+                highOriginSquareBitmap = null;
+            }
+            if (scanMode == SCANBARCODE) {
+                final ManualSmartPaperMeasureLayout.Data manualSmartPaperMeasuereData =
+                        smartPaperMeasureContainerLayout.getManualSmartPaperMeasuereData();
+                Point upLeftPoint = new Point(manualSmartPaperMeasuereData.innerLeft, manualSmartPaperMeasuereData.innerTop);
+                Point rightBottomPoint = new Point(manualSmartPaperMeasuereData.innerRight, manualSmartPaperMeasuereData.innerBottom);
+                if (isCardMode) {
+                    paperAnalysiserClient.scanBarcodeClipCardBitmapFromCamera(originSquareBitmap, upLeftPoint, rightBottomPoint, iScanBarcodeResultEvent);
+                } else {
+                    paperAnalysiserClient.scanBarcodeClipBitmapFromCamera(originSquareBitmap, upLeftPoint, rightBottomPoint, iScanBarcodeResultEvent);
                 }
             } else {
-                paperAnalysiserClient.analysisCameraData(originSquareBitmap);
+                if (isCardMode) {
+                    if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                        paperAnalysiserClient.analysisCameraShecareCardData(originSquareBitmap);
+                    } else {
+                        CardAutoSmartPaperMeasureLayout.Data imageData = smartPaperMeasureContainerLayout.getCardAutoSmartPaperMeasureData();
+                        if (imageData != null) {
+                            Bitmap smallSquareBitmap = ImageUtil.cropBitmap(originSquareBitmap, imageData.innerLeft, imageData.innerTop, imageData.innerWidth, imageData.innerHeight);
+                            paperAnalysiserClient.analysisCameraCardData(originSquareBitmap, smallSquareBitmap, imageData.innerLeft, imageData.innerTop);
+                        }
+                    }
+                } else {
+                    paperAnalysiserClient.analysisCameraData(originSquareBitmap);
+                }
             }
         }
     };
@@ -390,43 +469,109 @@ public class VideoFragment extends Fragment {
         }
     }
 
+    private IScanBarcodeResultEvent iScanBarcodeResultEvent = new IScanBarcodeResultEvent() {
+        @Override
+        public void scanResult(String result) {
+            scanMode = MANUALSMART;
+            shutterBtn.setVisibility(View.VISIBLE);
+        }
 
+        @Override
+        public void scanError(String errorResult, int code) {
+            LogUtils.d("scanError code：" + code + " errorResult:" + errorResult);
+            if (code == AiCode.CODE_17) {
+                new ActionSheetDialog(getContext())
+                        .builder()
+                        .setCancelable(false)
+                        .setCanceledOnTouchOutside(false)
+                        .setTitle(errorResult)
+                        .addSheetItem(getString(R.string.intelligent_matting), ActionSheetDialog.SheetItemColor.Blue,
+                                new ActionSheetDialog.OnSheetItemClickListener() {
+                                    @Override
+                                    public void onClick(int which) {
+                                        scanMode = AUTOSMART;
+                                        switchMode();
+                                    }
+                                })
+                        .addSheetItem(getString(R.string.paper_reset), ActionSheetDialog.SheetItemColor.Blue,
+                                new ActionSheetDialog.OnSheetItemClickListener() {
+                                    @Override
+                                    public void onClick(int which) {
+                                        paperAnalysiserClient.setObtainPreviewFrame(false);
+                                        paperAnalysiserClient.reset();
+                                    }
+                                }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                            }
+                        }).show();
+            }
+        }
+    };
+    private boolean firstSuccessFocus;
     private ICameraAnalysisEvent iCameraAnalysisEvent = new ICameraAnalysisEvent() {
         @Override
         public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
-            if (scanMode == MANUALSMART) {
+            if (scanMode != AUTOSMART) {
                 return false;
             }
             LogUtils.d("Test strips are automatically cut out successfully");
-            try {
-                AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-                int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
-                if (volume != 0) {
-                    MediaPlayer shootMP = MediaPlayer.create(getContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
-                    if (shootMP != null) {
-                        shootMP.start();
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             if (isCardMode) {
-                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure(originSquareBitmap);
+                if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                    smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
+                } else {
+                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure(originSquareBitmap);
+                }
             } else {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
+            }
+            if (!isCardMode && highOriginSquareBitmap != null) {
+                scanMode = AUTOSMART_MANUALSMART;
+                paperAnalysiserClient.analysisBitmapResultCamera(highOriginSquareBitmap, iCameraAnalysisEvent);
+                return true;
+            } else {
+                try {
+                    AudioManager meng = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+                    int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
+                    if (volume != 0) {
+                        MediaPlayer shootMP = MediaPlayer.create(getContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+                        if (shootMP != null) {
+                            shootMP.start();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             return false;
         }
 
         @Override
         public void analysisResult(PaperCoordinatesData paperCoordinatesData) {
-            if (scanMode == MANUALSMART) {
+            if (scanMode != AUTOSMART) {
                 return;
             }
             LogUtils.d("Automatic drawing line on test paper");
             LogUtils.d("Time " + (System.currentTimeMillis() - startTime));
-            if (!isCardMode) {
+            LogUtils.d("耗时: " + (System.currentTimeMillis() - startTime));
+            if (isCardMode) {
+                if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                    smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure(paperCoordinatesData, null);
+                } else {
+                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure(paperCoordinatesData, null);
+                }
+            } else {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
+            }
+            if (!firstSuccessFocus) {
+                firstSuccessFocus = true;
+                if (paperCoordinatesData != null && paperCoordinatesData.getPoint1() != null && paperCoordinatesData.getPoint3() != null) {
+                    Point point = new Point((paperCoordinatesData.getPoint1().x + paperCoordinatesData.getPoint3().x) / 2, (paperCoordinatesData.getPoint1().y + paperCoordinatesData.getPoint3().y) / 2);
+                    LogUtils.d("首次抠图成功自动对焦 " + point);
+                    if (cameraUtil != null) {
+                        cameraUtil.focusOnPoint(point);
+                    }
+                }
             }
         }
 
@@ -434,11 +579,14 @@ public class VideoFragment extends Fragment {
         public void analysisEnd(Bitmap originSquareBitmap, int code, String errorResult) {
             LogUtils.d("Test paper cutout end code：" + code + " errorResult:" + errorResult);
             ToastUtils.show(getContext(), getString(R.string.cutout_timeout));
-            scanMode = MANUALSMART;
-            shutterBtn.setVisibility(View.VISIBLE);
             modeSwitchTv.setText(getText(R.string.intelligent_matting));
             switchCardMode.setVisibility(View.GONE);
             smartPaperMeasureContainerLayout.showManualSmartPaperMeasure();
+            if (scanMode == AUTOSMART) {
+                scanMode = SCANBARCODE;
+                paperAnalysiserClient.setObtainPreviewFrame(false);
+                paperAnalysiserClient.reset();
+            }
         }
 
         @Override
@@ -446,6 +594,11 @@ public class VideoFragment extends Fragment {
             LogUtils.d("Test paper cutout cancel code：" + code + " errorResult:" + errorResult);
             ToastUtils.show(getContext(), getString(R.string.cutout_cancel));
             smartPaperMeasureContainerLayout.showManualSmartPaperMeasure();
+            if (scanMode == AUTOSMART) {
+                scanMode = SCANBARCODE;
+                paperAnalysiserClient.setObtainPreviewFrame(false);
+                paperAnalysiserClient.reset();
+            }
         }
 
         @Override
@@ -470,7 +623,11 @@ public class VideoFragment extends Fragment {
         public void cancel() {
             LogUtils.d("Cancel test strip result confirmation");
             if (isCardMode) {
-                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                    smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure();
+                } else {
+                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                }
             } else {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
             }
@@ -480,12 +637,17 @@ public class VideoFragment extends Fragment {
 
         @Override
         public void save(PaperResult paperResult) {
+            dismissProgressDialog();
             LogUtils.d("Save test paper analysis results：\n" + paperResult.toString());
             if (paperResult.getErrNo() != 0) {
                 ToastUtils.show(getContext(), AiCode.getMessage(paperResult.getErrNo()));
             }
             if (isCardMode) {
-                smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                    smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure();
+                } else {
+                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure();
+                }
             } else {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(null, null);
             }
@@ -501,7 +663,7 @@ public class VideoFragment extends Fragment {
 
         @Override
         public void analysisError(PaperCoordinatesData paperCoordinatesData, String errorResult, int code) {
-            if (scanMode == MANUALSMART) {
+            if (scanMode != AUTOSMART && scanMode != AUTOSMART_MANUALSMART) {
                 return;
             }
             LogUtils.d("Test paper cutout error code：" + code + " errorResult:" + errorResult);
@@ -510,14 +672,34 @@ public class VideoFragment extends Fragment {
                 paperCoordinatesData = new PaperCoordinatesData();
             } else if (code == AiCode.CODE_11) {
                 //The picture is blurred and refocus
-                if (cameraUtil != null) {
-                    cameraUtil.holdFocus();
+                if (paperCoordinatesData != null && paperCoordinatesData.getPoint1() != null && paperCoordinatesData.getPoint3() != null) {
+                    Point point = new Point((paperCoordinatesData.getPoint1().x + paperCoordinatesData.getPoint3().x) / 2, (paperCoordinatesData.getPoint1().y + paperCoordinatesData.getPoint3().y) / 2);
+                    LogUtils.d("模糊自动对焦 " + point);
+                    if (cameraUtil != null) {
+                        cameraUtil.focusOnPoint(point);
+                    }
+                } else {
+                    if (cameraUtil != null) {
+                        cameraUtil.holdFocus();
+                    }
                 }
-
             }
             paperCoordinatesData.setCode(code);
-            if (!isCardMode) {
+            if (isCardMode) {
+                if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
+                    smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure(paperCoordinatesData, null);
+                } else {
+                    smartPaperMeasureContainerLayout.showCardAutoSmartPaperMeasure(paperCoordinatesData, null);
+                }
+            } else {
                 smartPaperMeasureContainerLayout.showAutoSmartPaperMeasure(paperCoordinatesData, null);
+            }
+            if (scanMode == AUTOSMART_MANUALSMART) {
+                scanMode = AUTOSMART;
+                paperAnalysiserClient.reset();
+                if (paperAnalysiserClient.isObtainPreviewFrame()) {
+                    paperAnalysiserClient.setObtainPreviewFrame(false);
+                }
             }
         }
 

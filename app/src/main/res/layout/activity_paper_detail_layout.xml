@@ -47,7 +47,8 @@
                 <com.example.paperdemo.view.OvulationSeekBar
                     android:id="@+id/ovulationSeekBar"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
                 <!--手动修改-->
                 <TextView
                     android:id="@+id/updatePaperResult"
@@ -59,7 +60,8 @@
                     android:paddingRight="@dimen/dp_10"
                     android:text="@string/error_in_color_recognition"
                     android:textColor="#67A3FF"
-                    android:textSize="@dimen/button_text_small_size" />
+                    android:textSize="@dimen/button_text_small_size"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!--参考结果-->
@@ -71,6 +73,18 @@
                 android:background="@color/white"
                 android:padding="@dimen/dp_10"
                 android:text="@string/lh_refer_result"
+                android:textColor="#ff444444"
+                android:textSize="@dimen/button_text_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/analysisRatioResultTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@color/white"
+                android:padding="@dimen/dp_10"
+                android:text="@string/retio_refer_result"
                 android:textColor="#ff444444"
                 android:textSize="@dimen/button_text_size"
                 android:textStyle="bold" />
@@ -151,8 +165,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:padding="5dp"
-        android:text="console"
+        android:gravity="right"
         android:hint="console"
-        android:gravity="right"/>
+        android:padding="5dp"
+        android:text="console" />
 </RelativeLayout>
