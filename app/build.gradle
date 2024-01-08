@@ -7,8 +7,8 @@ android {
         applicationId "com.example.paperdemo"
         minSdkVersion 19
         targetSdkVersion 33
-        versionCode 90
-        versionName "1.7.9"
+        versionCode Integer.parseInt(project.PAPER_SDK_VERSION_CODE)
+        versionName project.PAPER_SDK_VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
