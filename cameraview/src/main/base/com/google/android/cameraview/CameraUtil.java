@@ -172,8 +172,8 @@ public class CameraUtil {
                 super.onPictureTaken(cameraView, data);
                 if (callback != null) {
                     Bitmap source = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    int degree = getDegree(context);
-                    source = rotateBitmapByDegree(source, degree);
+                    //int degree = getDegree(context);
+                    //source = rotateBitmapByDegree(source, degree);
                     int sourceWidth = source.getWidth();
                     int sourceHeight = source.getHeight();
                     int surfaceViewWidth = 0;

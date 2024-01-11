@@ -73,7 +73,7 @@ class Camera1 extends CameraViewImpl {
 
     private int mFlash;
 
-    private int mDisplayOrientation = 90;
+    private int mDisplayOrientation = 0;
     private static final int DEFAULT_WIDTH = 1920, DEFAULT_HEIGHT = 1080;
     private static final int DEFAULT_WIDTH_MID = 2560, DEFAULT_HEIGHT_MID = 1440;
     private static final int DEFAULT_WIDTH_BIG = 3840, DEFAULT_HEIGHT_BIG = 2160;
@@ -198,6 +198,12 @@ class Camera1 extends CameraViewImpl {
             return;
         }
         if (setAutoFocusInternal(autoFocus)) {
+            mCamera.setParameters(mCameraParameters);
+        }
+    }
+
+    void freshFocus() {
+        if (setAutoFocusInternal(mAutoFocus)) {
             mCamera.setParameters(mCameraParameters);
         }
     }
@@ -404,7 +410,7 @@ class Camera1 extends CameraViewImpl {
             mAspectRatio = chooseAspectRatio();
         }
         adjustCameraParameters();
-        mCamera.setDisplayOrientation(90);
+        mCamera.setDisplayOrientation(calcDisplayOrientation(mDisplayOrientation));
         mCallback.onCameraOpened();
     }
 

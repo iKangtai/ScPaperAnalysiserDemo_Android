@@ -80,6 +80,8 @@ abstract class CameraViewImpl {
         this.holdCameraHigh = holdCameraHigh;
     }
 
+    abstract void freshFocus();
+
     interface Callback {
 
         void onCameraOpened();

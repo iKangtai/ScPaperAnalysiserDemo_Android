@@ -220,7 +220,7 @@ class Camera2 extends CameraViewImpl {
 
     private int mFlash;
 
-    private int mDisplayOrientation = 90;
+    private int mDisplayOrientation = 0;
 
     Camera2(Callback callback, PreviewImpl preview, Context context) {
         super(callback, preview);
@@ -334,6 +334,21 @@ class Camera2 extends CameraViewImpl {
     }
 
     @Override
+    void freshFocus() {
+        if (mPreviewRequestBuilder != null) {
+            updateAutoFocus();
+            if (mCaptureSession != null) {
+                try {
+                    mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
+                            mCaptureCallback, null);
+                } catch (CameraAccessException e) {
+                    mAutoFocus = !mAutoFocus; // Revert
+                }
+            }
+        }
+    }
+
+    @Override
     boolean getAutoFocus() {
         return mAutoFocus;
     }
@@ -365,7 +380,7 @@ class Camera2 extends CameraViewImpl {
 
     @Override
     void takePicture() {
-        if (mAutoFocus && false) {
+        if (mAutoFocus) {
             lockFocus();
         } else {
             captureStillPicture();
@@ -376,53 +391,6 @@ class Camera2 extends CameraViewImpl {
     void setDisplayOrientation(int displayOrientation) {
         mDisplayOrientation = displayOrientation;
         mPreview.setDisplayOrientation(mDisplayOrientation);
-    }
-
-    /**
-     * 获取点击区域
-     *
-     * @param x：手指触摸点x坐标
-     * @param y:         手指触摸点y坐标
-     */
-    private Rect getFocusRect(float x, float y) {
-        //因为获取的SCALER_CROP_REGION是宽大于高的，也就是默认横屏模式，竖屏模式需要对调width和height
-        int realPreviewWidth = mPreview.getPreviewHeight();
-        int realPreviewHeight = mPreview.getPreviewWidth();
-
-        float screenW = mPreview.getView().getWidth();
-        float screenH = mPreview.getView().getHeight();
-
-        float focusX = realPreviewWidth * 1f / screenW * x;
-        float focusY = realPreviewHeight * 1f / screenH * y;
-
-        //获取SCALER_CROP_REGION，也就是拍照最大像素的Rect
-        Rect cropRegion = mPreviewRequestBuilder.get(CaptureRequest.SCALER_CROP_REGION);
-
-        //也就是默认的对焦区域长宽是300，这个数值可以根据需要调节
-        int width = 300;
-        int height = 300;
-        int left = clamp((int) (focusY - width / 2), cropRegion.left, cropRegion.right);
-        int top = clamp((int) (focusX - height / 2), cropRegion.top, cropRegion.bottom);
-        //返回最终对焦区域Rect
-        Rect rectF = new Rect(left, top, left + width / 2, top + height / 2);
-        return rectF;
-    }
-
-    private Rect calculateTapArea(float x, float y, float coefficient) {
-        float focusAreaSize = 300;
-        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
-        int centerY = 0;
-        int centerX = 0;
-        Rect cropRegion = mPreviewRequestBuilder.get(CaptureRequest.SCALER_CROP_REGION);
-        if (mPreview != null) {
-            centerY = (int) (x / mPreview.getWidth() * cropRegion.height());
-            centerX = (int) (y / mPreview.getHeight() * cropRegion.width());
-        }
-        int left = clamp(centerX - areaSize / 2, cropRegion.left, cropRegion.right);
-        int top = clamp(centerY - areaSize / 2, cropRegion.top, cropRegion.bottom);
-
-        RectF rectF = new RectF(left, top, left + areaSize, top + areaSize);
-        return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
     }
 
     private int clamp(int x, int min, int max) {
@@ -467,8 +435,8 @@ class Camera2 extends CameraViewImpl {
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
                     isFocusing = false;
-                    //unlockFocus();
                     resetTriggerState();
+                    //unlockFocus();
                 }
             }, null);
         } catch (CameraAccessException e) {

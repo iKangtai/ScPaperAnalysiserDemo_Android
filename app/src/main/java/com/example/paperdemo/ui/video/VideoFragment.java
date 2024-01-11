@@ -413,7 +413,7 @@ public class VideoFragment extends Fragment {
             if (cameraView.getBitmap() != null) {
                 originSquareBitmap = ImageUtil.cropBitmap(cameraView.getBitmap(), cameraUtil != null ? cameraUtil.getLightFix() : 0);
             } else {
-                originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, cameraView.getPreviewWidth(), cameraView.getPreviewHeight(), TensorFlowTools.getDegree(getActivity()), cameraUtil != null ? (int) (cameraUtil.getLightFix() / scaleValue) : 0);
+                originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, cameraView.getPreviewWidth(), cameraView.getPreviewHeight(), CameraUtil.getDegree(getActivity()), cameraUtil != null ? (int) (cameraUtil.getLightFix() / scaleValue) : 0);
             }
             if (originSquareBitmap != null && scaleValue != 1) {
                 int sourceWidth = originSquareBitmap.getWidth();
@@ -586,6 +586,9 @@ public class VideoFragment extends Fragment {
                 scanMode = SCANBARCODE;
                 paperAnalysiserClient.setObtainPreviewFrame(false);
                 paperAnalysiserClient.reset();
+            }
+            if (cameraView != null) {
+                cameraView.freshFocus();
             }
         }
 
