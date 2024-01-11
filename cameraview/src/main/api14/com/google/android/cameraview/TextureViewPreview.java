@@ -20,11 +20,14 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.SurfaceTexture;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 @TargetApi(14)
 class TextureViewPreview extends PreviewImpl {
@@ -33,7 +36,26 @@ class TextureViewPreview extends PreviewImpl {
 
     private int mDisplayOrientation;
 
-    TextureViewPreview(Context context, ViewGroup parent) {
+    private float mClickDistance;
+    private float mMaxDistance;
+    private float mFlingDistance;
+    private final long DELAY_TIME = 200;
+    private float mDownX;
+    private float mDownY;
+    private long mTouchTime;
+    private long mDownTime;
+    private GestureListener mListener;
+
+    public static Point getDisplaySize(Context context) {
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context
+                .WINDOW_SERVICE);
+        Point point = new Point();
+        windowManager.getDefaultDisplay().getSize(point);
+        return point;
+    }
+
+    TextureViewPreview(Context context, ViewGroup parent, GestureListener mListener) {
+        this.mListener = mListener;
         final View view = View.inflate(context, R.layout.texture_view, parent);
         mTextureView = view.findViewById(R.id.texture_view);
         mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
@@ -62,6 +84,47 @@ class TextureViewPreview extends PreviewImpl {
             public void onSurfaceTextureUpdated(SurfaceTexture surface) {
             }
         });
+
+        Point point = getDisplaySize(context);
+        mClickDistance = point.x / 20;
+        mFlingDistance = point.x / 10;
+        mMaxDistance = point.x / 5;
+        mTextureView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        mDownTime = System.currentTimeMillis();
+                        mDownX = event.getX();
+                        mDownY = event.getY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        mTouchTime = System.currentTimeMillis() - mDownTime;
+                        detectGesture(mDownX, event.getX(), mDownY, event.getY());
+                        break;
+                }
+                return true;
+            }
+        });
+    }
+
+    private void detectGesture(float downX, float upX, float downY, float upY) {
+        float distanceX = upX - downX;
+        float distanceY = upY - downY;
+        if (Math.abs(distanceX) < mClickDistance
+                && Math.abs(distanceY) < mClickDistance
+                && mTouchTime < DELAY_TIME) {
+            mListener.onClick(upX, upY);
+        }
+        if (Math.abs(distanceX) < mMaxDistance && mTouchTime > DELAY_TIME) {
+            mListener.onCancel();
+        }
+    }
+
+    public interface GestureListener {
+        void onClick(float x, float y);
+
+        void onCancel();
     }
 
     // This method is called only from Camera2.

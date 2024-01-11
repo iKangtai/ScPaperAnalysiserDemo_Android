@@ -119,6 +119,9 @@ class Camera1 extends CameraViewImpl {
             mCamera.setPreviewCallback(new Camera.PreviewCallback() {
                 @Override
                 public void onPreviewFrame(byte[] data, Camera camera) {
+                    if (isFocusing) {
+                        return;
+                    }
                     mCallback.onPreviewFrame(data);
                 }
             });
@@ -273,7 +276,7 @@ class Camera1 extends CameraViewImpl {
      * Convert touch position x:y to {@link Camera.Area} position -1000:-1000 to 1000:1000.
      * <p/>
      * Rotate, scale and translate touch rectangle using matrix configured in
-     * {@link (android.view.SurfaceHolder, int, int, int)}
+     * {@link ( SurfaceHolder, int, int, int)}
      */
     private Rect calculateTapArea(float x, float y, float coefficient) {
         float focusAreaSize = 300;
@@ -281,8 +284,8 @@ class Camera1 extends CameraViewImpl {
         int centerY = 0;
         int centerX = 0;
         if (mPreview != null) {
-            centerY = (int) (y / mPreview.getHeight() * 2000 - 1000);
-            centerX = (int) (x / mPreview.getWidth() * 2000 - 1000);
+            centerY = (int) (x / mPreview.getWidth() * 2000 - 1000);
+            centerX = (int) (y / mPreview.getHeight() * 2000 - 1000);
         }
         int left = clamp(centerX - areaSize / 2, -1000, 1000);
         int top = clamp(centerY - areaSize / 2, -1000, 1000);
@@ -301,8 +304,13 @@ class Camera1 extends CameraViewImpl {
         return x;
     }
 
+    private boolean isFocusing;
+
     @Override
     void holdFocus(float x, float y) {
+        if (isFocusing) {
+            return;
+        }
         Rect focusRect = calculateTapArea(x, y, 1f);
         Rect meteringRect = calculateTapArea(x, y, 1.5f);
         try {
@@ -315,7 +323,9 @@ class Camera1 extends CameraViewImpl {
         if (focusRect != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             List<Camera.Area> focus = new ArrayList<>();
             focus.add(new Camera.Area(focusRect, 1000));
-            params.setFocusAreas(focus);
+            if (params.getMaxNumFocusAreas() > 0) {
+                params.setFocusAreas(focus);
+            }
 
             if (meteringRect != null && params.getMaxNumMeteringAreas() > 0) {
                 List<Camera.Area> metering = new ArrayList<>();
@@ -331,11 +341,13 @@ class Camera1 extends CameraViewImpl {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*try {
+        try {
+            isFocusing = true;
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
                 @Override
                 public void onAutoFocus(boolean success, Camera camera) {
-                    holdFocusFinish = true;
+                    isFocusing = false;
+                    /*holdFocusFinish = true;
                     mParams = mCamera.getParameters();
                     //1连续对焦
                     mParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -349,12 +361,12 @@ class Camera1 extends CameraViewImpl {
                         mCamera.cancelAutoFocus();
                     } catch (Exception e1) {
                         e1.printStackTrace();
-                    }
+                    }*/
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     /**

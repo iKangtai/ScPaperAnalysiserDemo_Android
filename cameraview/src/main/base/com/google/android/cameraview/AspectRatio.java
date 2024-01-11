@@ -170,8 +170,8 @@ public class AspectRatio implements Comparable<AspectRatio>, Parcelable {
         dest.writeInt(mY);
     }
 
-    public static final Parcelable.Creator<AspectRatio> CREATOR
-            = new Parcelable.Creator<AspectRatio>() {
+    public static final Creator<AspectRatio> CREATOR
+            = new Creator<AspectRatio>() {
 
         @Override
         public AspectRatio createFromParcel(Parcel source) {

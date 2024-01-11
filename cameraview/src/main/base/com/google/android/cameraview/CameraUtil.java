@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.media.Image;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,6 @@ public class CameraUtil {
     private static final String TAG = CameraUtil.class.getName();
     private CameraView cameraView;
     private int lightFix = 0;
-
-    private boolean holdFocusFinish = true;
     private long lastHoldFocusTime;
     private boolean holdCameraCenter = false;
     private boolean holdCameraHigh = false;
@@ -240,14 +237,6 @@ public class CameraUtil {
                 }
             }
         });
-        cameraView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                //点击位置聚焦
-                focusOnTouch(event);
-                return true;
-            }
-        });
     }
 
     private boolean openFlashLight;
@@ -379,22 +368,12 @@ public class CameraUtil {
 
     public void holdFocus(float x, float y) {
         if (cameraView != null) {
-            if (!holdFocusFinish || System.currentTimeMillis() - lastHoldFocusTime < 3000) {
+            if (System.currentTimeMillis() - lastHoldFocusTime < 3000) {
                 return;
             }
             lastHoldFocusTime = System.currentTimeMillis();
-            holdFocusFinish = false;
             cameraView.holdFocus(x, y);
-            holdFocusFinish = true;
         }
-    }
-
-    public void focusOnTouch(MotionEvent event) {
-        int fix = 0;
-        if (holdCameraCenter) {
-            fix = Math.abs(cameraView.getWidth() - cameraView.getHeight()) / 2 + lightFix;
-        }
-        holdFocus(event.getX(), event.getY());
     }
 
     public void focusOnPoint(Point point) {

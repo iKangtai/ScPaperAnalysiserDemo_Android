@@ -185,9 +185,29 @@ public class CameraView extends FrameLayout {
     private PreviewImpl createPreviewImpl(Context context) {
         PreviewImpl preview;
         if (Build.VERSION.SDK_INT >= 23) {
-            preview = new SurfaceViewPreview(context, this);
+            preview = new SurfaceViewPreview(context, this, new SurfaceViewPreview.GestureListener() {
+                @Override
+                public void onClick(float x, float y) {
+                    holdFocus(x, y);
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+            });
         } else {
-            preview = new TextureViewPreview(context, this);
+            preview = new TextureViewPreview(context, this, new TextureViewPreview.GestureListener() {
+                @Override
+                public void onClick(float x, float y) {
+                    holdFocus(x, y);
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+            });
         }
         return preview;
     }
@@ -579,8 +599,8 @@ public class CameraView extends FrameLayout {
             out.writeByte((byte) (holdCameraHigh ? 1 : 0));
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.ClassLoaderCreator<SavedState>() {
+        public static final Creator<SavedState> CREATOR
+                = new ClassLoaderCreator<SavedState>() {
 
             @Override
             public SavedState createFromParcel(Parcel in) {

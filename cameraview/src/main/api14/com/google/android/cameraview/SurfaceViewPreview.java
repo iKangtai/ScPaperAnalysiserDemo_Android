@@ -18,11 +18,14 @@ package com.google.android.cameraview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.core.view.ViewCompat;
 
@@ -32,7 +35,26 @@ class SurfaceViewPreview extends PreviewImpl {
     private int mRatioWidth = 0;
     private int mRatioHeight = 0;
 
-    SurfaceViewPreview(Context context, ViewGroup parent) {
+    private float mClickDistance;
+    private float mMaxDistance;
+    private float mFlingDistance;
+    private final long DELAY_TIME = 200;
+    private float mDownX;
+    private float mDownY;
+    private long mTouchTime;
+    private long mDownTime;
+    private GestureListener mListener;
+
+    public static Point getDisplaySize(Context context) {
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context
+                .WINDOW_SERVICE);
+        Point point = new Point();
+        windowManager.getDefaultDisplay().getSize(point);
+        return point;
+    }
+
+    SurfaceViewPreview(Context context, ViewGroup parent, GestureListener mListener) {
+        this.mListener = mListener;
         final View view = View.inflate(context, R.layout.surface_view, parent);
         mSurfaceView = view.findViewById(R.id.surface_view);
         final SurfaceHolder holder = mSurfaceView.getHolder();
@@ -65,6 +87,47 @@ class SurfaceViewPreview extends PreviewImpl {
                 setSize(0, 0);
             }
         });
+
+        Point point = getDisplaySize(context);
+        mClickDistance = point.x / 20;
+        mFlingDistance = point.x / 10;
+        mMaxDistance = point.x / 5;
+        mSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        mDownTime = System.currentTimeMillis();
+                        mDownX = event.getX();
+                        mDownY = event.getY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        mTouchTime = System.currentTimeMillis() - mDownTime;
+                        detectGesture(mDownX, event.getX(), mDownY, event.getY());
+                        break;
+                }
+                return true;
+            }
+        });
+    }
+
+    private void detectGesture(float downX, float upX, float downY, float upY) {
+        float distanceX = upX - downX;
+        float distanceY = upY - downY;
+        if (Math.abs(distanceX) < mClickDistance
+                && Math.abs(distanceY) < mClickDistance
+                && mTouchTime < DELAY_TIME) {
+            mListener.onClick(upX, upY);
+        }
+        if (Math.abs(distanceX) < mMaxDistance && mTouchTime > DELAY_TIME) {
+            mListener.onCancel();
+        }
+    }
+
+    public interface GestureListener {
+        void onClick(float x, float y);
+
+        void onCancel();
     }
 
     @Override

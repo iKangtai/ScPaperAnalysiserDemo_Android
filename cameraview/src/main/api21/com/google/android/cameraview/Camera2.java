@@ -22,12 +22,12 @@ import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -35,7 +35,9 @@ import android.hardware.camera2.params.MeteringRectangle;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.SizeF;
 import android.util.SparseIntArray;
 import android.view.Surface;
 
@@ -180,7 +182,7 @@ class Camera2 extends CameraViewImpl {
         @Override
         public void onImageAvailable(ImageReader reader) {
             try (Image image = reader.acquireLatestImage()) {
-                if (image == null) {
+                if (image == null || isFocusing) {
                     return;
                 }
                 Image.Plane[] planes = image.getPlanes();
@@ -390,23 +392,37 @@ class Camera2 extends CameraViewImpl {
         float screenW = mPreview.getView().getWidth();
         float screenH = mPreview.getView().getHeight();
 
-        float focusX = realPreviewWidth / screenW * x;
-        float focusY = realPreviewHeight / screenH * y;
+        float focusX = realPreviewWidth * 1f / screenW * x;
+        float focusY = realPreviewHeight * 1f / screenH * y;
 
         //获取SCALER_CROP_REGION，也就是拍照最大像素的Rect
-        int totalPicSizeHeight = mPreview.getHeight();
-
-        //计算出摄像头剪裁区域偏移量
-        int cutDx = (totalPicSizeHeight - realPreviewHeight) / 2;
+        Rect cropRegion = mPreviewRequestBuilder.get(CaptureRequest.SCALER_CROP_REGION);
 
         //也就是默认的对焦区域长宽是300，这个数值可以根据需要调节
         int width = 300;
         int height = 300;
-        int left = clamp((int) (focusX - width / 2), 0, realPreviewHeight - width / 2);
-        int top = clamp((int) (focusY - height / 2 + cutDx), 0, realPreviewWidth - height / 2);
+        int left = clamp((int) (focusY - width / 2), cropRegion.left, cropRegion.right);
+        int top = clamp((int) (focusX - height / 2), cropRegion.top, cropRegion.bottom);
         //返回最终对焦区域Rect
-        Rect rectF = new Rect(left, top, left + width, top + height);
+        Rect rectF = new Rect(left, top, left + width / 2, top + height / 2);
         return rectF;
+    }
+
+    private Rect calculateTapArea(float x, float y, float coefficient) {
+        float focusAreaSize = 300;
+        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
+        int centerY = 0;
+        int centerX = 0;
+        Rect cropRegion = mPreviewRequestBuilder.get(CaptureRequest.SCALER_CROP_REGION);
+        if (mPreview != null) {
+            centerY = (int) (x / mPreview.getWidth() * cropRegion.height());
+            centerX = (int) (y / mPreview.getHeight() * cropRegion.width());
+        }
+        int left = clamp(centerX - areaSize / 2, cropRegion.left, cropRegion.right);
+        int top = clamp(centerY - areaSize / 2, cropRegion.top, cropRegion.bottom);
+
+        RectF rectF = new RectF(left, top, left + areaSize, top + areaSize);
+        return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
     }
 
     private int clamp(int x, int min, int max) {
@@ -419,65 +435,165 @@ class Camera2 extends CameraViewImpl {
         return x;
     }
 
+    private boolean isFocusing;
+
     void holdFocus(float x, float y) {
-        int width = 300;
-        int height = 300;
-        Log.d(TAG, "triggerFocusAtPoint (" + x + ", " + y + ")");
-        Rect cropRegion = mPreviewRequestBuilder.get(CaptureRequest.SCALER_CROP_REGION);
-        MeteringRectangle afRegion = getAFAERegion(x, y, width, height, 1f, cropRegion);
-        // ae的区域比af的稍大一点，聚焦的效果比较好
-        MeteringRectangle aeRegion = getAFAERegion(x, y, width, height, 1.5f, cropRegion);
-        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_REGIONS, new MeteringRectangle[]{afRegion});
-        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_REGIONS, new MeteringRectangle[]{aeRegion});
+        if (isFocusing) {
+            return;
+        }
+        MeteringRectangle focusRect = getFocusArea(x, y, true);
+        MeteringRectangle meteringRect = getFocusArea(x, y, false);
+        Log.d(TAG, "x:" + x + " y:" + y);
+        Log.d(TAG, "focusRect x:" + focusRect.getX() + " y:" + focusRect.getY());
+        Log.d(TAG, "meteringRect x:" + meteringRect.getX() + " y:" + meteringRect.getY());
+        // 对焦模式必须设置为AUTO
         mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
-        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
-        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CameraMetadata.CONTROL_AE_PRECAPTURE_TRIGGER_START);
+        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
+        //AF 此处AF和AE用的同一个rect, 实际AE矩形面积比AF稍大, 这样测光效果更好
+        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_REGIONS, new MeteringRectangle[]{focusRect});
+        //AE
+        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_REGIONS, new MeteringRectangle[]{meteringRect});
+        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
         try {
-            mCaptureSession.capture(mPreviewRequestBuilder.build(), new CameraCaptureSession.CaptureCallback() {
+            // AE/AF区域设置通过setRepeatingRequest不断发请求
+            mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(), new CameraCaptureSession.CaptureCallback() {
                 @Override
-                public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                                               @NonNull CaptureRequest request,
-                                               @NonNull TotalCaptureResult result) {
-                    unlockFocus();
+                public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+                    super.onCaptureStarted(session, request, timestamp, frameNumber);
+                    isFocusing = true;
+                }
+
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                    super.onCaptureCompleted(session, request, result);
+                    isFocusing = false;
+                    //unlockFocus();
+                    resetTriggerState();
                 }
             }, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+        //触发对焦
+        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
+        try {
+            //触发对焦通过capture发送请求, 因为用户点击屏幕后只需触发一次对焦
+            mCaptureSession.capture(mPreviewRequestBuilder.build(), null, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
     }
 
-    private MeteringRectangle getAFAERegion(float x, float y, int viewWidth, int viewHeight, float multiple, Rect cropRegion) {
-        Log.v(TAG, "getAFAERegion enter");
-        Log.d(TAG, "point: [" + x + ", " + y + "], viewWidth: " + viewWidth + ", viewHeight: " + viewHeight);
-        Log.d(TAG, "multiple: " + multiple);
-        // do rotate and mirror
-        RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
-        Matrix matrix1 = new Matrix();
-        matrix1.setRotate(mDisplayOrientation);
-        matrix1.postScale(1, 1);
-        matrix1.invert(matrix1);
-        matrix1.mapRect(viewRect);
-        // get scale and translate matrix
-        Matrix matrix2 = new Matrix();
-        RectF cropRect = new RectF(cropRegion);
-        matrix2.setRectToRect(viewRect, cropRect, Matrix.ScaleToFit.CENTER);
-        Log.d(TAG, "viewRect: " + viewRect);
-        Log.d(TAG, "cropRect: " + cropRect);
-        // get out region
-        int side = (int) (Math.max(viewWidth, viewHeight) / 8 * multiple);
-        RectF outRect = new RectF(x - side / 2, y - side / 2, x + side / 2, y + side / 2);
-        Log.d(TAG, "outRect before: " + outRect);
-        matrix1.mapRect(outRect);
-        matrix2.mapRect(outRect);
-        Log.d(TAG, "outRect after: " + outRect);
-        // 做一个clamp，测光区域不能超出cropRegion的区域
-        Rect meteringRect = new Rect((int) outRect.left, (int) outRect.top, (int) outRect.right, (int) outRect.bottom);
-        meteringRect.left = clamp(meteringRect.left, cropRegion.left, cropRegion.right);
-        meteringRect.top = clamp(meteringRect.top, cropRegion.top, cropRegion.bottom);
-        meteringRect.right = clamp(meteringRect.right, cropRegion.left, cropRegion.right);
-        meteringRect.bottom = clamp(meteringRect.bottom, cropRegion.top, cropRegion.bottom);
-        Log.d(TAG, "meteringRegion: " + meteringRect);
-        return new MeteringRectangle(meteringRect, 1000);
+    private void resetTriggerState() {
+        CaptureRequest.Builder builder = mPreviewRequestBuilder;
+        builder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
+        builder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
+        try {
+            mCaptureSession.setRepeatingRequest(builder.build(), null, null);
+        } catch (CameraAccessException | IllegalStateException e) {
+            Log.e(TAG, "send repeating request error:" + e.getMessage());
+        }
+        try {
+            mCaptureSession.capture(builder.build(), null, null);
+        } catch (CameraAccessException | IllegalStateException e) {
+            Log.e(TAG, "send capture request error:" + e.getMessage());
+        }
+    }
+
+    public MeteringRectangle getFocusArea(float x, float y, boolean isFocusArea) {
+        if (isFocusArea) {
+            return calcTapAreaForCamera2(x, y, mPreview.getWidth() / 5, 1000);
+        } else {
+            return calcTapAreaForCamera2(x, y, mPreview.getWidth() / 4, 1000);
+        }
+    }
+
+    private MeteringRectangle calcTapAreaForCamera2(float currentX, float currentY, int areaSize, int weight) {
+        Rect mPreviewRect = new Rect(0, 0, mPreview.getView().getWidth(), mPreview.getView().getHeight());
+        int left = clamp((int) currentX - areaSize / 2,
+                mPreviewRect.left, mPreviewRect.right - areaSize);
+        int top = clamp((int) currentY - areaSize / 2,
+                mPreviewRect.top, mPreviewRect.bottom - areaSize);
+        RectF rectF = new RectF(left, top, left + areaSize, top + areaSize);
+        CoordinateTransformer mTransformer = new CoordinateTransformer(mCameraCharacteristics, rectToRectF(mPreviewRect));
+        Rect mFocusRect = toFocusRect(mTransformer.toCameraSpace(rectF));
+        return new MeteringRectangle(mFocusRect, weight);
+    }
+
+    public static class CoordinateTransformer {
+
+        private final Matrix mPreviewToCameraTransform;
+        private RectF mDriverRectF;
+
+        /**
+         * Convert rectangles to / from camera coordinate and preview coordinate space.
+         *
+         * @param chr         camera characteristics
+         * @param previewRect the preview rectangle size and position.
+         */
+        public CoordinateTransformer(CameraCharacteristics chr, RectF previewRect) {
+            if (!hasNonZeroArea(previewRect)) {
+                throw new IllegalArgumentException("previewRect");
+            }
+            Rect rect = chr.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+            Integer sensorOrientation = chr.get(CameraCharacteristics.SENSOR_ORIENTATION);
+            int rotation = sensorOrientation == null ? 90 : sensorOrientation;
+            mDriverRectF = new RectF(rect);
+            Integer face = chr.get(CameraCharacteristics.LENS_FACING);
+            boolean mirrorX = face != null && face == CameraCharacteristics.LENS_FACING_FRONT;
+            mPreviewToCameraTransform = previewToCameraTransform(mirrorX, rotation, previewRect);
+        }
+
+        /**
+         * Transform a rectangle in preview view space into a new rectangle in
+         * camera view space.
+         *
+         * @param source the rectangle in preview view space
+         * @return the rectangle in camera view space.
+         */
+        public RectF toCameraSpace(RectF source) {
+            RectF result = new RectF();
+            mPreviewToCameraTransform.mapRect(result, source);
+            return result;
+        }
+
+        private Matrix previewToCameraTransform(boolean mirrorX, int sensorOrientation,
+                                                RectF previewRect) {
+            Matrix transform = new Matrix();
+            // Need mirror for front camera.
+            transform.setScale(mirrorX ? -1 : 1, 1);
+            // Because preview orientation is different  form sensor orientation,
+            // rotate to same orientation, Counterclockwise.
+            transform.postRotate(-sensorOrientation);
+            // Map rotated matrix to preview rect
+            transform.mapRect(previewRect);
+            // Map  preview coordinates to driver coordinates
+            Matrix fill = new Matrix();
+            fill.setRectToRect(previewRect, mDriverRectF, Matrix.ScaleToFit.FILL);
+            // Concat the previous transform on top of the fill behavior.
+            transform.setConcat(fill, transform);
+            // finally get transform matrix
+            return transform;
+        }
+
+        private boolean hasNonZeroArea(RectF rect) {
+            return rect.width() != 0 && rect.height() != 0;
+        }
+    }
+
+    private RectF rectToRectF(Rect rect) {
+        return new RectF(rect);
+    }
+
+    private Rect toFocusRect(RectF rectF) {
+        Rect mFocusRect = new Rect();
+        mFocusRect.left = Math.round(rectF.left);
+        mFocusRect.top = Math.round(rectF.top);
+        mFocusRect.right = Math.round(rectF.right);
+        mFocusRect.bottom = Math.round(rectF.bottom);
+
+        return mFocusRect;
     }
 
     /**
@@ -492,8 +608,12 @@ class Camera2 extends CameraViewImpl {
             if (ids.length == 0) { // No camera
                 throw new RuntimeException("No camera available.");
             }
-            for (String id : ids) {
-                CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
+            CameraManager cameraManager = mCameraManager;
+
+            String[] cameraIdList = cameraManager.getCameraIdList();
+
+            for (String cameraId : cameraIdList) {
+                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
                 Integer level = characteristics.get(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
                 if (level == null ||
@@ -504,12 +624,59 @@ class Camera2 extends CameraViewImpl {
                 if (internal == null) {
                     throw new NullPointerException("Unexpected state: LENS_FACING null");
                 }
+                float maxFov = 0;
                 if (internal == internalFacing) {
-                    mCameraId = id;
-                    mCameraCharacteristics = characteristics;
-                    return true;
+                    //防止调用异常相机ID，先判断参数是否能读取
+                    StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                    if (streamConfigurationMap == null || streamConfigurationMap.getOutputSizes(ImageFormat.JPEG) == null || streamConfigurationMap.getOutputSizes(SurfaceTexture.class) == null)
+                        continue;
+
+
+                    float[] maxFocus = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+                    //某些机箱存在逻辑摄像头，多摄像头合一，存在多个焦距，取摄像头最大焦距做处理
+                    float mFocus = maxFocus[0];
+                    for (int i = 0; i < maxFocus.length; i++) {
+                        mFocus = maxFocus[i] > mFocus ? maxFocus[i] : mFocus;
+                    }
+                    SizeF size = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
+                    float w = size.getWidth();
+                    float h = size.getHeight();
+
+                    float horizonalAngle = (float) (2 * Math.atan(w / (mFocus * 2)));
+                    float verticalAngle = (float) (2 * Math.atan(h / (mFocus * 2)));
+
+                    float fov = horizonalAngle * verticalAngle;
+                    if (fov > maxFov) {
+                        maxFov = fov;
+                        mCameraId = cameraId;
+                        mCameraCharacteristics = characteristics;
+                    }
+                    Log.d("Camera2", cameraId + "-->:" + fov + " calculateFOV horizonalAngle:" + horizonalAngle + " verticalAngle:" + verticalAngle + " internal:" + internal);
                 }
             }
+            if (TextUtils.isEmpty(mCameraId)) {
+                for (String id : ids) {
+                    CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
+                    Integer level = characteristics.get(
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+                    if (level == null ||
+                            level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                        continue;
+                    }
+                    Integer internal = characteristics.get(CameraCharacteristics.LENS_FACING);
+                    if (internal == null) {
+                        throw new NullPointerException("Unexpected state: LENS_FACING null");
+                    }
+                    if (internal == internalFacing) {
+                        mCameraId = id;
+                        mCameraCharacteristics = characteristics;
+                        return true;
+                    }
+                }
+            } else {
+                return true;
+            }
+
             // Not found
             mCameraId = ids[0];
             mCameraCharacteristics = mCameraManager.getCameraCharacteristics(mCameraId);
