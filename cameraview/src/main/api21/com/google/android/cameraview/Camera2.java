@@ -439,7 +439,7 @@ class Camera2 extends CameraViewImpl {
                     //unlockFocus();
                 }
             }, null);
-        } catch (CameraAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         //触发对焦
@@ -447,7 +447,7 @@ class Camera2 extends CameraViewImpl {
         try {
             //触发对焦通过capture发送请求, 因为用户点击屏幕后只需触发一次对焦
             mCaptureSession.capture(mPreviewRequestBuilder.build(), null, null);
-        } catch (CameraAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
