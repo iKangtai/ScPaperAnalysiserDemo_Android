@@ -269,11 +269,15 @@ public class CameraUtil {
     }
 
     public void startCamera() {
-        cameraView.start();
+        if (cameraView != null) {
+            cameraView.start();
+        }
     }
 
     public void stopCamera() {
-        cameraView.stop();
+        if (cameraView != null) {
+            cameraView.stop();
+        }
     }
 
     public void takePicture() {

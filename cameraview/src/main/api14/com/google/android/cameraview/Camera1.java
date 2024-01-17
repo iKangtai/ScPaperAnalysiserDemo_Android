@@ -415,25 +415,35 @@ class Camera1 extends CameraViewImpl {
     }
 
     private AspectRatio choosePreviewAspectRatio() {
-        AspectRatio r = null;
+        AspectRatio bestRatio = Constants.DEFAULT_ASPECT_RATIO;
+        float diff = Integer.MAX_VALUE;
         for (AspectRatio ratio : mPreviewSizes.ratios()) {
-            r = ratio;
             if (ratio.equals(Constants.DEFAULT_ASPECT_RATIO)) {
                 return ratio;
             }
+            float newDiff = Math.abs(ratio.toFloat() - bestRatio.toFloat());
+            if (newDiff < diff) {  // 确保图片是16：9的
+                diff = newDiff;
+                bestRatio = ratio;
+            }
         }
-        return r;
+        return bestRatio;
     }
 
     private AspectRatio chooseAspectRatio() {
-        AspectRatio r = null;
+        AspectRatio bestRatio = Constants.DEFAULT_ASPECT_RATIO;
+        float diff = Integer.MAX_VALUE;
         for (AspectRatio ratio : mPictureSizes.ratios()) {
-            r = ratio;
             if (ratio.equals(Constants.DEFAULT_ASPECT_RATIO)) {
                 return ratio;
             }
+            float newDiff = Math.abs(ratio.toFloat() - bestRatio.toFloat());
+            if (newDiff < diff) {  // 确保图片是16：9的
+                diff = newDiff;
+                bestRatio = ratio;
+            }
         }
-        return r;
+        return bestRatio;
     }
 
     void adjustCameraParameters() {

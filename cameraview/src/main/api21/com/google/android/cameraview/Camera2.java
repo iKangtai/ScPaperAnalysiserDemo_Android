@@ -406,7 +406,7 @@ class Camera2 extends CameraViewImpl {
     private boolean isFocusing;
 
     void holdFocus(float x, float y) {
-        if (isFocusing) {
+        if (isFocusing || mPreviewRequestBuilder == null) {
             return;
         }
         MeteringRectangle focusRect = getFocusArea(x, y, true);
@@ -697,9 +697,9 @@ class Camera2 extends CameraViewImpl {
                 mPreviewSizes.remove(ratio);
             }
         }
-
-        if (!mPreviewSizes.ratios().contains(mAspectRatio)) {
-            mAspectRatio = mPreviewSizes.ratios().iterator().next();
+        // AspectRatio
+        if (mAspectRatio == null) {
+            mAspectRatio = chooseAspectRatio();
         }
     }
 
@@ -768,6 +768,38 @@ class Camera2 extends CameraViewImpl {
         }
     }
 
+    private AspectRatio choosePreviewAspectRatio() {
+        AspectRatio bestRatio = Constants.DEFAULT_ASPECT_RATIO;
+        float diff = Integer.MAX_VALUE;
+        for (AspectRatio ratio : mPreviewSizes.ratios()) {
+            if (ratio.equals(Constants.DEFAULT_ASPECT_RATIO)) {
+                return ratio;
+            }
+            float newDiff = Math.abs(ratio.toFloat() - bestRatio.toFloat());
+            if (newDiff < diff) {  // 确保图片是16：9的
+                diff = newDiff;
+                bestRatio = ratio;
+            }
+        }
+        return bestRatio;
+    }
+
+    private AspectRatio chooseAspectRatio() {
+        AspectRatio bestRatio = Constants.DEFAULT_ASPECT_RATIO;
+        float diff = Integer.MAX_VALUE;
+        for (AspectRatio ratio : mPictureSizes.ratios()) {
+            if (ratio.equals(Constants.DEFAULT_ASPECT_RATIO)) {
+                return ratio;
+            }
+            float newDiff = Math.abs(ratio.toFloat() - bestRatio.toFloat());
+            if (newDiff < diff) {  // 确保图片是16：9的
+                diff = newDiff;
+                bestRatio = ratio;
+            }
+        }
+        return bestRatio;
+    }
+
     /**
      * Chooses the optimal preview size based on {@link #mPreviewSizes} and the surface size.
      *
@@ -785,7 +817,10 @@ class Camera2 extends CameraViewImpl {
             surfaceShorter = surfaceHeight;
         }
         SortedSet<Size> candidates = mPreviewSizes.sizes(mAspectRatio);
-
+        if (candidates == null) { // Not supported
+            AspectRatio previewAspectRatio = choosePreviewAspectRatio();
+            candidates = mPreviewSizes.sizes(previewAspectRatio);
+        }
         // Pick the smallest of those big enough
         for (Size size : candidates) {
             if (size.getWidth() == DEFAULT_WIDTH_BIG && size.getHeight() == DEFAULT_HEIGHT_BIG) {
@@ -808,6 +843,10 @@ class Camera2 extends CameraViewImpl {
 
     private Size choosePictureOptimalSize() {
         SortedSet<Size> candidates = mPictureSizes.sizes(mAspectRatio);
+        if (candidates == null) { // Not supported
+            AspectRatio pictureAspectRatio = chooseAspectRatio();
+            candidates = mPictureSizes.sizes(pictureAspectRatio);
+        }
         for (Size size : candidates) { // Iterate from small to large
             if (isHoldCameraHigh()) {
                 if (size.getWidth() == DEFAULT_WIDTH_BIG && size.getHeight() == DEFAULT_HEIGHT_BIG) {
