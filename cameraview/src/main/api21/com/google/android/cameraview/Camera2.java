@@ -380,7 +380,7 @@ class Camera2 extends CameraViewImpl {
 
     @Override
     void takePicture() {
-        if (mAutoFocus) {
+        if (mAutoFocus && false) {
             lockFocus();
         } else {
             captureStillPicture();

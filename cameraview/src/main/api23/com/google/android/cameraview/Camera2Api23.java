@@ -38,9 +38,7 @@ class Camera2Api23 extends Camera2 {
                 sizes.add(new Size(size.getWidth(), size.getHeight()));
             }
         }
-        if (sizes.isEmpty()) {
-            super.collectPictureSizes(sizes, map);
-        }
+        super.collectPictureSizes(sizes, map);
     }
 
 }

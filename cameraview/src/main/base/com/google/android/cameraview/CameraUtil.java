@@ -180,6 +180,12 @@ public class CameraUtil {
                     int surfaceViewHeight = 0;
                     surfaceViewWidth = cameraView.getWidth();
                     surfaceViewHeight = cameraView.getHeight();
+                    if (sourceWidth > sourceHeight && surfaceViewWidth < surfaceViewHeight) {
+                        int degree = 90;
+                        source = rotateBitmapByDegree(source, degree);
+                        sourceWidth = source.getWidth();
+                        sourceHeight = source.getHeight();
+                    }
                     if (!holdCameraHigh) {
                         float scaleWidth = ((float) surfaceViewWidth) / sourceWidth;
                         float scaleHeight = ((float) surfaceViewHeight) / sourceHeight;
