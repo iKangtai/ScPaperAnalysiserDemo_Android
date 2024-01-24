@@ -626,7 +626,10 @@ class Camera2 extends CameraViewImpl {
                     Log.d("Camera2", cameraId + "-->:" + fov + " calculateFOV horizonalAngle:" + horizonalAngle + " verticalAngle:" + verticalAngle + " internal:" + internal);
                 }
             }
-            for (String id : ids) {
+            mCameraId = null;
+            mCameraCharacteristics = null;
+            for (int i = 0; i < ids.length; i++) {
+                String id = ids[i];
                 CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
                 Integer level = characteristics.get(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
