@@ -35,6 +35,7 @@ import android.hardware.camera2.params.MeteringRectangle;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SizeF;
@@ -74,6 +75,7 @@ class Camera2 extends CameraViewImpl {
         public void onOpened(@NonNull CameraDevice camera) {
             mCamera = camera;
             Size previewSize = choosePreviewOptimalSize();
+            Log.d(TAG, "previewSize:" + previewSize);
             mPreview.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
             mPreview.getSurfaceHolder().setFixedSize(previewSize.getWidth(), previewSize.getHeight());
             startCaptureSession();
@@ -198,8 +200,10 @@ class Camera2 extends CameraViewImpl {
 
     private String mCameraId;
 
-    private CameraCharacteristics mCameraCharacteristics;
+    private String defaultCameraId;
 
+    private CameraCharacteristics mCameraCharacteristics;
+    private CameraCharacteristics defaultCameraCameraCharacteristics;
     CameraDevice mCamera;
 
     CameraCaptureSession mCaptureSession;
@@ -580,6 +584,7 @@ class Camera2 extends CameraViewImpl {
 
             String[] cameraIdList = cameraManager.getCameraIdList();
 
+            float maxFov = 0;
             for (String cameraId : cameraIdList) {
                 CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
                 Integer level = characteristics.get(
@@ -592,7 +597,6 @@ class Camera2 extends CameraViewImpl {
                 if (internal == null) {
                     throw new NullPointerException("Unexpected state: LENS_FACING null");
                 }
-                float maxFov = 0;
                 if (internal == internalFacing) {
                     //防止调用异常相机ID，先判断参数是否能读取
                     StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
@@ -622,29 +626,33 @@ class Camera2 extends CameraViewImpl {
                     Log.d("Camera2", cameraId + "-->:" + fov + " calculateFOV horizonalAngle:" + horizonalAngle + " verticalAngle:" + verticalAngle + " internal:" + internal);
                 }
             }
+            for (String id : ids) {
+                CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
+                Integer level = characteristics.get(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+                if (level == null ||
+                        level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                    continue;
+                }
+                Integer internal = characteristics.get(CameraCharacteristics.LENS_FACING);
+                if (internal == null) {
+                    throw new NullPointerException("Unexpected state: LENS_FACING null");
+                }
+                if (internal == internalFacing) {
+                    defaultCameraId = id;
+                    defaultCameraCameraCharacteristics = characteristics;
+                    break;
+                }
+            }
             if (TextUtils.isEmpty(mCameraId)) {
-                for (String id : ids) {
-                    CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
-                    Integer level = characteristics.get(
-                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-                    if (level == null ||
-                            level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-                        continue;
-                    }
-                    Integer internal = characteristics.get(CameraCharacteristics.LENS_FACING);
-                    if (internal == null) {
-                        throw new NullPointerException("Unexpected state: LENS_FACING null");
-                    }
-                    if (internal == internalFacing) {
-                        mCameraId = id;
-                        mCameraCharacteristics = characteristics;
-                        return true;
-                    }
+                if (!TextUtils.isEmpty(defaultCameraId)) {
+                    mCameraId = defaultCameraId;
+                    mCameraCharacteristics = defaultCameraCameraCharacteristics;
+                    return true;
                 }
             } else {
                 return true;
             }
-
             // Not found
             mCameraId = ids[0];
             mCameraCharacteristics = mCameraManager.getCameraCharacteristics(mCameraId);
@@ -714,6 +722,7 @@ class Camera2 extends CameraViewImpl {
             mImageReader.close();
         }
         Size largest = choosePictureOptimalSize();
+        Log.d(TAG, "largest:" + largest);
         mImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
                 ImageFormat.JPEG, /* maxImages */ 2);
         mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, null);
@@ -724,6 +733,7 @@ class Camera2 extends CameraViewImpl {
             mPreViewImageReader.close();
         }
         Size previewSize = choosePreviewOptimalSize();
+        Log.d(TAG, "previewSize:" + previewSize);
         mPreViewImageReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
                 ImageFormat.YUV_420_888, /* maxImages */ 5);
         mPreViewImageReader.setOnImageAvailableListener(mOnPreViewImageAvailableListener, null);
@@ -737,7 +747,17 @@ class Camera2 extends CameraViewImpl {
         try {
             mCameraManager.openCamera(mCameraId, mCameraDeviceCallback, null);
         } catch (CameraAccessException e) {
-            throw new RuntimeException("Failed to open camera: " + mCameraId, e);
+            Log.d(TAG, "Failed to open camera: " + mCameraId + e.getMessage());
+            if (!TextUtils.isEmpty(defaultCameraId)) {
+                mCameraId = defaultCameraId;
+                mCameraCharacteristics = defaultCameraCameraCharacteristics;
+            }
+            try {
+                mCameraManager.openCamera(mCameraId, mCameraDeviceCallback, null);
+            } catch (CameraAccessException e1) {
+                Log.d(TAG, "Failed to open camera: " + mCameraId + e1.getMessage());
+                throw new RuntimeException("Failed to open camera: " + mCameraId, e1);
+            }
         }
     }
 
@@ -756,16 +776,23 @@ class Camera2 extends CameraViewImpl {
         if (mPreViewImageReader == null) {
             preparePreViewImageReader();
         }
-        Surface surface = mPreview.getSurface();
-        try {
-            mPreviewRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-            mPreviewRequestBuilder.addTarget(surface);
-            mPreviewRequestBuilder.addTarget(mPreViewImageReader.getSurface());
-            mCamera.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface(), mPreViewImageReader.getSurface()),
-                    mSessionCallback, null);
-        } catch (CameraAccessException e) {
-            throw new RuntimeException("Failed to start camera session");
-        }
+        final Surface surface = mPreview.getSurface();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (mCamera != null) {
+                        mPreviewRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                        mPreviewRequestBuilder.addTarget(surface);
+                        mPreviewRequestBuilder.addTarget(mPreViewImageReader.getSurface());
+                        mCamera.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface(), mPreViewImageReader.getSurface()),
+                                mSessionCallback, null);
+                    }
+                } catch (Exception e) {
+                    Log.d(TAG, "Failed to start camera session");
+                }
+            }
+        }, 500);
     }
 
     private AspectRatio choosePreviewAspectRatio() {
@@ -773,6 +800,7 @@ class Camera2 extends CameraViewImpl {
         float diff = Integer.MAX_VALUE;
         for (AspectRatio ratio : mPreviewSizes.ratios()) {
             if (ratio.equals(Constants.DEFAULT_ASPECT_RATIO)) {
+                Log.d(TAG, "ratio:" + ratio);
                 return ratio;
             }
             float newDiff = Math.abs(ratio.toFloat() - bestRatio.toFloat());
@@ -781,6 +809,7 @@ class Camera2 extends CameraViewImpl {
                 bestRatio = ratio;
             }
         }
+        Log.d(TAG, "bestRatio:" + bestRatio);
         return bestRatio;
     }
 
@@ -789,6 +818,7 @@ class Camera2 extends CameraViewImpl {
         float diff = Integer.MAX_VALUE;
         for (AspectRatio ratio : mPictureSizes.ratios()) {
             if (ratio.equals(Constants.DEFAULT_ASPECT_RATIO)) {
+                Log.d(TAG, "ratio:" + ratio);
                 return ratio;
             }
             float newDiff = Math.abs(ratio.toFloat() - bestRatio.toFloat());
@@ -797,6 +827,7 @@ class Camera2 extends CameraViewImpl {
                 bestRatio = ratio;
             }
         }
+        Log.d(TAG, "bestRatio:" + bestRatio);
         return bestRatio;
     }
 
