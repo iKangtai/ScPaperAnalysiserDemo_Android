@@ -461,15 +461,17 @@ class Camera2 extends CameraViewImpl {
         builder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
         builder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
-        try {
-            mCaptureSession.setRepeatingRequest(builder.build(), null, null);
-        } catch (CameraAccessException | IllegalStateException e) {
-            Log.e(TAG, "send repeating request error:" + e.getMessage());
-        }
-        try {
-            mCaptureSession.capture(builder.build(), null, null);
-        } catch (CameraAccessException | IllegalStateException e) {
-            Log.e(TAG, "send capture request error:" + e.getMessage());
+        if (mCaptureSession != null) {
+            try {
+                mCaptureSession.setRepeatingRequest(builder.build(), null, null);
+            } catch (CameraAccessException | IllegalStateException e) {
+                Log.e(TAG, "send repeating request error:" + e.getMessage());
+            }
+            try {
+                mCaptureSession.capture(builder.build(), null, null);
+            } catch (CameraAccessException | IllegalStateException e) {
+                Log.e(TAG, "send capture request error:" + e.getMessage());
+            }
         }
     }
 
