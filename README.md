@@ -9,7 +9,7 @@ English | [中文文档](README_zh.md)
 ## Access Guide
 ### 一.Integrated SDK
    ```java
-       api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.7.9'
+       api 'com.ikangtai.papersdk:ScPaperAnalysiserLib:1.7.9.1'
    ```
 ### 二.Instructions
   ```java
