@@ -271,6 +271,8 @@
     }
     -keep class org.tensorflow.** {*;}
     -keep class tensorflow.** {*;}
+    -dontwarn  com.ikangtai.zbar.**
+    -keep class com.ikangtai.zbar.** {*;}
   ```
 
 ## SDK隐私协议

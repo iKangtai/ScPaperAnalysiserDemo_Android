@@ -301,6 +301,8 @@ English | [中文文档](README_zh.md)
     }
     -keep class org.tensorflow.** {*;}
     -keep class tensorflow.** {*;}
+    -dontwarn  com.ikangtai.zbar.**
+    -keep class com.ikangtai.zbar.** {*;}
   ```
 ## SDK Privacy Agreement
    a) Purpose/purpose of collecting personal information: optimize and improve test strip algorithm<br/>
