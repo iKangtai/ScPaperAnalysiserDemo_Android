@@ -256,7 +256,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public boolean analysisSuccess(PaperCoordinatesData paperCoordinatesData, Bitmap originSquareBitmap, Bitmap clipPaperBitmap) {
                         if (paperCoordinatesData != null && paperCoordinatesData.getImageL() != null) {
-                            paperImageView.setImageBitmap(TensorFlowTools.getBitmapByMat(paperCoordinatesData.getImageL()));
+                            paperImageView.setImageBitmap(ImageUtil.getBitmapByMat(paperCoordinatesData.getImageL()));
                         } else {
                             paperImageView.setImageBitmap(null);
                         }
@@ -273,7 +273,7 @@ public class HomeFragment extends Fragment {
                 return;
             }
             if (false) {
-                double blur = TensorFlowTools.blurLevel2(fileBitmap);
+                double blur = ImageUtil.blurLevel2(fileBitmap);
                 Result result = QRCodeUtil.decodeImage(fileBitmap);
                 LogUtils.i("试纸条模糊值:" + blur + " " + result != null ? result.getText() : "");
                 return;
@@ -319,7 +319,7 @@ public class HomeFragment extends Fragment {
                     detailTv.setText("time " + (System.currentTimeMillis() - startTime) + "\n" + "Blur Value " + (paperCoordinatesData != null ? paperCoordinatesData.getBlurValue() : 0) + "\n" + "Error " + code + "\n" + "message " + errorResult);
                     paperNoMarginImageView.setImageBitmap(null);
                     if (paperCoordinatesData != null && paperCoordinatesData.getImageL() != null) {
-                        paperImageView.setImageBitmap(TensorFlowTools.getBitmapByMat(paperCoordinatesData.getImageL()));
+                        paperImageView.setImageBitmap(ImageUtil.getBitmapByMat(paperCoordinatesData.getImageL()));
                     } else {
                         paperImageView.setImageBitmap(null);
                     }

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.Image;
@@ -50,7 +49,6 @@ import com.ikangtai.papersdk.util.FileUtil;
 import com.ikangtai.papersdk.util.ImageUtil;
 import com.ikangtai.papersdk.util.LogUtils;
 import com.ikangtai.papersdk.util.PxDxUtil;
-import com.ikangtai.papersdk.util.TensorFlowTools;
 import com.ikangtai.papersdk.util.ToastUtils;
 
 /**
@@ -80,7 +78,7 @@ public class VideoFragment extends Fragment {
         Config.setDebug(BuildConfig.DEBUG);
         //init sdk
         //识别孕橙品牌试纸
-        //Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(),24)).netTimeOutRetryCount(1).showYcPaperResultDialog(false).scanYcBarcode(true).paperType(Config.PAPER_LH).paperBrand(Config.PAPER_BRAND_YC).blurLimitValue(25).minBlurLimitValue(8).build();
+        //Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 24)).netTimeOutRetryCount(1).showYcPaperResultDialog(false).scanYcBarcode(true).paperType(Config.PAPER_LH).paperBrand(Config.PAPER_BRAND_YC).blurLimitValue(25).minBlurLimitValue(8).build();
         //识别其它品牌试纸
         Config config = new Config.Builder().pixelOfdExtended(true).paperMinHeight(PxDxUtil.dip2px(getContext(), 24)).analysisTime(60).netTimeOutRetryCount(1).blurLimitValue(16).minBlurLimitValue(8).showYcPaperResultDialog(true).scanYcBarcode(true).paperType(Config.PAPER_LH).paperBrand(Config.PAPER_BRAND_OTHER).red(1).build();
         paperAnalysiserClient = new PaperAnalysiserClient(getContext(), AppConstant.appId, AppConstant.appSecret, "xyl1@qq.com", config, new InitCallback() {
@@ -378,6 +376,7 @@ public class VideoFragment extends Fragment {
     }
 
     private Bitmap highOriginSquareBitmap;
+    private byte[] highData;
     /**
      * Real-time preview callback
      */
@@ -412,19 +411,21 @@ public class VideoFragment extends Fragment {
             Bitmap originSquareBitmap;
             if (cameraView.getBitmap() != null) {
                 originSquareBitmap = ImageUtil.cropBitmap(cameraView.getBitmap(), cameraUtil != null ? cameraUtil.getLightFix() : 0);
+                if (originSquareBitmap != null && scaleValue != 1) {
+                    highOriginSquareBitmap = originSquareBitmap;
+                    originSquareBitmap = ImageUtil.bitMapScale(originSquareBitmap, scaleValue);
+                } else {
+                    highOriginSquareBitmap = null;
+                }
             } else {
-                originSquareBitmap = TensorFlowTools.convertFrameToBitmap(data, cameraView.getPreviewWidth(), cameraView.getPreviewHeight(), CameraUtil.getDegree(getActivity()), cameraUtil != null ? (int) (cameraUtil.getLightFix() / scaleValue) : 0);
+                originSquareBitmap = ImageUtil.convertFrameToBitmap(data, new ImageUtil.ImageCutConfig(cameraView.getPreviewWidth(), cameraView.getPreviewHeight(), CameraUtil.getDegree(getActivity()), cameraUtil != null ? (int) (cameraUtil.getLightFix() / scaleValue) : 0, scaleValue));
+                if (originSquareBitmap != null && scaleValue != 1) {
+                    highData = data;
+                } else {
+                    highData = null;
+                }
             }
-            if (originSquareBitmap != null && scaleValue != 1) {
-                int sourceWidth = originSquareBitmap.getWidth();
-                int sourceHeight = originSquareBitmap.getHeight();
-                Matrix matrix = new Matrix();
-                matrix.postScale(scaleValue, scaleValue);
-                highOriginSquareBitmap = originSquareBitmap;
-                originSquareBitmap = Bitmap.createBitmap(highOriginSquareBitmap, 0, 0, sourceWidth, sourceHeight, matrix, true);
-            } else {
-                highOriginSquareBitmap = null;
-            }
+
             if (scanMode == SCANBARCODE) {
                 final ManualSmartPaperMeasureLayout.Data manualSmartPaperMeasuereData =
                         smartPaperMeasureContainerLayout.getManualSmartPaperMeasuereData();
@@ -516,6 +517,7 @@ public class VideoFragment extends Fragment {
                 return false;
             }
             LogUtils.d("Test strips are automatically cut out successfully");
+            LogUtils.d("Success消耗: " + (System.currentTimeMillis() - startTime));
             if (isCardMode) {
                 if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
                     smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure(paperCoordinatesData, originSquareBitmap);
@@ -528,6 +530,18 @@ public class VideoFragment extends Fragment {
             if (!isCardMode && highOriginSquareBitmap != null) {
                 scanMode = AUTOSMART_MANUALSMART;
                 paperAnalysiserClient.analysisBitmapResultCamera(highOriginSquareBitmap, iCameraAnalysisEvent);
+                highOriginSquareBitmap = null;
+                return true;
+            } else if (!isCardMode && highData != null) {
+                scanMode = AUTOSMART_MANUALSMART;
+                float scaleValue = 1;
+                if (cameraView.getWidth() != cameraView.getPreviewHeight()) {
+                    int sourceWidth = cameraView.getPreviewHeight();
+                    scaleValue = ((float) cameraView.getWidth()) / sourceWidth;
+                }
+                Bitmap bitmap = ImageUtil.convertFrameToBitmap(highData, new ImageUtil.ImageCutConfig(cameraView.getPreviewWidth(), cameraView.getPreviewHeight(), CameraUtil.getDegree(getActivity()), cameraUtil != null ? (int) (cameraUtil.getLightFix() / scaleValue) : 0));
+                paperAnalysiserClient.analysisBitmapResultCamera(bitmap, iCameraAnalysisEvent);
+                highData = null;
                 return true;
             } else {
                 try {
@@ -552,8 +566,7 @@ public class VideoFragment extends Fragment {
                 return;
             }
             LogUtils.d("Automatic drawing line on test paper");
-            LogUtils.d("Time " + (System.currentTimeMillis() - startTime));
-            LogUtils.d("耗时: " + (System.currentTimeMillis() - startTime));
+            LogUtils.d("总消耗: " + (System.currentTimeMillis() - startTime));
             if (isCardMode) {
                 if (paperAnalysiserClient.getConfig().getPaperBrand() == Config.PAPER_BRAND_YC_CARD) {
                     smartPaperMeasureContainerLayout.showShecareCardAutoSmartPaperMeasure(paperCoordinatesData, null);
